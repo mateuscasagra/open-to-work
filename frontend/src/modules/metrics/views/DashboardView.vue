@@ -58,10 +58,16 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
 </script>
 
 <template>
-  <div>
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('nav.dashboard') }}</h1>
-      <p class="mt-1 text-ink-500">{{ t('app.tagline') }}</p>
+  <div class="lg:flex lg:h-full lg:flex-col">
+    <header class="mb-4 flex items-center justify-between lg:mb-3">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('nav.dashboard') }}</h1>
+        <p class="mt-0.5 text-sm text-ink-500 lg:text-xs">{{ t('app.tagline') }}</p>
+      </div>
+      <p v-if="data && data.avgDaysBetweenStages !== null" class="hidden text-xs text-ink-500 lg:block">
+        Tempo médio até resposta:
+        <span class="font-semibold text-ink-900">{{ data.avgDaysBetweenStages }}d</span>
+      </p>
     </header>
 
     <div
@@ -80,104 +86,102 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
       {{ error }}
     </div>
 
-    <div v-else-if="data" class="space-y-8">
+    <div v-else-if="data" class="flex flex-col gap-4 lg:min-h-0 lg:flex-1 lg:gap-3">
       <!-- KPIs -->
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-4" data-testid="metrics-kpis">
-        <div class="card p-5">
+      <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-2" data-testid="metrics-kpis">
+        <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-ink-500">Candidaturas</p>
-            <span class="chip-brand">total</span>
+            <p class="text-xs font-medium text-ink-500">Candidaturas</p>
+            <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">total</span>
           </div>
-          <p class="mt-3 text-3xl font-bold tracking-tight text-ink-900">
+          <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
             {{ data.kpis.total_applications }}
           </p>
         </div>
-        <div class="card p-5">
+        <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-ink-500">Taxa de resposta</p>
-            <span class="chip-brand">%</span>
+            <p class="text-xs font-medium text-ink-500">Taxa de resposta</p>
+            <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">%</span>
           </div>
-          <p class="mt-3 text-3xl font-bold tracking-tight text-ink-900">
+          <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
             {{ percent(data.kpis.response_rate) }}
           </p>
-          <p class="mt-1 text-xs text-ink-500">{{ data.kpis.total_responses }} respostas</p>
+          <p class="text-[10px] text-ink-500 lg:mt-0">{{ data.kpis.total_responses }} respostas</p>
         </div>
-        <div class="card p-5">
+        <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-ink-500">Entrevistas</p>
-            <span class="chip-brand">fase</span>
+            <p class="text-xs font-medium text-ink-500">Entrevistas</p>
+            <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">fase</span>
           </div>
-          <p class="mt-3 text-3xl font-bold tracking-tight text-ink-900">
+          <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
             {{ data.kpis.total_interviews }}
           </p>
-          <p class="mt-1 text-xs text-ink-500">
+          <p class="text-[10px] text-ink-500 lg:mt-0">
             {{ percent(data.kpis.interview_rate) }} das candidaturas
           </p>
         </div>
-        <div class="card p-5">
+        <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-ink-500">Propostas</p>
-            <span class="chip-brand">fase</span>
+            <p class="text-xs font-medium text-ink-500">Propostas</p>
+            <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">fase</span>
           </div>
-          <p class="mt-3 text-3xl font-bold tracking-tight text-ink-900">
+          <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
             {{ data.kpis.total_offers }}
           </p>
-          <p class="mt-1 text-xs text-ink-500">
+          <p class="text-[10px] text-ink-500 lg:mt-0">
             {{ percent(data.kpis.offer_rate) }} das candidaturas
           </p>
         </div>
       </div>
 
-      <!-- Insights -->
+      <!-- Insights (inline) -->
       <section v-if="data.insights.length > 0" data-testid="metrics-insights">
-        <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-500">Insights</h2>
-        <ul class="grid gap-3 md:grid-cols-2">
+        <ul class="grid gap-2 lg:grid-cols-2">
           <li
             v-for="insight in data.insights"
             :key="insight.key"
-            class="flex items-start gap-3 rounded-xl border p-4 text-sm"
+            class="flex items-center gap-2 rounded-lg border px-3 py-2 text-xs"
             :class="severityClass(insight.severity)"
           >
-            <span class="text-lg leading-none">{{ severityIcon(insight.severity) }}</span>
-            <span class="leading-relaxed">{{ insight.message }}</span>
+            <span class="text-sm leading-none">{{ severityIcon(insight.severity) }}</span>
+            <span class="leading-snug">{{ insight.message }}</span>
           </li>
         </ul>
       </section>
 
-      <div class="grid gap-6 lg:grid-cols-2">
-        <!-- Funnel -->
-        <section v-if="data.funnel.length > 0" class="card p-6" data-testid="metrics-funnel">
-          <h2 class="mb-4 text-xs font-semibold uppercase tracking-wider text-ink-500">
+      <!-- Middle row: Funnel + Channels -->
+      <div class="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-2">
+        <section v-if="data.funnel.length > 0" class="card p-4 lg:flex lg:flex-col lg:p-3" data-testid="metrics-funnel">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
             Funil de etapas
           </h2>
-          <div class="space-y-3">
-            <div v-for="stage in data.funnel" :key="stage.status" class="flex items-center gap-3">
-              <span class="w-32 shrink-0 text-sm text-ink-700">{{ stage.label }}</span>
-              <div class="h-6 flex-1 overflow-hidden rounded-lg bg-ink-100">
+          <div class="space-y-1.5 lg:flex-1">
+            <div v-for="stage in data.funnel" :key="stage.status" class="flex items-center gap-2">
+              <span class="w-24 shrink-0 truncate text-xs text-ink-700">{{ stage.label }}</span>
+              <div class="h-4 flex-1 overflow-hidden rounded bg-ink-100">
                 <div
-                  class="h-full rounded-lg bg-gradient-to-r from-brand-500 to-brand-600"
+                  class="h-full rounded bg-gradient-to-r from-brand-500 to-brand-600"
                   :style="{ width: `${(stage.reached / funnelMax) * 100}%` }"
                 />
               </div>
-              <span class="w-10 text-right text-sm font-semibold text-ink-900">
+              <span class="w-7 text-right text-xs font-semibold text-ink-900">
                 {{ stage.reached }}
               </span>
             </div>
           </div>
         </section>
 
-        <!-- Channels -->
-        <section v-if="data.channels.length > 0" class="card p-6" data-testid="metrics-channels">
-          <h2 class="mb-4 text-xs font-semibold uppercase tracking-wider text-ink-500">
+        <section v-if="data.channels.length > 0" class="card p-4 lg:flex lg:flex-col lg:p-3" data-testid="metrics-channels">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
             Canais mais efetivos
           </h2>
-          <table class="w-full text-sm">
+          <table class="w-full text-xs lg:flex-1">
             <thead>
               <tr class="border-b border-ink-200 text-left text-ink-500">
-                <th class="pb-2 font-medium">Fonte</th>
-                <th class="pb-2 text-right font-medium">Cand.</th>
-                <th class="pb-2 text-right font-medium">Resp.</th>
-                <th class="pb-2 text-right font-medium">Taxa</th>
+                <th class="pb-1.5 font-medium">Fonte</th>
+                <th class="pb-1.5 text-right font-medium">Cand.</th>
+                <th class="pb-1.5 text-right font-medium">Resp.</th>
+                <th class="pb-1.5 text-right font-medium">Taxa</th>
               </tr>
             </thead>
             <tbody>
@@ -186,10 +190,10 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
                 :key="channel.source"
                 class="border-b border-ink-100 last:border-0"
               >
-                <td class="py-2.5 font-medium text-ink-900">{{ channel.source }}</td>
-                <td class="py-2.5 text-right text-ink-700">{{ channel.applications }}</td>
-                <td class="py-2.5 text-right text-ink-700">{{ channel.responses }}</td>
-                <td class="py-2.5 text-right font-semibold text-brand-700">
+                <td class="py-1.5 font-medium text-ink-900">{{ channel.source }}</td>
+                <td class="py-1.5 text-right text-ink-700">{{ channel.applications }}</td>
+                <td class="py-1.5 text-right text-ink-700">{{ channel.responses }}</td>
+                <td class="py-1.5 text-right font-semibold text-brand-700">
                   {{ percent(channel.response_rate) }}
                 </td>
               </tr>
@@ -199,25 +203,25 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
       </div>
 
       <!-- Heatmap -->
-      <section class="card p-6" data-testid="metrics-heatmap">
-        <h2 class="mb-4 text-xs font-semibold uppercase tracking-wider text-ink-500">
+      <section class="card p-4 lg:p-3" data-testid="metrics-heatmap">
+        <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
           Dias & horários que você mais aplica
         </h2>
         <div class="overflow-x-auto">
-          <table class="border-collapse text-xs">
+          <table class="border-collapse text-[10px]">
             <thead>
               <tr>
-                <th class="p-1"></th>
-                <th v-for="h in 24" :key="h" class="p-1 font-normal text-ink-400">{{ h - 1 }}</th>
+                <th class="p-0.5"></th>
+                <th v-for="h in 24" :key="h" class="p-0.5 font-normal text-ink-400">{{ h - 1 }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(row, wd) in heatmapGrid" :key="wd">
-                <th class="pr-2 text-left font-medium text-ink-500">{{ weekdayLabels[wd] }}</th>
+                <th class="pr-1.5 text-left font-medium text-ink-500">{{ weekdayLabels[wd] }}</th>
                 <td
                   v-for="(count, hour) in row"
                   :key="hour"
-                  class="h-5 w-5 rounded-sm border border-white"
+                  class="h-4 w-4 rounded-sm border border-white"
                   :style="{ backgroundColor: heatmapColor(count) }"
                   :title="`${weekdayLabels[wd]} ${hour}h: ${count} candidatura(s)`"
                 />
@@ -226,11 +230,6 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
           </table>
         </div>
       </section>
-
-      <p v-if="data.avgDaysBetweenStages !== null" class="text-sm text-ink-500">
-        Tempo médio entre candidatura e primeira resposta:
-        <span class="font-semibold text-ink-900">{{ data.avgDaysBetweenStages }} dias</span>
-      </p>
     </div>
   </div>
 </template>

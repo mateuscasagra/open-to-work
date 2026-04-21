@@ -16,9 +16,72 @@ export function bool(content: Record<string, unknown>, key: string): boolean {
   return content[key] === true;
 }
 
+const CURRENT_LABELS: Record<string, string> = {
+  pt: 'Atual',
+  en: 'Present',
+  es: 'Actual',
+};
+
 export function dateRange(content: Record<string, unknown>): string {
   const start = str(content, 'startDate');
-  const end = bool(content, 'current') ? '—' : str(content, 'endDate');
+  const lang = navigator.language.slice(0, 2);
+  const end = bool(content, 'current')
+    ? (CURRENT_LABELS[lang] ?? CURRENT_LABELS.en)
+    : str(content, 'endDate');
   if (!start && !end) return '';
   return [start, end].filter(Boolean).join(' → ');
+}
+
+const LEVEL_LABELS: Record<string, Record<string, string>> = {
+  pt: {
+    beginner: 'Iniciante', intermediate: 'Intermediário', advanced: 'Avançado', expert: 'Especialista',
+    basic: 'Básico', conversational: 'Conversação', fluent: 'Fluente', native: 'Nativo',
+  },
+  en: {
+    beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced', expert: 'Expert',
+    basic: 'Basic', conversational: 'Conversational', fluent: 'Fluent', native: 'Native',
+  },
+  es: {
+    beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzado', expert: 'Experto',
+    basic: 'Básico', conversational: 'Conversacional', fluent: 'Fluido', native: 'Nativo',
+  },
+};
+
+export function levelLabel(level: string): string {
+  const lang = navigator.language.slice(0, 2);
+  const labels = LEVEL_LABELS[lang] ?? LEVEL_LABELS.en;
+  return labels[level] ?? level;
+}
+
+const SECTION_LABELS: Record<string, Record<ResumeSectionType, string>> = {
+  pt: {
+    summary: 'Resumo',
+    experience: 'Experiência',
+    education: 'Formação',
+    skill: 'Habilidades',
+    language: 'Idiomas',
+    project: 'Projetos',
+  },
+  en: {
+    summary: 'Summary',
+    experience: 'Experience',
+    education: 'Education',
+    skill: 'Skills',
+    language: 'Languages',
+    project: 'Projects',
+  },
+  es: {
+    summary: 'Resumen',
+    experience: 'Experiencia',
+    education: 'Formación',
+    skill: 'Habilidades',
+    language: 'Idiomas',
+    project: 'Proyectos',
+  },
+};
+
+export function sectionLabel(type: ResumeSectionType): string {
+  const lang = navigator.language.slice(0, 2);
+  const labels = SECTION_LABELS[lang] ?? SECTION_LABELS.en;
+  return labels[type];
 }

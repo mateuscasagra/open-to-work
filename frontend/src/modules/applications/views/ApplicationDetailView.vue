@@ -128,20 +128,22 @@ function goBack(): void {
 </script>
 
 <template>
-  <div class="mx-auto max-w-3xl space-y-6">
-    <button
-      type="button"
-      class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900"
-      @click="goBack"
-    >
-      <span aria-hidden="true">←</span> {{ t('applications.back') }}
-    </button>
+  <div class="mx-auto max-w-3xl lg:flex lg:h-full lg:flex-col">
+    <div class="mb-3 flex items-center gap-3 lg:mb-2">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900"
+        @click="goBack"
+      >
+        <span aria-hidden="true">←</span> {{ t('applications.back') }}
+      </button>
+    </div>
 
     <p v-if="detail.isLoading.value" class="text-ink-500">{{ t('jobs.loading') }}</p>
     <p v-else-if="detail.error.value" class="text-red-600">{{ t('applications.load_failed') }}</p>
 
-    <template v-else-if="detail.data.value">
-      <header class="card p-6">
+    <div v-else-if="detail.data.value" class="space-y-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+      <header class="card p-4">
         <h1 class="text-2xl font-bold tracking-tight text-ink-900">
           {{ detail.data.value.job?.title ?? '—' }}
         </h1>
@@ -328,6 +330,6 @@ function goBack(): void {
           </li>
         </ol>
       </section>
-    </template>
+    </div>
   </div>
 </template>

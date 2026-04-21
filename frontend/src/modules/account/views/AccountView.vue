@@ -34,10 +34,10 @@ async function onDelete() {
 </script>
 
 <template>
-  <div class="max-w-2xl">
-    <header class="mb-6">
-      <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('account.title') }}</h1>
-      <p class="mt-1 text-ink-500">{{ t('account.subtitle') }}</p>
+  <div class="max-w-2xl lg:flex lg:h-full lg:flex-col">
+    <header class="mb-4 lg:mb-3">
+      <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('account.title') }}</h1>
+      <p class="mt-0.5 text-xs text-ink-500">{{ t('account.subtitle') }}</p>
     </header>
 
     <div

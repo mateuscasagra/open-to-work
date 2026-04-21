@@ -68,11 +68,11 @@ async function onDownload(id: number): Promise<void> {
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl">
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div class="mx-auto max-w-4xl lg:flex lg:h-full lg:flex-col">
+    <header class="mb-4 flex flex-wrap items-center justify-between gap-3 lg:mb-3">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('resumes.title') }}</h1>
-        <p class="mt-1 text-sm text-ink-500">{{ t('resumes.subtitle') }}</p>
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('resumes.title') }}</h1>
+        <p class="mt-0.5 text-xs text-ink-500">{{ t('resumes.subtitle') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <input
@@ -120,11 +120,11 @@ async function onDownload(id: number): Promise<void> {
       <button type="button" class="btn-primary" @click="goNew">+ {{ t('resumes.new') }}</button>
     </div>
 
-    <ul v-else-if="resumes.data.value" class="space-y-3">
+    <ul v-else-if="resumes.data.value" class="space-y-2 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
       <li
         v-for="resume in resumes.data.value.data"
         :key="resume.id"
-        class="card flex items-center justify-between px-5 py-4 transition hover:border-brand-200 hover:shadow-card"
+        class="card flex items-center justify-between px-4 py-3 transition hover:border-brand-200 hover:shadow-card"
       >
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">

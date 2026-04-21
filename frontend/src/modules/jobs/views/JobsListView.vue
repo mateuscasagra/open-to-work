@@ -66,11 +66,11 @@ function applyLabel(jobId: number): string {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <header class="flex flex-wrap items-center justify-between gap-3">
+  <div class="lg:flex lg:h-full lg:flex-col lg:gap-3">
+    <header class="flex flex-wrap items-center justify-between gap-3 mb-4 lg:mb-0">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('nav.jobs') }}</h1>
-        <p class="mt-1 text-sm text-ink-500">
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('nav.jobs') }}</h1>
+        <p class="mt-0.5 text-xs text-ink-500">
           {{ data?.data.length ?? 0 }}
           {{ (data?.data.length ?? 0) === 1 ? 'vaga encontrada' : 'vagas encontradas' }}
         </p>
@@ -91,7 +91,7 @@ function applyLabel(jobId: number): string {
     <!-- Resume selector -->
     <section
       v-if="resumes.data.value && resumes.data.value.data.length > 0"
-      class="card flex flex-wrap items-center gap-3 p-4"
+      class="card flex flex-wrap items-center gap-3 p-3 mt-4 lg:mt-0"
     >
       <label class="text-sm font-medium text-ink-700">{{ t('jobs.use_resume') }}</label>
       <select v-model="selectedResumeId" class="input max-w-xs">
@@ -107,7 +107,7 @@ function applyLabel(jobId: number): string {
     </section>
 
     <!-- Filters -->
-    <section class="card space-y-4 p-5">
+    <section class="card space-y-3 p-4 mt-4 lg:mt-0">
       <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
         <div class="md:col-span-2">
           <div class="relative">
@@ -179,21 +179,21 @@ function applyLabel(jobId: number): string {
       </div>
     </section>
 
-    <p v-if="isLoading" class="text-ink-500">{{ t('jobs.loading') }}</p>
-    <p v-else-if="error" class="text-red-600">{{ t('jobs.error') }}</p>
+    <p v-if="isLoading" class="text-ink-500 mt-4 lg:mt-0">{{ t('jobs.loading') }}</p>
+    <p v-else-if="error" class="text-red-600 mt-4 lg:mt-0">{{ t('jobs.error') }}</p>
 
     <div
       v-else-if="data && data.data.length === 0"
-      class="card p-10 text-center text-ink-500"
+      class="card p-10 text-center text-ink-500 mt-4 lg:mt-0"
     >
       {{ state.matchOnly ? t('jobs.no_matches') : t('jobs.no_results') }}
     </div>
 
-    <ul v-else class="space-y-3">
+    <ul v-else class="space-y-2 mt-4 lg:mt-0 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
       <li
         v-for="job in data?.data"
         :key="job.id"
-        class="card flex gap-4 p-5 transition hover:border-brand-200 hover:shadow-card"
+        class="card flex gap-3 p-4 transition hover:border-brand-200 hover:shadow-card"
       >
         <div
           class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-ink-100 text-sm font-semibold text-ink-500"

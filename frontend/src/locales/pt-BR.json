@@ -119,7 +119,8 @@
     "languages": "Idiomas",
     "bio": "Bio",
     "skills": "Stack / Skills",
-    "skills_placeholder": "Digite para buscar (ex.: Laravel, Vue)",
+    "skills_placeholder": "Digite e pressione Enter (ex.: Laravel, Vue)",
+    "skills_max": "Máximo de habilidades atingido",
     "save": "Salvar",
     "saved": "Perfil salvo!",
     "saveFailed": "Erro ao salvar perfil"
@@ -237,7 +238,13 @@
       "remove_section": "Remover seção",
       "move_up": "Mover para cima",
       "move_down": "Mover para baixo",
-      "no_sections": "Nenhuma seção ainda. Adicione uma acima."
+      "no_sections": "Nenhuma seção ainda. Adicione uma acima.",
+      "no_sections_hint": "Clique nas seções ao lado para começar",
+      "choose_template": "Escolha um modelo",
+      "template_default": "Modelo Padrão",
+      "template_default_desc": "Estrutura otimizada com resumo, experiências, formação, habilidades e idiomas — o formato que mais gera retorno.",
+      "template_blank": "Modelo em Branco",
+      "template_blank_desc": "Comece do zero e monte a estrutura como preferir."
     },
     "sections": {
       "summary": "Resumo",
@@ -246,6 +253,16 @@
       "skill": "Habilidade",
       "language": "Idioma",
       "project": "Projeto"
+    },
+    "levels": {
+      "beginner": "Iniciante",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado",
+      "expert": "Especialista",
+      "basic": "Básico",
+      "conversational": "Conversação",
+      "fluent": "Fluente",
+      "native": "Nativo"
     },
     "fields": {
       "text": "Texto",

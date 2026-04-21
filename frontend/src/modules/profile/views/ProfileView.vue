@@ -4,6 +4,9 @@ import { useI18n } from 'vue-i18n';
 import { useProfile, searchSkills } from '../composables/useProfile';
 import type { Skill, Seniority, Modality, Locale } from '@/shared/api/schemas';
 
+const MAX_SKILLS = 8;
+const HIGHLIGHT_INDEX_NONE = -1;
+
 const { t } = useI18n();
 const { profile, loading, fetch, save } = useProfile();
 
@@ -21,6 +24,8 @@ const form = ref({
 const selectedSkills = ref<Skill[]>([]);
 const skillQuery = ref('');
 const skillSuggestions = ref<Skill[]>([]);
+const highlightIdx = ref(HIGHLIGHT_INDEX_NONE);
+const skillDropdownOpen = ref(false);
 const fieldErrors = ref<Record<string, string[]>>({});
 const savedFlash = ref(false);
 const saveError = ref<string | null>(null);
@@ -48,23 +53,52 @@ onMounted(async () => {
 });
 
 let skillTimeout: ReturnType<typeof setTimeout> | null = null;
+
 watch(skillQuery, (q) => {
   if (skillTimeout) clearTimeout(skillTimeout);
-  if (!q.trim()) {
+  highlightIdx.value = HIGHLIGHT_INDEX_NONE;
+  if (!q.trim() || selectedSkills.value.length >= MAX_SKILLS) {
     skillSuggestions.value = [];
+    skillDropdownOpen.value = false;
     return;
   }
   skillTimeout = setTimeout(async () => {
-    skillSuggestions.value = await searchSkills(q);
+    const results = await searchSkills(q);
+    skillSuggestions.value = results.filter(
+      (r) => !selectedSkills.value.some((s) => s.id === r.id),
+    );
+    skillDropdownOpen.value = skillSuggestions.value.length > 0;
   }, 200);
 });
 
 function addSkill(skill: Skill): void {
+  if (selectedSkills.value.length >= MAX_SKILLS) return;
   if (!selectedSkills.value.some((s) => s.id === skill.id)) {
     selectedSkills.value.push(skill);
   }
   skillQuery.value = '';
   skillSuggestions.value = [];
+  skillDropdownOpen.value = false;
+  highlightIdx.value = HIGHLIGHT_INDEX_NONE;
+}
+
+function onSkillKeydown(e: KeyboardEvent): void {
+  if (!skillDropdownOpen.value) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    highlightIdx.value = Math.min(highlightIdx.value + 1, skillSuggestions.value.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    highlightIdx.value = Math.max(highlightIdx.value - 1, 0);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    const idx = highlightIdx.value >= 0 ? highlightIdx.value : 0;
+    if (skillSuggestions.value[idx]) addSkill(skillSuggestions.value[idx]);
+  }
+}
+
+function onSkillBlur(): void {
+  window.setTimeout(() => { skillDropdownOpen.value = false; }, 150);
 }
 
 function removeSkill(id: number): void {
@@ -110,13 +144,13 @@ async function onSubmit(): Promise<void> {
 </script>
 
 <template>
-  <div class="max-w-3xl">
-    <header class="mb-6">
-      <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('profile.title') }}</h1>
-      <p class="mt-1 text-ink-500">{{ t('profile.subtitle') }}</p>
+  <div class="lg:flex lg:h-full lg:flex-col">
+    <header class="mb-4 lg:mb-3">
+      <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('profile.title') }}</h1>
+      <p class="mt-0.5 text-xs text-ink-500">{{ t('profile.subtitle') }}</p>
     </header>
 
-    <form class="card space-y-6 p-6" @submit.prevent="onSubmit">
+    <form class="card space-y-4 p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:space-y-3 lg:p-4" @submit.prevent="onSubmit">
       <label class="block">
         <span class="label">{{ t('profile.desired_role') }}</span>
         <input
@@ -148,7 +182,7 @@ async function onSubmit(): Promise<void> {
         </label>
       </div>
 
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label class="block">
           <span class="label">{{ t('profile.salary_min') }}</span>
           <input v-model.number="form.salary_min" type="number" min="0" class="input mt-1.5" />
@@ -162,15 +196,6 @@ async function onSubmit(): Promise<void> {
           <span v-if="fieldErrors.salary_max" class="mt-1 block text-xs text-red-600">
             {{ fieldErrors.salary_max[0] }}
           </span>
-        </label>
-        <label class="block">
-          <span class="label">{{ t('profile.salary_currency') }}</span>
-          <input
-            v-model="form.salary_currency"
-            type="text"
-            maxlength="3"
-            class="input mt-1.5 uppercase"
-          />
         </label>
       </div>
 
@@ -201,7 +226,7 @@ async function onSubmit(): Promise<void> {
 
       <div>
         <span class="label">{{ t('profile.skills') }}</span>
-        <div class="mt-2 flex flex-wrap gap-2">
+        <div v-if="selectedSkills.length" class="mt-2 flex flex-wrap gap-2">
           <span
             v-for="s in selectedSkills"
             :key="s.id"
@@ -221,23 +246,30 @@ async function onSubmit(): Promise<void> {
           <input
             v-model="skillQuery"
             type="text"
-            :placeholder="t('profile.skills_placeholder')"
+            autocomplete="off"
+            :placeholder="selectedSkills.length >= MAX_SKILLS ? t('profile.skills_max') : t('profile.skills_placeholder')"
+            :disabled="selectedSkills.length >= MAX_SKILLS"
             class="input"
+            @keydown="onSkillKeydown"
+            @blur="onSkillBlur"
           />
           <ul
-            v-if="skillSuggestions.length"
-            class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-ink-200 bg-white shadow-card"
+            v-if="skillDropdownOpen"
+            class="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-auto rounded-lg border border-ink-200 bg-white shadow-card"
           >
             <li
-              v-for="s in skillSuggestions"
+              v-for="(s, i) in skillSuggestions"
               :key="s.id"
-              class="cursor-pointer px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700"
-              @click="addSkill(s)"
+              class="cursor-pointer px-3 py-2 text-sm transition"
+              :class="i === highlightIdx ? 'bg-brand-50 text-brand-700' : 'text-ink-800 hover:bg-ink-50'"
+              @mousedown.prevent="addSkill(s)"
             >
               {{ s.name }}
+              <span v-if="s.category" class="ml-1 text-[10px] text-ink-400">{{ s.category }}</span>
             </li>
           </ul>
         </div>
+        <p class="mt-1 text-[10px] text-ink-400">{{ selectedSkills.length }}/{{ MAX_SKILLS }}</p>
       </div>
 
       <label class="block">

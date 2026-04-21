@@ -119,7 +119,8 @@
     "languages": "Languages",
     "bio": "Bio",
     "skills": "Stack / Skills",
-    "skills_placeholder": "Type to search (e.g., Laravel, Vue)",
+    "skills_placeholder": "Type and press Enter (e.g., Laravel, Vue)",
+    "skills_max": "Maximum skills reached",
     "save": "Save",
     "saved": "Profile saved!",
     "saveFailed": "Failed to save profile"
@@ -237,7 +238,13 @@
       "remove_section": "Remove section",
       "move_up": "Move up",
       "move_down": "Move down",
-      "no_sections": "No sections yet. Add one above."
+      "no_sections": "No sections yet. Add one above.",
+      "no_sections_hint": "Click on the sections on the side to start",
+      "choose_template": "Choose a template",
+      "template_default": "Standard Template",
+      "template_default_desc": "Optimized structure with summary, experience, education, skills and languages — the format that gets the most callbacks.",
+      "template_blank": "Blank Template",
+      "template_blank_desc": "Start from scratch and build the structure as you like."
     },
     "sections": {
       "summary": "Summary",
@@ -246,6 +253,16 @@
       "skill": "Skill",
       "language": "Language",
       "project": "Project"
+    },
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "expert": "Expert",
+      "basic": "Basic",
+      "conversational": "Conversational",
+      "fluent": "Fluent",
+      "native": "Native"
     },
     "fields": {
       "text": "Text",

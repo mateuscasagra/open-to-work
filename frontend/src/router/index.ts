@@ -75,11 +75,6 @@ const routes: RouteRecordRaw[] = [
         name: 'profile',
         component: () => import('@/modules/profile/views/ProfileView.vue'),
       },
-      {
-        path: 'account',
-        name: 'account',
-        component: () => import('@/modules/account/views/AccountView.vue'),
-      },
     ],
   },
 ];

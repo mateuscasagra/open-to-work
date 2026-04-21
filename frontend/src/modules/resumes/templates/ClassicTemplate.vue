@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Resume } from '@/shared/api/schemas';
-import { dateRange, sectionsByType, str } from './helpers';
+import { dateRange, sectionsByType, str, sectionLabel, levelLabel } from './helpers';
 
 defineProps<{ resume: Resume; userName?: string }>();
 </script>
@@ -8,7 +8,7 @@ defineProps<{ resume: Resume; userName?: string }>();
 <template>
   <article
     class="pdf-page bg-white text-slate-900"
-    style="width: 794px; min-height: 1123px; padding: 64px 72px; font-family: 'Georgia', 'Times New Roman', serif;"
+    style="width: 794px; min-height: 1123px; padding: 64px 72px; font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;"
   >
     <header class="border-b border-slate-300 pb-4 mb-6">
       <h1 class="text-3xl font-bold tracking-tight">{{ userName ?? resume.title }}</h1>
@@ -22,7 +22,7 @@ defineProps<{ resume: Resume; userName?: string }>();
     </section>
 
     <section v-if="sectionsByType(resume.sections, 'experience').length" class="mb-5">
-      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">Experience</h2>
+      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">{{ sectionLabel('experience') }}</h2>
       <div
         v-for="exp in sectionsByType(resume.sections, 'experience')"
         :key="`exp-${exp.order}`"
@@ -44,7 +44,7 @@ defineProps<{ resume: Resume; userName?: string }>();
     </section>
 
     <section v-if="sectionsByType(resume.sections, 'education').length" class="mb-5">
-      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">Education</h2>
+      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">{{ sectionLabel('education') }}</h2>
       <div
         v-for="edu in sectionsByType(resume.sections, 'education')"
         :key="`edu-${edu.order}`"
@@ -54,35 +54,32 @@ defineProps<{ resume: Resume; userName?: string }>();
           <h3 class="font-semibold">{{ str(edu.content, 'degree') }}</h3>
           <span class="text-xs text-slate-500">{{ dateRange(edu.content) }}</span>
         </div>
-        <p class="text-sm text-slate-700">
-          {{ str(edu.content, 'institution') }}
-          <span v-if="str(edu.content, 'field')"> · {{ str(edu.content, 'field') }}</span>
-        </p>
+        <p class="text-sm text-slate-700">{{ str(edu.content, 'institution') }}</p>
       </div>
     </section>
 
     <section v-if="sectionsByType(resume.sections, 'skill').length" class="mb-5">
-      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">Skills</h2>
+      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">{{ sectionLabel('skill') }}</h2>
       <ul class="text-sm text-slate-800 flex flex-wrap gap-x-3 gap-y-1">
         <li v-for="sk in sectionsByType(resume.sections, 'skill')" :key="`sk-${sk.order}`">
           {{ str(sk.content, 'name') }}
-          <span v-if="str(sk.content, 'level')" class="text-slate-500">· {{ str(sk.content, 'level') }}</span>
+          <span v-if="str(sk.content, 'level')" class="text-slate-500">· {{ levelLabel(str(sk.content, 'level')) }}</span>
         </li>
       </ul>
     </section>
 
     <section v-if="sectionsByType(resume.sections, 'language').length" class="mb-5">
-      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">Languages</h2>
+      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">{{ sectionLabel('language') }}</h2>
       <ul class="text-sm text-slate-800 flex flex-wrap gap-x-3 gap-y-1">
         <li v-for="lang in sectionsByType(resume.sections, 'language')" :key="`lang-${lang.order}`">
           {{ str(lang.content, 'name') }}
-          <span v-if="str(lang.content, 'level')" class="text-slate-500">· {{ str(lang.content, 'level') }}</span>
+          <span v-if="str(lang.content, 'level')" class="text-slate-500">· {{ levelLabel(str(lang.content, 'level')) }}</span>
         </li>
       </ul>
     </section>
 
     <section v-if="sectionsByType(resume.sections, 'project').length">
-      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">Projects</h2>
+      <h2 class="text-xs uppercase tracking-widest font-bold text-slate-500 mb-2">{{ sectionLabel('project') }}</h2>
       <div
         v-for="proj in sectionsByType(resume.sections, 'project')"
         :key="`proj-${proj.order}`"

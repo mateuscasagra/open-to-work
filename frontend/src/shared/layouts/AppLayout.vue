@@ -44,20 +44,15 @@ const navItems = computed<NavItem[]>(() => [
     label: t('nav.profile'),
     icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
   },
-  {
-    name: 'account',
-    label: t('nav.account'),
-    icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
-  },
 ]);
 
 const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
 </script>
 
 <template>
-  <div class="min-h-screen bg-ink-100">
+  <div class="min-h-screen bg-ink-200 lg:flex lg:h-screen lg:flex-col lg:overflow-hidden">
     <!-- Top navbar -->
-    <header class="sticky top-0 z-30 border-b border-ink-200/80 bg-white/80 backdrop-blur-lg">
+    <header class="sticky top-0 z-30 border-b border-ink-300 bg-white shadow-soft">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-10">
         <!-- Left: Brand + nav -->
         <div class="flex items-center gap-8">
@@ -198,8 +193,8 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
     ></div>
 
     <!-- Content -->
-    <main class="min-w-0">
-      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+    <main class="min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-6">
         <RouterView />
       </div>
     </main>
