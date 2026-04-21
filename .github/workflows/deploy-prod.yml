@@ -1,0 +1,51 @@
+name: Deploy Production
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  # GATE OBRIGATÓRIO: testes precisam passar antes de qualquer build/deploy.
+  # Se qualquer job de CI falhar, build-and-deploy é cancelado automaticamente.
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  build-and-deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: production   # exige aprovação manual via GitHub Environments
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-backend:latest
+            ghcr.io/${{ github.repository }}-backend:${{ github.ref_name }}
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-frontend:latest
+            ghcr.io/${{ github.repository }}-frontend:${{ github.ref_name }}
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: /opt/opentowork/scripts/deploy.sh ${{ github.ref_name }}

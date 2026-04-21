@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment
+.env
+.env.*.local
+!.env.example
+
+# Build artifacts
+dist/
+build/
+public/hot
+public/storage
+public/build/
+
+# Laravel
+backend/storage/*.key
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+!backend/storage/framework/cache/.gitkeep
+!backend/storage/framework/sessions/.gitkeep
+!backend/storage/framework/testing/.gitkeep
+!backend/storage/framework/views/.gitkeep
+!backend/storage/logs/.gitkeep
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitkeep
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+coverage/
+.phpunit.cache/
+.phpunit.result.cache
+
+# Docker volumes
+infra/data/
+
+# Secrets
+*.pem
+*.key
+!backend/storage/oauth-*.key
+
+# Logs
+*.log

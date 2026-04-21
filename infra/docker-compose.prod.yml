@@ -1,0 +1,107 @@
+name: opentowork-prod
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/letsencrypt:ro
+      - frontend_build:/var/www/frontend:ro
+    depends_on:
+      - backend
+    networks:
+      - otw
+
+  backend:
+    image: ghcr.io/ORG/open-to-work-backend:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      MEILISEARCH_HOST: http://meilisearch:7700
+    env_file:
+      - ./secrets/backend.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - otw
+
+  horizon:
+    image: ghcr.io/ORG/open-to-work-backend:${TAG:-latest}
+    restart: unless-stopped
+    command: php artisan horizon
+    env_file:
+      - ./secrets/backend.env
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - otw
+
+  scheduler:
+    image: ghcr.io/ORG/open-to-work-backend:${TAG:-latest}
+    restart: unless-stopped
+    command: php artisan schedule:work
+    env_file:
+      - ./secrets/backend.env
+    depends_on:
+      - backend
+    networks:
+      - otw
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - ./secrets/postgres.env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - otw
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - otw
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    restart: unless-stopped
+    env_file:
+      - ./secrets/meilisearch.env
+    volumes:
+      - meili_data:/meili_data
+    networks:
+      - otw
+
+volumes:
+  pg_data:
+  redis_data:
+  meili_data:
+  frontend_build:
+
+networks:
+  otw:
+    driver: bridge

@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Domain\Application\Actions\CreateApplication;
+use App\Domain\Application\DTOs\ApplicationData;
+use App\Enums\ApplicationStatus;
+use App\Events\ApplicationCreated;
+use App\Models\Job;
+use App\Models\User;
+use Illuminate\Support\Facades\Event;
+
+it('creates application with Applied status', function (): void {
+    Event::fake();
+
+    $user = User::factory()->create();
+    $job = Job::factory()->create();
+
+    $application = (new CreateApplication())->execute(
+        $user,
+        new ApplicationData(jobId: $job->id, source: 'linkedin')
+    );
+
+    expect($application->status)->toBe(ApplicationStatus::Applied)
+        ->and($application->user_id)->toBe($user->id)
+        ->and($application->job_id)->toBe($job->id);
+
+    Event::assertDispatched(ApplicationCreated::class);
+});
