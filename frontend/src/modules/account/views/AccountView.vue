@@ -36,8 +36,12 @@ async function onDelete() {
 <template>
   <div class="max-w-2xl lg:flex lg:h-full lg:flex-col">
     <header class="mb-4 lg:mb-3">
-      <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('account.title') }}</h1>
-      <p class="mt-0.5 text-xs text-ink-500">{{ t('account.subtitle') }}</p>
+      <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+        {{ t('account.title') }}
+      </h1>
+      <p class="mt-0.5 text-xs text-ink-500">
+        {{ t('account.subtitle') }}
+      </p>
     </header>
 
     <div
@@ -48,8 +52,12 @@ async function onDelete() {
     </div>
 
     <section class="card mb-4 p-6">
-      <h2 class="text-lg font-semibold text-ink-900">{{ t('account.export.title') }}</h2>
-      <p class="mt-1 text-sm text-ink-500">{{ t('account.export.description') }}</p>
+      <h2 class="text-lg font-semibold text-ink-900">
+        {{ t('account.export.title') }}
+      </h2>
+      <p class="mt-1 text-sm text-ink-500">
+        {{ t('account.export.description') }}
+      </p>
       <button
         type="button"
         class="btn-secondary mt-4"
@@ -66,7 +74,12 @@ async function onDelete() {
         <span
           class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-red-50 text-red-600"
         >
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -76,8 +89,12 @@ async function onDelete() {
           </svg>
         </span>
         <div>
-          <h2 class="text-lg font-semibold text-red-800">{{ t('account.delete.title') }}</h2>
-          <p class="mt-1 text-sm text-ink-500">{{ t('account.delete.description') }}</p>
+          <h2 class="text-lg font-semibold text-red-800">
+            {{ t('account.delete.title') }}
+          </h2>
+          <p class="mt-1 text-sm text-ink-500">
+            {{ t('account.delete.description') }}
+          </p>
         </div>
       </div>
 
@@ -92,11 +109,19 @@ async function onDelete() {
           {{ t('account.delete.action') }}
         </button>
 
-        <div v-else class="space-y-3">
+        <div
+          v-else
+          class="space-y-3"
+        >
           <p class="text-sm text-ink-700">
             {{ t('account.delete.confirm_instruction') }}
           </p>
-          <input v-model="confirmText" type="text" class="input" placeholder="EXCLUIR" />
+          <input
+            v-model="confirmText"
+            type="text"
+            class="input"
+            placeholder="EXCLUIR"
+          >
           <div class="flex gap-2">
             <button
               type="button"

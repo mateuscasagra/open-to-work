@@ -61,10 +61,17 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
   <div class="lg:flex lg:h-full lg:flex-col">
     <header class="mb-4 flex items-center justify-between lg:mb-3">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('nav.dashboard') }}</h1>
-        <p class="mt-0.5 text-sm text-ink-500 lg:text-xs">{{ t('app.tagline') }}</p>
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+          {{ t('nav.dashboard') }}
+        </h1>
+        <p class="mt-0.5 text-sm text-ink-500 lg:text-xs">
+          {{ t('app.tagline') }}
+        </p>
       </div>
-      <p v-if="data && data.avgDaysBetweenStages !== null" class="hidden text-xs text-ink-500 lg:block">
+      <p
+        v-if="data && data.avgDaysBetweenStages !== null"
+        class="hidden text-xs text-ink-500 lg:block"
+      >
         Tempo médio até resposta:
         <span class="font-semibold text-ink-900">{{ data.avgDaysBetweenStages }}d</span>
       </p>
@@ -86,12 +93,20 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
       {{ error }}
     </div>
 
-    <div v-else-if="data" class="flex flex-col gap-4 lg:min-h-0 lg:flex-1 lg:gap-3">
+    <div
+      v-else-if="data"
+      class="flex flex-col gap-4 lg:min-h-0 lg:flex-1 lg:gap-3"
+    >
       <!-- KPIs -->
-      <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-2" data-testid="metrics-kpis">
+      <div
+        class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-2"
+        data-testid="metrics-kpis"
+      >
         <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-xs font-medium text-ink-500">Candidaturas</p>
+            <p class="text-xs font-medium text-ink-500">
+              Candidaturas
+            </p>
             <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">total</span>
           </div>
           <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
@@ -100,17 +115,23 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
         </div>
         <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-xs font-medium text-ink-500">Taxa de resposta</p>
+            <p class="text-xs font-medium text-ink-500">
+              Taxa de resposta
+            </p>
             <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">%</span>
           </div>
           <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
             {{ percent(data.kpis.response_rate) }}
           </p>
-          <p class="text-[10px] text-ink-500 lg:mt-0">{{ data.kpis.total_responses }} respostas</p>
+          <p class="text-[10px] text-ink-500 lg:mt-0">
+            {{ data.kpis.total_responses }} respostas
+          </p>
         </div>
         <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-xs font-medium text-ink-500">Entrevistas</p>
+            <p class="text-xs font-medium text-ink-500">
+              Entrevistas
+            </p>
             <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">fase</span>
           </div>
           <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
@@ -122,7 +143,9 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
         </div>
         <div class="card p-3 lg:p-2.5">
           <div class="flex items-center justify-between">
-            <p class="text-xs font-medium text-ink-500">Propostas</p>
+            <p class="text-xs font-medium text-ink-500">
+              Propostas
+            </p>
             <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">fase</span>
           </div>
           <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
@@ -135,7 +158,10 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
       </div>
 
       <!-- Insights (inline) -->
-      <section v-if="data.insights.length > 0" data-testid="metrics-insights">
+      <section
+        v-if="data.insights.length > 0"
+        data-testid="metrics-insights"
+      >
         <ul class="grid gap-2 lg:grid-cols-2">
           <li
             v-for="insight in data.insights"
@@ -151,12 +177,20 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
 
       <!-- Middle row: Funnel + Channels -->
       <div class="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-2">
-        <section v-if="data.funnel.length > 0" class="card p-4 lg:flex lg:flex-col lg:p-3" data-testid="metrics-funnel">
+        <section
+          v-if="data.funnel.length > 0"
+          class="card p-4 lg:flex lg:flex-col lg:p-3"
+          data-testid="metrics-funnel"
+        >
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
             Funil de etapas
           </h2>
           <div class="space-y-1.5 lg:flex-1">
-            <div v-for="stage in data.funnel" :key="stage.status" class="flex items-center gap-2">
+            <div
+              v-for="stage in data.funnel"
+              :key="stage.status"
+              class="flex items-center gap-2"
+            >
               <span class="w-24 shrink-0 truncate text-xs text-ink-700">{{ stage.label }}</span>
               <div class="h-4 flex-1 overflow-hidden rounded bg-ink-100">
                 <div
@@ -171,17 +205,29 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
           </div>
         </section>
 
-        <section v-if="data.channels.length > 0" class="card p-4 lg:flex lg:flex-col lg:p-3" data-testid="metrics-channels">
+        <section
+          v-if="data.channels.length > 0"
+          class="card p-4 lg:flex lg:flex-col lg:p-3"
+          data-testid="metrics-channels"
+        >
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
             Canais mais efetivos
           </h2>
           <table class="w-full text-xs lg:flex-1">
             <thead>
               <tr class="border-b border-ink-200 text-left text-ink-500">
-                <th class="pb-1.5 font-medium">Fonte</th>
-                <th class="pb-1.5 text-right font-medium">Cand.</th>
-                <th class="pb-1.5 text-right font-medium">Resp.</th>
-                <th class="pb-1.5 text-right font-medium">Taxa</th>
+                <th class="pb-1.5 font-medium">
+                  Fonte
+                </th>
+                <th class="pb-1.5 text-right font-medium">
+                  Cand.
+                </th>
+                <th class="pb-1.5 text-right font-medium">
+                  Resp.
+                </th>
+                <th class="pb-1.5 text-right font-medium">
+                  Taxa
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -190,9 +236,15 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
                 :key="channel.source"
                 class="border-b border-ink-100 last:border-0"
               >
-                <td class="py-1.5 font-medium text-ink-900">{{ channel.source }}</td>
-                <td class="py-1.5 text-right text-ink-700">{{ channel.applications }}</td>
-                <td class="py-1.5 text-right text-ink-700">{{ channel.responses }}</td>
+                <td class="py-1.5 font-medium text-ink-900">
+                  {{ channel.source }}
+                </td>
+                <td class="py-1.5 text-right text-ink-700">
+                  {{ channel.applications }}
+                </td>
+                <td class="py-1.5 text-right text-ink-700">
+                  {{ channel.responses }}
+                </td>
                 <td class="py-1.5 text-right font-semibold text-brand-700">
                   {{ percent(channel.response_rate) }}
                 </td>
@@ -203,7 +255,10 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
       </div>
 
       <!-- Heatmap -->
-      <section class="card p-4 lg:p-3" data-testid="metrics-heatmap">
+      <section
+        class="card p-4 lg:p-3"
+        data-testid="metrics-heatmap"
+      >
         <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
           Dias & horários que você mais aplica
         </h2>
@@ -211,13 +266,24 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
           <table class="border-collapse text-[10px]">
             <thead>
               <tr>
-                <th class="p-0.5"></th>
-                <th v-for="h in 24" :key="h" class="p-0.5 font-normal text-ink-400">{{ h - 1 }}</th>
+                <th class="p-0.5" />
+                <th
+                  v-for="h in 24"
+                  :key="h"
+                  class="p-0.5 font-normal text-ink-400"
+                >
+                  {{ h - 1 }}
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(row, wd) in heatmapGrid" :key="wd">
-                <th class="pr-1.5 text-left font-medium text-ink-500">{{ weekdayLabels[wd] }}</th>
+              <tr
+                v-for="(row, wd) in heatmapGrid"
+                :key="wd"
+              >
+                <th class="pr-1.5 text-left font-medium text-ink-500">
+                  {{ weekdayLabels[wd] }}
+                </th>
                 <td
                   v-for="(count, hour) in row"
                   :key="hour"

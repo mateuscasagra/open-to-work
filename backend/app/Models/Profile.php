@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\EmailApplyMode;
 use App\Enums\Modality;
 use App\Enums\Seniority;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +28,11 @@ class Profile extends Model
         'location',
         'languages',
         'bio',
+        'email_apply_enabled',
+        'email_apply_message_mode',
+        'email_apply_message_template',
+        'email_apply_resume_mode',
+        'email_apply_resume_id',
     ];
 
     /**
@@ -38,6 +44,9 @@ class Profile extends Model
             'seniority' => Seniority::class,
             'modality' => Modality::class,
             'languages' => 'array',
+            'email_apply_enabled' => 'boolean',
+            'email_apply_message_mode' => EmailApplyMode::class,
+            'email_apply_resume_mode' => EmailApplyMode::class,
         ];
     }
 
@@ -51,5 +60,10 @@ class Profile extends Model
         return $this->belongsToMany(Skill::class, 'profile_skills')
             ->withPivot('proficiency')
             ->withTimestamps();
+    }
+
+    public function emailApplyResume(): BelongsTo
+    {
+        return $this->belongsTo(Resume::class, 'email_apply_resume_id');
     }
 }

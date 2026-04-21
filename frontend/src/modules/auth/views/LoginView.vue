@@ -35,12 +35,18 @@ async function submit() {
     <aside
       class="relative hidden w-1/2 overflow-hidden bg-gradient-hero p-12 text-white lg:flex lg:flex-col lg:justify-between"
     >
-      <div class="absolute inset-0 bg-grid-slate opacity-[0.06]" aria-hidden="true"></div>
+      <div
+        class="absolute inset-0 bg-grid-slate opacity-[0.06]"
+        aria-hidden="true"
+      />
       <div
         class="absolute -left-20 top-1/3 h-80 w-80 rounded-full bg-brand-500/25 blur-3xl"
         aria-hidden="true"
-      ></div>
-      <RouterLink :to="{ name: 'landing' }" class="relative flex items-center gap-2.5">
+      />
+      <RouterLink
+        :to="{ name: 'landing' }"
+        class="relative flex items-center gap-2.5"
+      >
         <span
           class="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-bold text-white shadow-glow"
         >
@@ -61,7 +67,9 @@ async function submit() {
         </p>
       </div>
 
-      <div class="relative text-sm text-white/50">© 2026 · {{ t('app.name') }}</div>
+      <div class="relative text-sm text-white/50">
+        © 2026 · {{ t('app.name') }}
+      </div>
     </aside>
 
     <!-- Right: form -->
@@ -74,7 +82,9 @@ async function submit() {
           <span aria-hidden="true">←</span> {{ t('app.name') }}
         </RouterLink>
 
-        <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('auth.login') }}</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-ink-900">
+          {{ t('auth.login') }}
+        </h1>
         <p class="mt-2 text-sm text-ink-500">
           {{ t('auth.noAccount') }}
           <RouterLink
@@ -85,9 +95,15 @@ async function submit() {
           </RouterLink>
         </p>
 
-        <form class="mt-8 space-y-5" @submit.prevent="submit">
+        <form
+          class="mt-8 space-y-5"
+          @submit.prevent="submit"
+        >
           <div>
-            <label for="email" class="label">{{ t('auth.email') }}</label>
+            <label
+              for="email"
+              class="label"
+            >{{ t('auth.email') }}</label>
             <input
               id="email"
               v-model="email"
@@ -95,11 +111,14 @@ async function submit() {
               required
               autocomplete="email"
               class="input mt-1.5"
-            />
+            >
           </div>
 
           <div>
-            <label for="password" class="label">{{ t('auth.password') }}</label>
+            <label
+              for="password"
+              class="label"
+            >{{ t('auth.password') }}</label>
             <input
               id="password"
               v-model="password"
@@ -107,7 +126,7 @@ async function submit() {
               required
               autocomplete="current-password"
               class="input mt-1.5"
-            />
+            >
           </div>
 
           <label class="flex items-center gap-2 text-sm text-ink-700">
@@ -115,7 +134,7 @@ async function submit() {
               v-model="remember"
               type="checkbox"
               class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500"
-            />
+            >
             {{ t('auth.remember') }}
           </label>
 
@@ -126,7 +145,11 @@ async function submit() {
             {{ error }}
           </p>
 
-          <button type="submit" :disabled="loading" class="btn-primary w-full !py-2.5">
+          <button
+            type="submit"
+            :disabled="loading"
+            class="btn-primary w-full !py-2.5"
+          >
             {{ loading ? t('auth.processing') : t('auth.login') }}
           </button>
         </form>
@@ -138,13 +161,22 @@ async function submit() {
         </div>
 
         <div class="space-y-2">
-          <a :href="auth.oauthUrl('google')" class="btn-secondary w-full">
+          <a
+            :href="auth.oauthUrl('google')"
+            class="btn-secondary w-full"
+          >
             {{ t('auth.continueWith', { provider: 'Google' }) }}
           </a>
-          <a :href="auth.oauthUrl('linkedin')" class="btn-secondary w-full">
+          <a
+            :href="auth.oauthUrl('linkedin')"
+            class="btn-secondary w-full"
+          >
             {{ t('auth.continueWith', { provider: 'LinkedIn' }) }}
           </a>
-          <a :href="auth.oauthUrl('github')" class="btn-secondary w-full">
+          <a
+            :href="auth.oauthUrl('github')"
+            class="btn-secondary w-full"
+          >
             {{ t('auth.continueWith', { provider: 'GitHub' }) }}
           </a>
         </div>

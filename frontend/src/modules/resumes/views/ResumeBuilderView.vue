@@ -29,6 +29,7 @@ const SECTION_OPTIONS: SectionOption[] = [
   { type: 'skill',      icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
   { type: 'language',   icon: 'M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129' },
   { type: 'project',    icon: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4' },
+  { type: 'contact',    icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
 ];
 
 const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
@@ -48,36 +49,40 @@ function emptyContentFor(type: ResumeSectionType): Record<string, unknown> {
       return { name: '', level: 'conversational' };
     case 'project':
       return { name: '', description: '', url: '' };
+    case 'contact':
+      return { email: '', phone: '', linkedin: '', github: '', website: '', address: '' };
   }
 }
 
 const title = ref('');
 const language = ref<Locale>('pt_BR');
-const sections = ref<ResumeSection[]>([]);
 const saveMessage = ref<string | null>(null);
-const templateChosen = ref(false);
 
 function defaultSections(): ResumeSection[] {
   return [
-    { type: 'summary', order: 0, content: { text: '' } },
-    { type: 'experience', order: 1, content: { company: '', role: '', startDate: '', endDate: '', current: false, description: '' } },
+    { type: 'contact', order: 0, content: { email: '', phone: '', linkedin: '', github: '', website: '', address: '' } },
+    { type: 'summary', order: 1, content: { text: '' } },
     { type: 'experience', order: 2, content: { company: '', role: '', startDate: '', endDate: '', current: false, description: '' } },
-    { type: 'education', order: 3, content: { institution: '', degree: '', startDate: '', endDate: '' } },
-    { type: 'skill', order: 4, content: { name: '', level: 'intermediate' } },
+    { type: 'experience', order: 3, content: { company: '', role: '', startDate: '', endDate: '', current: false, description: '' } },
+    { type: 'education', order: 4, content: { institution: '', degree: '', startDate: '', endDate: '' } },
     { type: 'skill', order: 5, content: { name: '', level: 'intermediate' } },
     { type: 'skill', order: 6, content: { name: '', level: 'intermediate' } },
     { type: 'skill', order: 7, content: { name: '', level: 'intermediate' } },
     { type: 'skill', order: 8, content: { name: '', level: 'intermediate' } },
-    { type: 'language', order: 9, content: { name: '', level: 'conversational' } },
+    { type: 'skill', order: 9, content: { name: '', level: 'intermediate' } },
     { type: 'language', order: 10, content: { name: '', level: 'conversational' } },
+    { type: 'language', order: 11, content: { name: '', level: 'conversational' } },
   ];
 }
 
-function chooseTemplate(mode: 'default' | 'blank'): void {
-  templateChosen.value = true;
-  if (mode === 'default') {
-    sections.value = defaultSections();
-  }
+const sections = ref<ResumeSection[]>(isEdit.value ? [] : defaultSections());
+
+function clearSections(): void {
+  sections.value = [];
+}
+
+function restoreDefaults(): void {
+  sections.value = defaultSections();
 }
 
 watch(
@@ -179,8 +184,18 @@ function onCancel(): void {
           class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900"
           @click="onCancel"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           {{ t('resumes.back') }}
         </button>
@@ -189,8 +204,15 @@ function onCancel(): void {
         </h1>
       </div>
       <div class="flex items-center gap-2">
-        <span v-if="saveMessage" class="text-xs text-ink-500">{{ saveMessage }}</span>
-        <button type="button" class="btn-secondary !py-1.5 text-sm" @click="onCancel">
+        <span
+          v-if="saveMessage"
+          class="text-xs text-ink-500"
+        >{{ saveMessage }}</span>
+        <button
+          type="button"
+          class="btn-secondary !py-1.5 text-sm"
+          @click="onCancel"
+        >
           {{ t('resumes.builder.cancel') }}
         </button>
         <button
@@ -204,8 +226,17 @@ function onCancel(): void {
       </div>
     </div>
 
-    <p v-if="isEdit && detail.isLoading.value" class="text-ink-500">{{ t('resumes.loading') }}</p>
-    <p v-else-if="isEdit && detail.error.value" class="text-red-600" role="alert">
+    <p
+      v-if="isEdit && detail.isLoading.value"
+      class="text-ink-500"
+    >
+      {{ t('resumes.loading') }}
+    </p>
+    <p
+      v-else-if="isEdit && detail.error.value"
+      class="text-red-600"
+      role="alert"
+    >
       {{ t('resumes.load_failed') }}
     </p>
 
@@ -221,11 +252,14 @@ function onCancel(): void {
                 type="text"
                 class="input mt-1 !py-1.5 text-sm"
                 :placeholder="t('resumes.builder.title_placeholder')"
-              />
+              >
             </label>
             <label class="block">
               <span class="text-xs font-semibold text-ink-600">{{ t('resumes.language') }}</span>
-              <select v-model="language" class="input mt-1 !py-1.5 text-sm">
+              <select
+                v-model="language"
+                class="input mt-1 !py-1.5 text-sm"
+              >
                 <option value="pt_BR">Português</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
@@ -234,7 +268,9 @@ function onCancel(): void {
           </div>
 
           <div class="card p-3">
-            <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-400">Adicionar seção</p>
+            <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-ink-400">
+              {{ t('resumes.builder.add_section') }}
+            </p>
             <div class="space-y-1">
               <button
                 v-for="opt in SECTION_OPTIONS"
@@ -246,8 +282,18 @@ function onCancel(): void {
                   : 'text-ink-700 hover:bg-brand-50 hover:text-brand-700'"
                 @click="addSection(opt.type)"
               >
-                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" :d="opt.icon" />
+                <svg
+                  class="h-4 w-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.75"
+                    :d="opt.icon"
+                  />
                 </svg>
                 <span class="flex-1">{{ t(`resumes.sections.${opt.type}`) }}</span>
                 <span
@@ -258,6 +304,27 @@ function onCancel(): void {
                 </span>
               </button>
             </div>
+            <button
+              v-if="sections.length > 0"
+              type="button"
+              class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-ink-200 px-2.5 py-1.5 text-xs font-medium text-ink-500 transition hover:border-red-300 hover:text-red-600"
+              @click="clearSections"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              {{ t('resumes.builder.clear_all') }}
+            </button>
           </div>
         </aside>
 
@@ -281,11 +348,19 @@ function onCancel(): void {
           <div class="card mb-3 space-y-3 p-4 lg:hidden">
             <label class="block">
               <span class="label">{{ t('resumes.builder.resume_title') }}</span>
-              <input v-model="title" type="text" class="input mt-1.5" :placeholder="t('resumes.builder.title_placeholder')" />
+              <input
+                v-model="title"
+                type="text"
+                class="input mt-1.5"
+                :placeholder="t('resumes.builder.title_placeholder')"
+              >
             </label>
             <label class="block">
               <span class="label">{{ t('resumes.language') }}</span>
-              <select v-model="language" class="input mt-1.5">
+              <select
+                v-model="language"
+                class="input mt-1.5"
+              >
                 <option value="pt_BR">Português</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
@@ -293,61 +368,64 @@ function onCancel(): void {
             </label>
           </div>
 
-          <!-- Template chooser (new resume only) -->
+          <!-- Empty state -->
           <div
-            v-if="!isEdit && !templateChosen && sections.length === 0"
-            class="flex h-full items-center justify-center"
-          >
-            <div class="w-full max-w-lg space-y-4">
-              <h2 class="text-center text-lg font-bold text-ink-900">{{ t('resumes.builder.choose_template') }}</h2>
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  class="card group cursor-pointer p-5 text-left transition hover:border-brand-300 hover:shadow-card"
-                  @click="chooseTemplate('default')"
-                >
-                  <div class="mb-3 grid h-10 w-10 place-items-center rounded-lg bg-brand-50 text-brand-600">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <p class="font-semibold text-ink-900 group-hover:text-brand-700">{{ t('resumes.builder.template_default') }}</p>
-                  <p class="mt-1 text-xs text-ink-500">{{ t('resumes.builder.template_default_desc') }}</p>
-                </button>
-                <button
-                  type="button"
-                  class="card group cursor-pointer p-5 text-left transition hover:border-brand-300 hover:shadow-card"
-                  @click="chooseTemplate('blank')"
-                >
-                  <div class="mb-3 grid h-10 w-10 place-items-center rounded-lg bg-ink-100 text-ink-500">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v16m8-8H4" />
-                    </svg>
-                  </div>
-                  <p class="font-semibold text-ink-900 group-hover:text-brand-700">{{ t('resumes.builder.template_blank') }}</p>
-                  <p class="mt-1 text-xs text-ink-500">{{ t('resumes.builder.template_blank_desc') }}</p>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty state (after choosing blank or editing) -->
-          <div
-            v-else-if="sections.length === 0"
+            v-if="sections.length === 0"
             class="flex h-full items-center justify-center rounded-xl border-2 border-dashed border-ink-300 bg-white/50"
           >
             <div class="text-center py-16">
-              <svg class="mx-auto h-12 w-12 text-ink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                class="mx-auto h-12 w-12 text-ink-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
-              <p class="mt-3 text-sm font-medium text-ink-500">{{ t('resumes.builder.no_sections') }}</p>
-              <p class="mt-1 text-xs text-ink-400">{{ t('resumes.builder.no_sections_hint') }}</p>
+              <p class="mt-3 text-sm font-medium text-ink-500">
+                {{ t('resumes.builder.no_sections') }}
+              </p>
+              <p class="mt-1 text-xs text-ink-400">
+                {{ t('resumes.builder.no_sections_hint') }}
+              </p>
+              <button
+                type="button"
+                class="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 transition hover:bg-brand-100"
+                @click="restoreDefaults"
+              >
+                <svg
+                  class="h-3.5 w-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                {{ t('resumes.builder.restore_default') }}
+              </button>
             </div>
           </div>
 
           <!-- Grouped sections -->
-          <div v-else class="space-y-3">
-            <div v-for="group in groupedSections" :key="group.type" class="card p-4">
+          <div
+            v-else
+            class="space-y-3"
+          >
+            <div
+              v-for="group in groupedSections"
+              :key="group.type"
+              class="card p-4"
+            >
               <!-- Group header -->
               <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -359,8 +437,18 @@ function onCancel(): void {
                   class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand-700 transition hover:bg-brand-50"
                   @click="addSection(group.type)"
                 >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  <svg
+                    class="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
                   </svg>
                   Adicionar
                 </button>
@@ -379,13 +467,26 @@ function onCancel(): void {
                     class="absolute right-2 top-2 rounded p-1 text-ink-300 hover:bg-red-50 hover:text-red-500"
                     @click="removeEntry(idx)"
                   >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
 
                   <!-- Entry number -->
-                  <span v-if="group.indices.length > 1" class="mb-2 inline-block text-[10px] font-bold text-ink-400">
+                  <span
+                    v-if="group.indices.length > 1"
+                    class="mb-2 inline-block text-[10px] font-bold text-ink-400"
+                  >
                     #{{ entryIdx + 1 }}
                   </span>
 
@@ -407,28 +508,61 @@ function onCancel(): void {
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.company') }}</span>
-                        <input :value="contentString(sections[idx].content, 'company')" type="text" class="input mt-1" @input="setContent(idx, 'company', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'company')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'company', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.role') }}</span>
-                        <input :value="contentString(sections[idx].content, 'role')" type="text" class="input mt-1" @input="setContent(idx, 'role', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'role')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'role', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.start_date') }}</span>
-                        <input :value="contentString(sections[idx].content, 'startDate')" type="text" placeholder="2022-01" class="input mt-1" @input="setContent(idx, 'startDate', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'startDate')"
+                          type="text"
+                          placeholder="2022-01"
+                          class="input mt-1"
+                          @input="setContent(idx, 'startDate', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.end_date') }}</span>
-                        <input :value="contentString(sections[idx].content, 'endDate')" type="text" placeholder="2024-06" :disabled="contentBool(sections[idx].content, 'current')" class="input mt-1" @input="setContent(idx, 'endDate', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'endDate')"
+                          type="text"
+                          placeholder="2024-06"
+                          :disabled="contentBool(sections[idx].content, 'current')"
+                          class="input mt-1"
+                          @input="setContent(idx, 'endDate', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                     </div>
                     <label class="mt-2 inline-flex items-center gap-2 text-xs text-ink-700">
-                      <input type="checkbox" class="h-3.5 w-3.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" :checked="contentBool(sections[idx].content, 'current')" @change="setContent(idx, 'current', ($event.target as HTMLInputElement).checked)" />
+                      <input
+                        type="checkbox"
+                        class="h-3.5 w-3.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500"
+                        :checked="contentBool(sections[idx].content, 'current')"
+                        @change="setContent(idx, 'current', ($event.target as HTMLInputElement).checked)"
+                      >
                       {{ t('resumes.fields.current') }}
                     </label>
                     <label class="mt-2 block">
                       <span class="label text-xs">{{ t('resumes.fields.description') }}</span>
-                      <textarea :value="contentString(sections[idx].content, 'description')" rows="2" class="input mt-1" @input="setContent(idx, 'description', ($event.target as HTMLTextAreaElement).value)" />
+                      <textarea
+                        :value="contentString(sections[idx].content, 'description')"
+                        rows="2"
+                        class="input mt-1"
+                        @input="setContent(idx, 'description', ($event.target as HTMLTextAreaElement).value)"
+                      />
                     </label>
                   </template>
 
@@ -437,19 +571,41 @@ function onCancel(): void {
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.institution') }}</span>
-                        <input :value="contentString(sections[idx].content, 'institution')" type="text" class="input mt-1" @input="setContent(idx, 'institution', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'institution')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'institution', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.degree') }}</span>
-                        <input :value="contentString(sections[idx].content, 'degree')" type="text" class="input mt-1" @input="setContent(idx, 'degree', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'degree')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'degree', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.start_date') }}</span>
-                        <input :value="contentString(sections[idx].content, 'startDate')" type="text" placeholder="2018-03" class="input mt-1" @input="setContent(idx, 'startDate', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'startDate')"
+                          type="text"
+                          placeholder="2018-03"
+                          class="input mt-1"
+                          @input="setContent(idx, 'startDate', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.end_date') }}</span>
-                        <input :value="contentString(sections[idx].content, 'endDate')" type="text" placeholder="2022-12" class="input mt-1" @input="setContent(idx, 'endDate', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'endDate')"
+                          type="text"
+                          placeholder="2022-12"
+                          class="input mt-1"
+                          @input="setContent(idx, 'endDate', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                     </div>
                   </template>
@@ -459,12 +615,25 @@ function onCancel(): void {
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.name') }}</span>
-                        <input :value="contentString(sections[idx].content, 'name')" type="text" class="input mt-1" @input="setContent(idx, 'name', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'name')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'name', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.level') }}</span>
-                        <select :value="contentString(sections[idx].content, 'level')" class="input mt-1" @change="setContent(idx, 'level', ($event.target as HTMLSelectElement).value)">
-                          <option v-for="lvl in SKILL_LEVELS" :key="lvl" :value="lvl">{{ t(`resumes.levels.${lvl}`) }}</option>
+                        <select
+                          :value="contentString(sections[idx].content, 'level')"
+                          class="input mt-1"
+                          @change="setContent(idx, 'level', ($event.target as HTMLSelectElement).value)"
+                        >
+                          <option
+                            v-for="lvl in SKILL_LEVELS"
+                            :key="lvl"
+                            :value="lvl"
+                          >{{ t(`resumes.levels.${lvl}`) }}</option>
                         </select>
                       </label>
                     </div>
@@ -475,12 +644,25 @@ function onCancel(): void {
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.name') }}</span>
-                        <input :value="contentString(sections[idx].content, 'name')" type="text" class="input mt-1" @input="setContent(idx, 'name', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'name')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'name', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.level') }}</span>
-                        <select :value="contentString(sections[idx].content, 'level')" class="input mt-1" @change="setContent(idx, 'level', ($event.target as HTMLSelectElement).value)">
-                          <option v-for="lvl in LANGUAGE_LEVELS" :key="lvl" :value="lvl">{{ t(`resumes.levels.${lvl}`) }}</option>
+                        <select
+                          :value="contentString(sections[idx].content, 'level')"
+                          class="input mt-1"
+                          @change="setContent(idx, 'level', ($event.target as HTMLSelectElement).value)"
+                        >
+                          <option
+                            v-for="lvl in LANGUAGE_LEVELS"
+                            :key="lvl"
+                            :value="lvl"
+                          >{{ t(`resumes.levels.${lvl}`) }}</option>
                         </select>
                       </label>
                     </div>
@@ -491,17 +673,94 @@ function onCancel(): void {
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.name') }}</span>
-                        <input :value="contentString(sections[idx].content, 'name')" type="text" class="input mt-1" @input="setContent(idx, 'name', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'name')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'name', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                       <label class="block">
                         <span class="label text-xs">{{ t('resumes.fields.url') }}</span>
-                        <input :value="contentString(sections[idx].content, 'url')" type="url" class="input mt-1" @input="setContent(idx, 'url', ($event.target as HTMLInputElement).value)" />
+                        <input
+                          :value="contentString(sections[idx].content, 'url')"
+                          type="url"
+                          class="input mt-1"
+                          @input="setContent(idx, 'url', ($event.target as HTMLInputElement).value)"
+                        >
                       </label>
                     </div>
                     <label class="mt-2 block">
                       <span class="label text-xs">{{ t('resumes.fields.description') }}</span>
-                      <textarea :value="contentString(sections[idx].content, 'description')" rows="2" class="input mt-1" @input="setContent(idx, 'description', ($event.target as HTMLTextAreaElement).value)" />
+                      <textarea
+                        :value="contentString(sections[idx].content, 'description')"
+                        rows="2"
+                        class="input mt-1"
+                        @input="setContent(idx, 'description', ($event.target as HTMLTextAreaElement).value)"
+                      />
                     </label>
+                  </template>
+
+                  <!-- contact -->
+                  <template v-else-if="sections[idx].type === 'contact'">
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <label class="block">
+                        <span class="label text-xs">{{ t('resumes.fields.contact_email') }}</span>
+                        <input
+                          :value="contentString(sections[idx].content, 'email')"
+                          type="email"
+                          class="input mt-1"
+                          @input="setContent(idx, 'email', ($event.target as HTMLInputElement).value)"
+                        >
+                      </label>
+                      <label class="block">
+                        <span class="label text-xs">{{ t('resumes.fields.phone') }}</span>
+                        <input
+                          :value="contentString(sections[idx].content, 'phone')"
+                          type="tel"
+                          class="input mt-1"
+                          @input="setContent(idx, 'phone', ($event.target as HTMLInputElement).value)"
+                        >
+                      </label>
+                      <label class="block">
+                        <span class="label text-xs">LinkedIn</span>
+                        <input
+                          :value="contentString(sections[idx].content, 'linkedin')"
+                          type="url"
+                          class="input mt-1"
+                          placeholder="https://linkedin.com/in/..."
+                          @input="setContent(idx, 'linkedin', ($event.target as HTMLInputElement).value)"
+                        >
+                      </label>
+                      <label class="block">
+                        <span class="label text-xs">GitHub</span>
+                        <input
+                          :value="contentString(sections[idx].content, 'github')"
+                          type="url"
+                          class="input mt-1"
+                          placeholder="https://github.com/..."
+                          @input="setContent(idx, 'github', ($event.target as HTMLInputElement).value)"
+                        >
+                      </label>
+                      <label class="block">
+                        <span class="label text-xs">{{ t('resumes.fields.website') }}</span>
+                        <input
+                          :value="contentString(sections[idx].content, 'website')"
+                          type="url"
+                          class="input mt-1"
+                          @input="setContent(idx, 'website', ($event.target as HTMLInputElement).value)"
+                        >
+                      </label>
+                      <label class="block">
+                        <span class="label text-xs">{{ t('resumes.fields.address') }}</span>
+                        <input
+                          :value="contentString(sections[idx].content, 'address')"
+                          type="text"
+                          class="input mt-1"
+                          @input="setContent(idx, 'address', ($event.target as HTMLInputElement).value)"
+                        >
+                      </label>
+                    </div>
                   </template>
                 </div>
               </div>

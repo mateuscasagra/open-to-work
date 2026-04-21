@@ -123,7 +123,19 @@
     "skills_max": "Máximo de habilidades atingido",
     "save": "Salvar",
     "saved": "Perfil salvo!",
-    "saveFailed": "Erro ao salvar perfil"
+    "saveFailed": "Erro ao salvar perfil",
+    "email_apply": "Candidatura por e-mail",
+    "email_apply_desc": "Envie seu currículo e uma mensagem diretamente para vagas que aceitam candidatura por e-mail.",
+    "email_apply_enabled": "Enviar currículo por e-mail automaticamente",
+    "email_apply_message_mode": "Mensagem",
+    "email_apply_message_fixed": "Mensagem fixa",
+    "email_apply_message_variable": "Personalizar por vaga",
+    "email_apply_template": "Template da mensagem",
+    "email_apply_template_hint": "Use {empresa} e {cargo} como placeholders",
+    "email_apply_resume_mode": "Currículo",
+    "email_apply_resume_fixed": "Currículo fixo",
+    "email_apply_resume_variable": "Escolher por vaga",
+    "email_apply_resume_select": "Selecione um currículo"
   },
   "jobs": {
     "loading": "Carregando vagas…",
@@ -143,7 +155,13 @@
       "reset": "Limpar filtros"
     },
     "use_resume": "Usar currículo:",
-    "no_resume": "Nenhum"
+    "no_resume": "Nenhum",
+    "email_tag": "E-mail",
+    "apply_modal_title": "Candidatura por e-mail",
+    "apply_modal_message": "Mensagem",
+    "apply_modal_resume": "Currículo",
+    "apply_modal_send": "Enviar candidatura",
+    "apply_modal_sending": "Enviando..."
   },
   "seniority": {
     "intern": "Estagiário",
@@ -240,6 +258,8 @@
       "move_down": "Mover para baixo",
       "no_sections": "Nenhuma seção ainda. Adicione uma acima.",
       "no_sections_hint": "Clique nas seções ao lado para começar",
+      "clear_all": "Limpar tudo",
+      "restore_default": "Restaurar modelo padrão",
       "choose_template": "Escolha um modelo",
       "template_default": "Modelo Padrão",
       "template_default_desc": "Estrutura otimizada com resumo, experiências, formação, habilidades e idiomas — o formato que mais gera retorno.",
@@ -252,7 +272,8 @@
       "education": "Formação",
       "skill": "Habilidade",
       "language": "Idioma",
-      "project": "Projeto"
+      "project": "Projeto",
+      "contact": "Contato"
     },
     "levels": {
       "beginner": "Iniciante",
@@ -277,7 +298,11 @@
       "field": "Área",
       "name": "Nome",
       "level": "Nível",
-      "url": "URL"
+      "url": "URL",
+      "contact_email": "E-mail",
+      "phone": "Telefone",
+      "website": "Website",
+      "address": "Endereço"
     }
   }
 }

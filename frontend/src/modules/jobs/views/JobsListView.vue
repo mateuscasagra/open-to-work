@@ -7,6 +7,8 @@ import { JobsPageSchema, type Job, type JobsPage } from '@/shared/api/schemas';
 import { useJobFilters } from '@/modules/jobs/composables/useJobFilters';
 import { useApplyToJob } from '@/modules/applications/composables/useApplyToJob';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
+import { useProfile } from '@/modules/profile/composables/useProfile';
+import ApplyByEmailModal from '@/modules/jobs/components/ApplyByEmailModal.vue';
 
 const { t } = useI18n();
 const { state, queryParams, reset, toggleStack } = useJobFilters();
@@ -34,14 +36,36 @@ const alreadyAppliedJobIds = ref<Set<number>>(new Set());
 const resumes = useResumes();
 const selectedResumeId = ref<number | null>(null);
 
+const { profile, fetch: fetchProfile } = useProfile();
+fetchProfile();
+
+const emailModalOpen = ref(false);
+const emailModalJob = ref<Job | null>(null);
+
+function needsEmailModal(job: Job): boolean {
+  if (!job.contact_email) return false;
+  if (!profile.value?.email_apply_enabled) return false;
+  return (
+    profile.value.email_apply_message_mode === 'variable' ||
+    profile.value.email_apply_resume_mode === 'variable'
+  );
+}
+
 async function onApply(job: Job): Promise<void> {
+  // If email apply with variable fields, show modal
+  if (needsEmailModal(job)) {
+    emailModalJob.value = job;
+    emailModalOpen.value = true;
+    return;
+  }
+
   applyingJobId.value = job.id;
   const externalUrl = job.sources?.[0]?.external_url ?? null;
 
   try {
     await applyMutation.mutateAsync({
       jobId: job.id,
-      source: 'feed',
+      source: job.contact_email && profile.value?.email_apply_enabled ? 'email' : 'feed',
       resumeId: selectedResumeId.value ?? undefined,
     });
     appliedJobIds.value.add(job.id);
@@ -57,6 +81,13 @@ async function onApply(job: Job): Promise<void> {
   }
 }
 
+function onEmailApplied(): void {
+  if (emailModalJob.value) {
+    appliedJobIds.value.add(emailModalJob.value.id);
+  }
+  emailModalJob.value = null;
+}
+
 function applyLabel(jobId: number): string {
   if (applyingJobId.value === jobId) return t('jobs.applying');
   if (appliedJobIds.value.has(jobId)) return t('jobs.applied');
@@ -69,7 +100,9 @@ function applyLabel(jobId: number): string {
   <div class="lg:flex lg:h-full lg:flex-col lg:gap-3">
     <header class="flex flex-wrap items-center justify-between gap-3 mb-4 lg:mb-0">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('nav.jobs') }}</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+          {{ t('nav.jobs') }}
+        </h1>
         <p class="mt-0.5 text-xs text-ink-500">
           {{ data?.data.length ?? 0 }}
           {{ (data?.data.length ?? 0) === 1 ? 'vaga encontrada' : 'vagas encontradas' }}
@@ -83,7 +116,7 @@ function applyLabel(jobId: number): string {
           v-model="state.matchOnly"
           type="checkbox"
           class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500"
-        />
+        >
         {{ t('jobs.filters.matchOnly') }}
       </label>
     </header>
@@ -94,8 +127,13 @@ function applyLabel(jobId: number): string {
       class="card flex flex-wrap items-center gap-3 p-3 mt-4 lg:mt-0"
     >
       <label class="text-sm font-medium text-ink-700">{{ t('jobs.use_resume') }}</label>
-      <select v-model="selectedResumeId" class="input max-w-xs">
-        <option :value="null">{{ t('jobs.no_resume') }}</option>
+      <select
+        v-model="selectedResumeId"
+        class="input max-w-xs"
+      >
+        <option :value="null">
+          {{ t('jobs.no_resume') }}
+        </option>
         <option
           v-for="resume in resumes.data.value.data"
           :key="resume.id"
@@ -130,25 +168,53 @@ function applyLabel(jobId: number): string {
               :placeholder="t('jobs.filters.search_placeholder')"
               class="input pl-9"
               @keyup.enter="refetch()"
-            />
+            >
           </div>
         </div>
 
-        <select v-model="state.modality" class="input">
-          <option value="">{{ t('jobs.filters.any_modality') }}</option>
-          <option value="remote">{{ t('modality.remote') }}</option>
-          <option value="hybrid">{{ t('modality.hybrid') }}</option>
-          <option value="onsite">{{ t('modality.onsite') }}</option>
+        <select
+          v-model="state.modality"
+          class="input"
+        >
+          <option value="">
+            {{ t('jobs.filters.any_modality') }}
+          </option>
+          <option value="remote">
+            {{ t('modality.remote') }}
+          </option>
+          <option value="hybrid">
+            {{ t('modality.hybrid') }}
+          </option>
+          <option value="onsite">
+            {{ t('modality.onsite') }}
+          </option>
         </select>
 
-        <select v-model="state.seniority" class="input">
-          <option value="">{{ t('jobs.filters.any_seniority') }}</option>
-          <option value="intern">{{ t('seniority.intern') }}</option>
-          <option value="junior">{{ t('seniority.junior') }}</option>
-          <option value="mid">{{ t('seniority.mid') }}</option>
-          <option value="senior">{{ t('seniority.senior') }}</option>
-          <option value="staff">{{ t('seniority.staff') }}</option>
-          <option value="principal">{{ t('seniority.principal') }}</option>
+        <select
+          v-model="state.seniority"
+          class="input"
+        >
+          <option value="">
+            {{ t('jobs.filters.any_seniority') }}
+          </option>
+          <option value="intern">
+            {{ t('seniority.intern') }}
+          </option>
+          <option value="junior">
+            {{ t('seniority.junior') }}
+          </option>
+          <option value="mid">
+            {{ t('seniority.mid') }}
+          </option>
+          <option value="senior">
+            {{ t('seniority.senior') }}
+          </option>
+          <option value="staff">
+            {{ t('seniority.staff') }}
+          </option>
+          <option value="principal">
+            {{ t('seniority.principal') }}
+          </option>
         </select>
       </div>
 
@@ -179,8 +245,18 @@ function applyLabel(jobId: number): string {
       </div>
     </section>
 
-    <p v-if="isLoading" class="text-ink-500 mt-4 lg:mt-0">{{ t('jobs.loading') }}</p>
-    <p v-else-if="error" class="text-red-600 mt-4 lg:mt-0">{{ t('jobs.error') }}</p>
+    <p
+      v-if="isLoading"
+      class="text-ink-500 mt-4 lg:mt-0"
+    >
+      {{ t('jobs.loading') }}
+    </p>
+    <p
+      v-else-if="error"
+      class="text-red-600 mt-4 lg:mt-0"
+    >
+      {{ t('jobs.error') }}
+    </p>
 
     <div
       v-else-if="data && data.data.length === 0"
@@ -189,7 +265,10 @@ function applyLabel(jobId: number): string {
       {{ state.matchOnly ? t('jobs.no_matches') : t('jobs.no_results') }}
     </div>
 
-    <ul v-else class="space-y-2 mt-4 lg:mt-0 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+    <ul
+      v-else
+      class="space-y-2 mt-4 lg:mt-0 lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
+    >
       <li
         v-for="job in data?.data"
         :key="job.id"
@@ -203,13 +282,15 @@ function applyLabel(jobId: number): string {
             :src="job.company.logo_url"
             class="h-full w-full object-cover"
             :alt="job.company.name"
-          />
+          >
           <span v-else>{{ (job.company?.name ?? '?')[0]?.toUpperCase() }}</span>
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-start justify-between gap-2">
             <div class="min-w-0">
-              <h2 class="truncate font-semibold text-ink-900">{{ job.title }}</h2>
+              <h2 class="truncate font-semibold text-ink-900">
+                {{ job.title }}
+              </h2>
               <p class="text-sm text-ink-500">
                 {{ job.company?.name ?? '—' }} · {{ job.location ?? '—' }}
                 <span v-if="job.modality"> · {{ t(`modality.${job.modality}`) }}</span>
@@ -225,6 +306,25 @@ function applyLabel(jobId: number): string {
             </span>
           </div>
           <div class="mt-3 flex flex-wrap gap-1">
+            <span
+              v-if="job.contact_email"
+              class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                />
+              </svg>
+              {{ t('jobs.email_tag') }}
+            </span>
             <span
               v-for="tag in job.stack.slice(0, 8)"
               :key="tag"
@@ -257,6 +357,19 @@ function applyLabel(jobId: number): string {
       </li>
     </ul>
 
-    <p v-if="isFetching && !isLoading" class="text-xs text-ink-400">{{ t('jobs.loading') }}</p>
+    <p
+      v-if="isFetching && !isLoading"
+      class="text-xs text-ink-400"
+    >
+      {{ t('jobs.loading') }}
+    </p>
+
+    <ApplyByEmailModal
+      v-if="emailModalJob && profile"
+      v-model="emailModalOpen"
+      :job="emailModalJob"
+      :profile="profile"
+      @applied="onEmailApplied"
+    />
   </div>
 </template>

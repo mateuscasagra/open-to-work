@@ -71,8 +71,12 @@ async function onDownload(id: number): Promise<void> {
   <div class="mx-auto max-w-4xl lg:flex lg:h-full lg:flex-col">
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3 lg:mb-3">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('resumes.title') }}</h1>
-        <p class="mt-0.5 text-xs text-ink-500">{{ t('resumes.subtitle') }}</p>
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+          {{ t('resumes.title') }}
+        </h1>
+        <p class="mt-0.5 text-xs text-ink-500">
+          {{ t('resumes.subtitle') }}
+        </p>
       </div>
       <div class="flex items-center gap-2">
         <input
@@ -81,7 +85,7 @@ async function onDownload(id: number): Promise<void> {
           accept="application/pdf"
           class="hidden"
           @change="onUploadChange"
-        />
+        >
         <button
           type="button"
           class="btn-secondary"
@@ -90,7 +94,13 @@ async function onDownload(id: number): Promise<void> {
         >
           {{ uploadPdf.isPending.value ? t('resumes.uploading') : `⇧ ${t('resumes.upload_pdf')}` }}
         </button>
-        <button type="button" class="btn-primary" @click="goNew">+ {{ t('resumes.new') }}</button>
+        <button
+          type="button"
+          class="btn-primary"
+          @click="goNew"
+        >
+          + {{ t('resumes.new') }}
+        </button>
       </div>
     </header>
 
@@ -102,8 +112,17 @@ async function onDownload(id: number): Promise<void> {
       {{ uploadError }}
     </p>
 
-    <p v-if="resumes.isLoading.value" class="text-ink-500">{{ t('resumes.loading') }}</p>
-    <p v-else-if="resumes.error.value" class="text-red-600" role="alert">
+    <p
+      v-if="resumes.isLoading.value"
+      class="text-ink-500"
+    >
+      {{ t('resumes.loading') }}
+    </p>
+    <p
+      v-else-if="resumes.error.value"
+      class="text-red-600"
+      role="alert"
+    >
       {{ t('resumes.load_failed') }}
     </p>
 
@@ -116,11 +135,22 @@ async function onDownload(id: number): Promise<void> {
       >
         📄
       </div>
-      <p class="mb-4 text-ink-500">{{ t('resumes.empty') }}</p>
-      <button type="button" class="btn-primary" @click="goNew">+ {{ t('resumes.new') }}</button>
+      <p class="mb-4 text-ink-500">
+        {{ t('resumes.empty') }}
+      </p>
+      <button
+        type="button"
+        class="btn-primary"
+        @click="goNew"
+      >
+        + {{ t('resumes.new') }}
+      </button>
     </div>
 
-    <ul v-else-if="resumes.data.value" class="space-y-2 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+    <ul
+      v-else-if="resumes.data.value"
+      class="space-y-2 lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
+    >
       <li
         v-for="resume in resumes.data.value.data"
         :key="resume.id"
@@ -128,7 +158,9 @@ async function onDownload(id: number): Promise<void> {
       >
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
-            <h2 class="truncate font-semibold text-ink-900">{{ resume.title }}</h2>
+            <h2 class="truncate font-semibold text-ink-900">
+              {{ resume.title }}
+            </h2>
             <span
               v-if="resume.is_pdf_upload"
               class="rounded-md bg-ink-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-ink-600"

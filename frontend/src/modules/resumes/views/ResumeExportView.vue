@@ -46,7 +46,10 @@ function onBack(): void {
       <div class="flex items-center gap-3">
         <label class="flex items-center gap-2 text-sm">
           <span class="text-ink-600">{{ t('resumes.export.template') }}</span>
-          <select v-model="selectedTemplate" class="input !py-1.5 text-sm">
+          <select
+            v-model="selectedTemplate"
+            class="input !py-1.5 text-sm"
+          >
             <option value="classic">{{ t('resumes.export.templates.classic') }}</option>
             <option value="modern">{{ t('resumes.export.templates.modern') }}</option>
           </select>
@@ -70,8 +73,17 @@ function onBack(): void {
       {{ error }}
     </p>
 
-    <p v-if="detail.isLoading.value" class="text-ink-500">{{ t('resumes.loading') }}</p>
-    <p v-else-if="detail.error.value" class="text-red-600" role="alert">
+    <p
+      v-if="detail.isLoading.value"
+      class="text-ink-500"
+    >
+      {{ t('resumes.loading') }}
+    </p>
+    <p
+      v-else-if="detail.error.value"
+      class="text-red-600"
+      role="alert"
+    >
       {{ t('resumes.load_failed') }}
     </p>
 
@@ -79,13 +91,20 @@ function onBack(): void {
       v-else-if="detail.data.value"
       class="flex justify-center overflow-auto rounded-xl border border-ink-200 bg-ink-100 p-6"
     >
-      <div ref="pageEl" class="shadow-card">
+      <div
+        ref="pageEl"
+        class="shadow-card"
+      >
         <ClassicTemplate
           v-if="selectedTemplate === 'classic'"
           :resume="detail.data.value"
           :user-name="auth.user?.name"
         />
-        <ModernTemplate v-else :resume="detail.data.value" :user-name="auth.user?.name" />
+        <ModernTemplate
+          v-else
+          :resume="detail.data.value"
+          :user-name="auth.user?.name"
+        />
       </div>
     </div>
   </div>

@@ -29,6 +29,12 @@ final class StoreApplicationRequest extends FormRequest
             'source' => ['nullable', 'string', 'max:50'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'expectedSalary' => ['nullable', 'integer', 'min:0'],
+            'emailMessageOverride' => ['nullable', 'string', 'max:5000'],
+            'emailResumeIdOverride' => [
+                'nullable',
+                'integer',
+                Rule::exists('resumes', 'id')->where('user_id', $this->user()?->id),
+            ],
         ];
     }
 }

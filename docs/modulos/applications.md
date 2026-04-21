@@ -24,8 +24,11 @@
 - `app/Http/Controllers/Api/ApplicationAttachmentController.php`
 
 **Domínio:** `app/Domain/Application/`
-- **Actions:** `CreateApplication`, `ChangeApplicationStatus`
-- **DTO:** `ApplicationData`
+- **Actions:** `CreateApplication`, `ChangeApplicationStatus`, `SendApplicationEmail`
+- **DTO:** `ApplicationData` (inclui `emailMessageOverride`, `emailResumeIdOverride` opcionais)
+- **Enum:** `app/Enums/EmailApplyMode.php` — `Fixed | Variable` (backed string enum)
+- **Mailable:** `app/Mail/ApplicationEmail.php` — mensagem com replyTo do user, anexa PDF do currículo via S3
+- **Blade:** `resources/views/mail/application.blade.php`
 - **Exception:** `DuplicateApplicationException` (controller mapeia para `409`)
 
 **Enums:** `app/Enums/ApplicationStatus.php` — state machine via `canTransitionTo(ApplicationStatus $next): bool`
@@ -57,6 +60,25 @@ Accepted | Rejected | Withdrawn  (terminais — sem transições)
 ### Duplicidade
 
 `CreateApplication` checa `unique(user_id, job_id)`. Se existir, lança `DuplicateApplicationException` → controller responde `409`.
+
+### Candidatura por e-mail
+
+Quando o user aplica a uma vaga com `contact_email` e tem `email_apply_enabled=true` no perfil:
+
+1. `CreateApplication` cria a candidatura normalmente
+2. Injeta `SendApplicationEmail` e dispara o envio
+3. **`SendApplicationEmail`** resolve mensagem e currículo:
+   - `message_mode=fixed` → usa `profile.email_apply_message_template`
+   - `message_mode=variable` → usa `emailMessageOverride` do DTO
+   - `resume_mode=fixed` → usa `profile.email_apply_resume_id`
+   - `resume_mode=variable` → usa `emailResumeIdOverride` do DTO
+4. Envia `ApplicationEmail` Mailable via queue com `replyTo(user.email)`
+5. Se currículo é PDF upload, anexa via S3 `temporaryUrl`
+6. Seta `application.sent_via_email_at = now()`
+
+**StoreApplicationRequest** valida os campos opcionais:
+- `email_message_override: string|nullable|max:5000`
+- `email_resume_id_override: integer|nullable|exists:resumes,id` (ownership check)
 
 ### Anexos
 
@@ -92,9 +114,10 @@ Accepted | Rejected | Withdrawn  (terminais — sem transições)
 
 ## Efeitos colaterais
 
-- Escritas: `applications`, `application_events`, `media`
+- Escritas: `applications` (inclui `sent_via_email_at`), `application_events`, `media`
+- Migration: `2026_04_21_000300_add_sent_via_email_at_to_applications`
 - Eventos: `ApplicationCreated`, `ApplicationStatusChanged`
-- E-mails via Resend (queue `mail`)
+- E-mails via Resend (queue `mail`) — follow-ups + candidatura por e-mail (`ApplicationEmail`)
 - Objetos em S3 (anexos)
 
 ## Testes
@@ -115,3 +138,5 @@ Accepted | Rejected | Withdrawn  (terminais — sem transições)
 - **Resume linking:** o Form Request usa `Rule::exists('resumes', 'id')->where('user_id', $userId)` — isso é o que impede um user vincular currículo de outro. Não remova o `where('user_id', ...)`.
 - **Vinculação ↔ vaga:** quando uma vaga é desativada (`active=false`), candidaturas existentes mantêm `job_id`. UI deve renderizar com fallback para vaga removida.
 - **`ApplicationCreated` listener** pode disparar lógica adicional (ex.: contadores). Se virar gargalo no fluxo de aplicar, mover para queue.
+- **`SendApplicationEmail` depende do perfil** (`email_apply_enabled`, modes, template, resume). Se o perfil estiver incompleto (ex.: `message_mode=fixed` sem template), a action não envia. Verificar configuração do perfil antes de debugar "e-mail não enviado".
+- **`CreateApplication` injeta `SendApplicationEmail` via container.** O teste unitário usa `app(CreateApplication::class)` para resolver a dependência — nunca instanciar diretamente com `new`.

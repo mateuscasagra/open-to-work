@@ -22,6 +22,7 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 
 | Sintoma | Abra primeiro |
 |---|---|
+| E-mail de candidatura não enviado | `applications.md` (SendApplicationEmail) + `profile.md` (email_apply settings) + `jobs.md` (contact_email) |
 | `401` em rota `/api/*` autenticada | `auth.md` + `cross-cutting.md` (CSRF/Sanctum) |
 | `419` (Page Expired / token mismatch) | `cross-cutting.md` (CSRF) → `shared-frontend.md` (client.ts) |
 | `429` Too Many Requests | `cross-cutting.md` (RateLimiters) |

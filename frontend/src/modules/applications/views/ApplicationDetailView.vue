@@ -139,10 +139,23 @@ function goBack(): void {
       </button>
     </div>
 
-    <p v-if="detail.isLoading.value" class="text-ink-500">{{ t('jobs.loading') }}</p>
-    <p v-else-if="detail.error.value" class="text-red-600">{{ t('applications.load_failed') }}</p>
+    <p
+      v-if="detail.isLoading.value"
+      class="text-ink-500"
+    >
+      {{ t('jobs.loading') }}
+    </p>
+    <p
+      v-else-if="detail.error.value"
+      class="text-red-600"
+    >
+      {{ t('applications.load_failed') }}
+    </p>
 
-    <div v-else-if="detail.data.value" class="space-y-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+    <div
+      v-else-if="detail.data.value"
+      class="space-y-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
+    >
       <header class="card p-4">
         <h1 class="text-2xl font-bold tracking-tight text-ink-900">
           {{ detail.data.value.job?.title ?? '—' }}
@@ -161,8 +174,13 @@ function goBack(): void {
         </p>
       </header>
 
-      <section v-if="nextStatuses.length" class="card p-6">
-        <h2 class="mb-3 font-semibold text-ink-900">{{ t('applications.advance') }}</h2>
+      <section
+        v-if="nextStatuses.length"
+        class="card p-6"
+      >
+        <h2 class="mb-3 font-semibold text-ink-900">
+          {{ t('applications.advance') }}
+        </h2>
         <p
           v-if="statusError"
           class="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
@@ -185,7 +203,9 @@ function goBack(): void {
       </section>
 
       <section class="card p-6">
-        <h2 class="mb-3 font-semibold text-ink-900">{{ t('applications.notes') }}</h2>
+        <h2 class="mb-3 font-semibold text-ink-900">
+          {{ t('applications.notes') }}
+        </h2>
         <textarea
           v-model="notesInput"
           rows="5"
@@ -194,7 +214,12 @@ function goBack(): void {
         />
         <label class="mt-4 block">
           <span class="label">{{ t('applications.expected_salary') }}</span>
-          <input v-model.number="expectedSalaryInput" type="number" min="0" class="input mt-1.5 w-40" />
+          <input
+            v-model.number="expectedSalaryInput"
+            type="number"
+            min="0"
+            class="input mt-1.5 w-40"
+          >
         </label>
         <div class="mt-4 flex items-center gap-3">
           <button
@@ -205,21 +230,34 @@ function goBack(): void {
           >
             {{ t('profile.save') }}
           </button>
-          <span v-if="saveMessage" class="text-xs text-ink-500">{{ saveMessage }}</span>
+          <span
+            v-if="saveMessage"
+            class="text-xs text-ink-500"
+          >{{ saveMessage }}</span>
         </div>
       </section>
 
       <section class="card p-6">
-        <h2 class="mb-3 font-semibold text-ink-900">{{ t('applications.resume') }}</h2>
+        <h2 class="mb-3 font-semibold text-ink-900">
+          {{ t('applications.resume') }}
+        </h2>
         <div
           v-if="resumes.data.value && resumes.data.value.data.length === 0"
           class="text-sm text-ink-500"
         >
           {{ t('applications.no_resumes_yet') }}
         </div>
-        <div v-else class="flex flex-wrap items-center gap-3">
-          <select v-model="resumeIdInput" class="input min-w-[220px] flex-1">
-            <option :value="null">{{ t('applications.no_resume') }}</option>
+        <div
+          v-else
+          class="flex flex-wrap items-center gap-3"
+        >
+          <select
+            v-model="resumeIdInput"
+            class="input min-w-[220px] flex-1"
+          >
+            <option :value="null">
+              {{ t('applications.no_resume') }}
+            </option>
             <option
               v-for="resume in resumes.data.value?.data ?? []"
               :key="resume.id"
@@ -233,18 +271,23 @@ function goBack(): void {
             class="btn-primary"
             :disabled="
               updateNotes.isPending.value ||
-              resumeIdInput === (detail.data.value?.resume_id ?? null)
+                resumeIdInput === (detail.data.value?.resume_id ?? null)
             "
             @click="onChangeResume"
           >
             {{ t('profile.save') }}
           </button>
-          <span v-if="resumeMessage" class="text-xs text-ink-500">{{ resumeMessage }}</span>
+          <span
+            v-if="resumeMessage"
+            class="text-xs text-ink-500"
+          >{{ resumeMessage }}</span>
         </div>
       </section>
 
       <section class="card p-6">
-        <h2 class="mb-3 font-semibold text-ink-900">{{ t('applications.attachments') }}</h2>
+        <h2 class="mb-3 font-semibold text-ink-900">
+          {{ t('applications.attachments') }}
+        </h2>
         <p
           v-if="uploadError"
           class="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
@@ -261,13 +304,19 @@ function goBack(): void {
             class="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100"
             :disabled="uploadAttachment.isPending.value"
             @change="onFileChange"
-          />
-          <span v-if="uploadAttachment.isPending.value" class="text-xs text-ink-500">
+          >
+          <span
+            v-if="uploadAttachment.isPending.value"
+            class="text-xs text-ink-500"
+          >
             {{ t('applications.uploading') }}
           </span>
         </div>
 
-        <ul v-if="attachments.data.value && attachments.data.value.length > 0" class="space-y-2">
+        <ul
+          v-if="attachments.data.value && attachments.data.value.length > 0"
+          class="space-y-2"
+        >
           <li
             v-for="att in attachments.data.value"
             :key="att.id"
@@ -282,7 +331,9 @@ function goBack(): void {
               >
                 {{ att.file_name }}
               </a>
-              <p class="text-xs text-ink-400">{{ formatBytes(att.size) }}</p>
+              <p class="text-xs text-ink-400">
+                {{ formatBytes(att.size) }}
+              </p>
             </div>
             <button
               type="button"
@@ -293,18 +344,28 @@ function goBack(): void {
             </button>
           </li>
         </ul>
-        <p v-else class="text-sm text-ink-500">{{ t('applications.no_attachments') }}</p>
+        <p
+          v-else
+          class="text-sm text-ink-500"
+        >
+          {{ t('applications.no_attachments') }}
+        </p>
       </section>
 
       <section class="card p-6">
-        <h2 class="mb-3 font-semibold text-ink-900">{{ t('applications.timeline') }}</h2>
+        <h2 class="mb-3 font-semibold text-ink-900">
+          {{ t('applications.timeline') }}
+        </h2>
         <p
           v-if="!detail.data.value.events || detail.data.value.events.length === 0"
           class="text-sm text-ink-500"
         >
           {{ t('applications.no_events') }}
         </p>
-        <ol v-else class="space-y-4 border-l-2 border-ink-200 pl-5">
+        <ol
+          v-else
+          class="space-y-4 border-l-2 border-ink-200 pl-5"
+        >
           <li
             v-for="ev in [...detail.data.value.events].sort((a, b) =>
               b.occurred_at.localeCompare(a.occurred_at)
@@ -314,18 +375,25 @@ function goBack(): void {
           >
             <span
               class="absolute -left-[27px] top-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-brand-500 shadow-soft"
-            ></span>
-            <p class="text-xs text-ink-400">{{ formatDate(ev.occurred_at) }}</p>
+            />
+            <p class="text-xs text-ink-400">
+              {{ formatDate(ev.occurred_at) }}
+            </p>
             <p class="text-sm text-ink-800">
               <template v-if="ev.event_type === 'status_changed' && ev.payload">
                 {{ t(`applications.status.${String(ev.payload.from)}`) }}
                 <span class="text-ink-400">→</span>
                 <strong>{{ t(`applications.status.${String(ev.payload.to)}`) }}</strong>
-                <span v-if="ev.payload.note" class="mt-1 block text-xs italic text-ink-500">
+                <span
+                  v-if="ev.payload.note"
+                  class="mt-1 block text-xs italic text-ink-500"
+                >
                   {{ ev.payload.note }}
                 </span>
               </template>
-              <template v-else>{{ ev.event_type }}</template>
+              <template v-else>
+                {{ ev.event_type }}
+              </template>
             </p>
           </li>
         </ol>

@@ -123,7 +123,19 @@
     "skills_max": "Maximum skills reached",
     "save": "Save",
     "saved": "Profile saved!",
-    "saveFailed": "Failed to save profile"
+    "saveFailed": "Failed to save profile",
+    "email_apply": "Apply by email",
+    "email_apply_desc": "Send your resume and a message directly for jobs that accept email applications.",
+    "email_apply_enabled": "Send resume by email automatically",
+    "email_apply_message_mode": "Message",
+    "email_apply_message_fixed": "Fixed message",
+    "email_apply_message_variable": "Customize per job",
+    "email_apply_template": "Message template",
+    "email_apply_template_hint": "Use {empresa} and {cargo} as placeholders",
+    "email_apply_resume_mode": "Resume",
+    "email_apply_resume_fixed": "Fixed resume",
+    "email_apply_resume_variable": "Choose per job",
+    "email_apply_resume_select": "Select a resume"
   },
   "jobs": {
     "loading": "Loading jobs…",
@@ -143,7 +155,13 @@
       "reset": "Clear filters"
     },
     "use_resume": "Use resume:",
-    "no_resume": "None"
+    "no_resume": "None",
+    "email_tag": "E-mail",
+    "apply_modal_title": "Apply by email",
+    "apply_modal_message": "Message",
+    "apply_modal_resume": "Resume",
+    "apply_modal_send": "Send application",
+    "apply_modal_sending": "Sending..."
   },
   "seniority": {
     "intern": "Intern",
@@ -240,6 +258,8 @@
       "move_down": "Move down",
       "no_sections": "No sections yet. Add one above.",
       "no_sections_hint": "Click on the sections on the side to start",
+      "clear_all": "Clear all",
+      "restore_default": "Restore default template",
       "choose_template": "Choose a template",
       "template_default": "Standard Template",
       "template_default_desc": "Optimized structure with summary, experience, education, skills and languages — the format that gets the most callbacks.",
@@ -252,7 +272,8 @@
       "education": "Education",
       "skill": "Skill",
       "language": "Language",
-      "project": "Project"
+      "project": "Project",
+      "contact": "Contact"
     },
     "levels": {
       "beginner": "Beginner",
@@ -277,7 +298,11 @@
       "field": "Field",
       "name": "Name",
       "level": "Level",
-      "url": "URL"
+      "url": "URL",
+      "contact_email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "address": "Address"
     }
   }
 }

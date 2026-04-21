@@ -115,7 +115,9 @@ function openDetail(applicationId: number): void {
   <div class="lg:flex lg:h-full lg:flex-col">
     <header class="mb-4 flex items-center justify-between lg:mb-3">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('nav.applications') }}</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+          {{ t('nav.applications') }}
+        </h1>
         <p class="mt-0.5 text-xs text-ink-500">
           {{ totalCount }} {{ totalCount === 1 ? 'candidatura' : 'candidaturas' }}
         </p>
@@ -130,9 +132,17 @@ function openDetail(applicationId: number): void {
       {{ errorMessage }}
     </p>
 
-    <p v-if="isLoading" class="text-ink-500">{{ t('jobs.loading') }}</p>
+    <p
+      v-if="isLoading"
+      class="text-ink-500"
+    >
+      {{ t('jobs.loading') }}
+    </p>
 
-    <div v-else class="flex gap-3 overflow-x-auto pb-2 lg:min-h-0 lg:flex-1">
+    <div
+      v-else
+      class="flex gap-3 overflow-x-auto pb-2 lg:min-h-0 lg:flex-1"
+    >
       <div
         v-for="status in COLUMNS"
         :key="status"
@@ -147,9 +157,18 @@ function openDetail(applicationId: number): void {
         @drop="onDrop($event, status)"
       >
         <!-- Column header -->
-        <div class="flex items-center gap-2 border-b px-3 py-2.5" :class="[STATUS_STYLE[status].border, STATUS_STYLE[status].bg]">
-          <span class="h-2.5 w-2.5 rounded-full" :class="STATUS_STYLE[status].accent"></span>
-          <span class="text-xs font-bold uppercase tracking-wide" :class="STATUS_STYLE[status].text">
+        <div
+          class="flex items-center gap-2 border-b px-3 py-2.5"
+          :class="[STATUS_STYLE[status].border, STATUS_STYLE[status].bg]"
+        >
+          <span
+            class="h-2.5 w-2.5 rounded-full"
+            :class="STATUS_STYLE[status].accent"
+          />
+          <span
+            class="text-xs font-bold uppercase tracking-wide"
+            :class="STATUS_STYLE[status].text"
+          >
             {{ t(`applications.status.${status}`) }}
           </span>
           <span
@@ -173,8 +192,12 @@ function openDetail(applicationId: number): void {
             @dragend="onDragEnd"
             @click="openDetail(app.id)"
           >
-            <p class="text-sm font-semibold text-ink-900 leading-snug">{{ app.job?.title ?? '—' }}</p>
-            <p class="mt-1 text-xs text-ink-500">{{ app.job?.company?.name ?? '—' }}</p>
+            <p class="text-sm font-semibold text-ink-900 leading-snug">
+              {{ app.job?.title ?? '—' }}
+            </p>
+            <p class="mt-1 text-xs text-ink-500">
+              {{ app.job?.company?.name ?? '—' }}
+            </p>
           </div>
 
           <div

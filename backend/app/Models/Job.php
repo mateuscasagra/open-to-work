@@ -30,6 +30,7 @@ class Job extends Model
         'salary_max',
         'salary_currency',
         'language',
+        'contact_email',
         'posted_at',
         'expires_at',
         'active',

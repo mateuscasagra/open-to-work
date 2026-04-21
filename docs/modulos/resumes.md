@@ -25,7 +25,7 @@
 - **DTOs:** `ResumeData`, `ResumeSectionData`
 - **Query:** `ListUserResumes`
 
-**Enums:** `app/Enums/ResumeSectionType.php` — `summary | experience | education | skill | language | project`
+**Enums:** `app/Enums/ResumeSectionType.php` — `summary | experience | education | skill | language | project | contact`
 
 **Models:** `app/Models/Resume.php`, `ResumeSection.php`
 
@@ -61,13 +61,19 @@
 
 ### Views
 - **`ResumesListView`** — cards com título/data/ações (editar, exportar, baixar, excluir). Botões topo: **Novo**, **Upload PDF** (form com file input). Delete confirma.
-- **`ResumeBuilderView`** — modos `new`/`edit` (route param). Form: `title`, `language`, e **array dinâmico de seções**. Helper `emptyContentFor(type)` retorna template do `content`. Por seção: campos específicos (experience → company/role/dates/description; education → institution/degree/field/dates; etc.). Controles ↑ ↓ remove +. Save via `useSaveResume`. Flash de sucesso 3s.
+- **`ResumeBuilderView`** — modos `new`/`edit` (route param). **Template chooser** para currículos novos: botão "Modelo padrão" (preenche com seções pré-definidas: 1 summary, 2 experiences, 1 education, 5 skills, 2 languages) ou "Em branco". Form: `title`, `language`, e **array dinâmico de seções**. Helper `emptyContentFor(type)` retorna template do `content`. Por seção: campos específicos (experience → company/role/dates/description; skill/language → name/level via select). Controles ↑ ↓ remove +. Save via `useSaveResume`. Flash de sucesso 3s. Sidebar de tipos de seção **não** expande com o conteúdo principal (removido `flex-1`).
 - **`ResumeExportView`** — seletor de template (Clássico/Moderno) + preview. Botão **Exportar PDF** dispara `useResumePdfExport.exportToPdf(elementRef, filename)`.
 
 ### Templates de PDF
 - **`ClassicTemplate.vue`** — serif, layout single-column
 - **`ModernTemplate.vue`** — sidebar indigo + main column
-- Ambos renderizam `<article class="pdf-page">` com dimensões A4 (794×1123 px). Helpers: `sectionsByType(type)`, `dateRange(s, e)`, `str(content, key)`.
+- Ambos renderizam `<article class="pdf-page">` com dimensões A4 (794×1123 px).
+
+### Helpers (`templates/helpers.ts`)
+- `sectionsByType(type)` — filtra seções por tipo
+- `str(content, key)`, `bool(content, key)` — acesso tipado ao content JSON
+- `dateRange(content)` — formata intervalo de datas. Se `content.current=true`, exibe label localizado ("Atual"/"Present"/"Actual") baseado em `navigator.language` (via `CURRENT_LABELS`)
+- `levelLabel(level)` — traduz níveis de skill/language (beginner/intermediate/advanced/native/fluent) para o idioma do navegador via `LEVEL_LABELS`. Usado nos dois templates para seções `skill` e `language`.
 
 ### Composables
 - **`useResumes`** — query `['resumes']`, GET `/api/resumes`
@@ -96,6 +102,8 @@
 - **html2canvas + jsPDF inflam o bundle** (~500kb). Por isso o `useResumePdfExport` faz `await import(...)` dinâmico. Não mover esse import para o topo.
 - **html2canvas tem problemas com fontes carregadas via CSS @font-face** se ainda não estiverem prontas. O export espera `document.fonts.ready` antes de renderizar (verificar — caso contrário, fontes vêm como fallback do sistema).
 - **Multi-página:** o loop em `heightLeft` corta no meio de elementos se o conteúdo for muito alto sem quebras. Se reportarem texto cortado, considerar `pagebreak-inside: avoid` em headings.
+- **Tradução de níveis no PDF** depende de `navigator.language`. Se o navegador estiver em idioma não mapeado (fora de pt/en/es), cai em fallback inglês. Para adicionar idiomas, editar `LEVEL_LABELS` e `CURRENT_LABELS` em `helpers.ts`.
+- **Template chooser** só aparece em currículos novos (`mode === 'new'`). Se o user recarregar a página antes de escolher, o chooser reaparece. Após escolher, a flag `templateChosen` impede re-exibição.
 - **Tamanho máximo de upload (5MB)** está no Form Request E no `php.ini` do container (`upload_max_filesize`). Se mudar, ajustar nos dois.
 - **Visibilidade `private` no S3:** se alguém setar `public-read` na bucket policy (R2/MinIO), o `temporaryUrl` ainda funciona mas qualquer URL direta também — quebra a privacidade. Conferir bucket policy ao provisionar.
 - **Vinculação a candidatura:** o Form Request da Application valida ownership via `Rule::exists ... where user_id`. Não remover o `where`.

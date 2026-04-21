@@ -42,8 +42,8 @@ Validadores tipados usados em **todas** as respostas:
 |---|---|
 | `UserSchema`, `LocaleEnum` | auth, profile, account |
 | `SeniorityEnum`, `ModalityEnum` | profile, jobs |
-| `SkillSchema`, `ProfileSchema` | profile |
-| `JobSchema`, `JobSourceSchema`, `JobsPage` | jobs |
+| `SkillSchema`, `ProfileSchema` (inclui `email_apply_*`) | profile |
+| `JobSchema` (inclui `contact_email`), `JobSourceSchema`, `JobsPage` | jobs |
 | `ApplicationStatusSchema`, `ApplicationSchema`, `ApplicationEventSchema`, `AttachmentSchema` | applications |
 | `ResumeSchema`, `ResumeSectionSchema`, `ResumesPageSchema` | resumes |
 | `MetricsSummarySchema` | metrics |
@@ -56,13 +56,13 @@ Validadores tipados usados em **todas** as respostas:
 
 ## Layout (`src/shared/layouts/AppLayout.vue`)
 
-Layout autenticado: sidebar nav + user card + logout. Itens calculados a partir das rotas (`dashboard`, `jobs`, `applications`, `resumes`, `profile`, `account`). Slot `<router-view />`. Responsivo (mobile com toggle).
+Layout autenticado: top navbar + user dropdown + logout. 5 itens de navegação: `dashboard`, `jobs`, `applications`, `resumes`, `profile`. Usa `exact-active-class` (não `active-class`) para highlight — garante que apenas a rota exata é destacada (corrige bug onde Dashboard ficava destacado em todas as páginas `/app/*`). Slot `<router-view />`. Responsivo (mobile com hamburger menu).
 
 ## Router (`src/router/index.ts`)
 
 **Estrutura:**
 - Rotas públicas: `landing`, `login`, `register`, `auth.callback`
-- Rotas protegidas sob `/app` (layout `AppLayout`): `dashboard`, `jobs`, `applications`, `applications/:id`, `resumes`, `resumes/new`, `resumes/:id/edit`, `resumes/:id/export`, `profile`, `account`
+- Rotas protegidas sob `/app` (layout `AppLayout`): `dashboard`, `jobs`, `applications`, `applications/:id`, `resumes`, `resumes/new`, `resumes/:id/edit`, `resumes/:id/export`, `profile`, `account` (account existe como rota mas não aparece na nav)
 
 **`beforeEach` guard:**
 ```ts

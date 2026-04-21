@@ -9,6 +9,8 @@ export interface ApplyPayload {
   expectedSalary?: number;
   resumeId?: number;
   source?: string;
+  email_message_override?: string;
+  email_resume_id_override?: number;
 }
 
 export type ApplyError = { kind: 'duplicate' | 'validation' | 'unknown'; message: string };

@@ -24,7 +24,9 @@ onMounted(async () => {
         class="inline-block h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-brand-300"
         aria-hidden="true"
       />
-      <p class="text-sm text-white/70">Autenticando…</p>
+      <p class="text-sm text-white/70">
+        Autenticando…
+      </p>
     </div>
   </div>
 </template>

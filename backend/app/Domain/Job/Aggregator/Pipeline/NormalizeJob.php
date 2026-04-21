@@ -12,8 +12,21 @@ use Closure;
  */
 final class NormalizeJob
 {
+    /** Domains that should never be used as contact email. */
+    private const BLOCKED_DOMAINS = [
+        '@gupy.io',
+        '@greenhouse.io',
+        '@lever.co',
+        '@workday.com',
+        '@smartrecruiters.com',
+        '@breezy.hr',
+        '@recruitee.com',
+    ];
+
     public function handle(JobDTO $job, Closure $next): mixed
     {
+        $contactEmail = $this->extractContactEmail($job->descriptionHtml);
+
         $normalized = new JobDTO(
             source: $job->source,
             externalId: trim($job->externalId),
@@ -32,6 +45,7 @@ final class NormalizeJob
             postedAt: $job->postedAt,
             expiresAt: $job->expiresAt,
             language: $job->language,
+            contactEmail: $contactEmail,
         );
 
         return $next($normalized);
@@ -42,6 +56,41 @@ final class NormalizeJob
         $title = trim($title);
 
         return preg_replace('/\s+/', ' ', $title) ?? $title;
+    }
+
+    private function extractContactEmail(string $html): ?string
+    {
+        $email = null;
+
+        // Strategy 1: try mailto: links in original HTML
+        if (preg_match('/mailto:([^"\'\s>]+)/i', $html, $matches)) {
+            $email = strtolower(trim($matches[1]));
+        }
+
+        // Strategy 2: fallback to generic email regex on stripped text
+        if ($email === null) {
+            $text = strip_tags($html);
+            if (preg_match('/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i', $text, $matches)) {
+                $email = strtolower(trim($matches[0]));
+            }
+        }
+
+        if ($email === null) {
+            return null;
+        }
+
+        // Exclude blocked domains / prefixes
+        if (str_starts_with($email, 'noreply@') || str_starts_with($email, 'no-reply@')) {
+            return null;
+        }
+
+        foreach (self::BLOCKED_DOMAINS as $domain) {
+            if (str_ends_with($email, $domain)) {
+                return null;
+            }
+        }
+
+        return $email;
     }
 
     /**

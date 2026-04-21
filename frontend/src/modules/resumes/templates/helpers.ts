@@ -61,6 +61,7 @@ const SECTION_LABELS: Record<string, Record<ResumeSectionType, string>> = {
     skill: 'Habilidades',
     language: 'Idiomas',
     project: 'Projetos',
+    contact: 'Contato',
   },
   en: {
     summary: 'Summary',
@@ -69,6 +70,7 @@ const SECTION_LABELS: Record<string, Record<ResumeSectionType, string>> = {
     skill: 'Skills',
     language: 'Languages',
     project: 'Projects',
+    contact: 'Contact',
   },
   es: {
     summary: 'Resumen',
@@ -77,6 +79,7 @@ const SECTION_LABELS: Record<string, Record<ResumeSectionType, string>> = {
     skill: 'Habilidades',
     language: 'Idiomas',
     project: 'Proyectos',
+    contact: 'Contacto',
   },
 };
 

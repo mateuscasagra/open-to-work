@@ -30,7 +30,10 @@ const steps = [
     <!-- Nav -->
     <header class="absolute inset-x-0 top-0 z-20">
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <RouterLink :to="{ name: 'landing' }" class="flex items-center gap-2 text-white">
+        <RouterLink
+          :to="{ name: 'landing' }"
+          class="flex items-center gap-2 text-white"
+        >
           <span
             class="grid h-8 w-8 place-items-center rounded-lg bg-brand-500 text-white font-bold shadow-glow"
           >
@@ -40,13 +43,22 @@ const steps = [
         </RouterLink>
 
         <div class="hidden items-center gap-8 text-sm text-white/80 md:flex">
-          <a href="#features" class="hover:text-white transition">{{ t('nav.features') }}</a>
-          <a href="#how" class="hover:text-white transition">{{ t('nav.how_it_works') }}</a>
+          <a
+            href="#features"
+            class="hover:text-white transition"
+          >{{ t('nav.features') }}</a>
+          <a
+            href="#how"
+            class="hover:text-white transition"
+          >{{ t('nav.how_it_works') }}</a>
         </div>
 
         <div class="flex items-center gap-3">
           <template v-if="isAuthed">
-            <RouterLink :to="{ name: 'dashboard' }" class="btn-primary">
+            <RouterLink
+              :to="{ name: 'dashboard' }"
+              class="btn-primary"
+            >
               {{ t('nav.open_app') }}
             </RouterLink>
           </template>
@@ -57,7 +69,10 @@ const steps = [
             >
               {{ t('auth.signIn') }}
             </RouterLink>
-            <RouterLink :to="{ name: 'register' }" class="btn-primary">
+            <RouterLink
+              :to="{ name: 'register' }"
+              class="btn-primary"
+            >
               {{ t('landing.cta_primary') }}
             </RouterLink>
           </template>
@@ -68,18 +83,21 @@ const steps = [
     <!-- Hero -->
     <section class="relative overflow-hidden bg-gradient-hero pb-28 pt-32 text-white md:pb-40 md:pt-40">
       <!-- Grid overlay -->
-      <div class="absolute inset-0 bg-grid-slate opacity-[0.06]" aria-hidden="true"></div>
+      <div
+        class="absolute inset-0 bg-grid-slate opacity-[0.06]"
+        aria-hidden="true"
+      />
       <!-- Soft glow -->
       <div
         class="absolute left-1/2 top-10 h-96 w-[48rem] -translate-x-1/2 rounded-full bg-brand-500/20 blur-3xl"
         aria-hidden="true"
-      ></div>
+      />
 
       <div class="relative mx-auto max-w-4xl px-6 text-center">
         <span
           class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur"
         >
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           {{ t('landing.eyebrow') }}
         </span>
 
@@ -144,7 +162,10 @@ const steps = [
     </section>
 
     <!-- Features -->
-    <section id="features" class="relative bg-ink-50 py-24 md:py-32">
+    <section
+      id="features"
+      class="relative bg-ink-50 py-24 md:py-32"
+    >
       <div class="mx-auto max-w-6xl px-6">
         <div class="mx-auto max-w-2xl text-center">
           <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">
@@ -153,7 +174,9 @@ const steps = [
           <h2 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
             {{ t('landing.features_title') }}
           </h2>
-          <p class="mt-4 text-ink-600">{{ t('landing.features_subtitle') }}</p>
+          <p class="mt-4 text-ink-600">
+            {{ t('landing.features_subtitle') }}
+          </p>
         </div>
 
         <div class="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -179,7 +202,10 @@ const steps = [
     </section>
 
     <!-- How it works -->
-    <section id="how" class="relative bg-white py-24 md:py-32">
+    <section
+      id="how"
+      class="relative bg-white py-24 md:py-32"
+    >
       <div class="mx-auto max-w-6xl px-6">
         <div class="mx-auto max-w-2xl text-center">
           <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">
@@ -188,7 +214,9 @@ const steps = [
           <h2 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
             {{ t('landing.how_title') }}
           </h2>
-          <p class="mt-4 text-ink-600">{{ t('landing.how_subtitle') }}</p>
+          <p class="mt-4 text-ink-600">
+            {{ t('landing.how_subtitle') }}
+          </p>
         </div>
 
         <ol class="mt-16 grid gap-6 md:grid-cols-3">
@@ -219,7 +247,10 @@ const steps = [
         <div
           class="relative overflow-hidden rounded-3xl bg-gradient-hero px-8 py-14 text-center text-white shadow-card md:px-16 md:py-20"
         >
-          <div class="absolute inset-0 bg-grid-slate opacity-[0.06]" aria-hidden="true"></div>
+          <div
+            class="absolute inset-0 bg-grid-slate opacity-[0.06]"
+            aria-hidden="true"
+          />
           <div class="relative">
             <h2 class="text-3xl font-bold tracking-tight md:text-4xl">
               {{ t('landing.cta_final_title') }}

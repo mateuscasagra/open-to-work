@@ -50,6 +50,11 @@ export const ProfileSchema = z.object({
   languages: z.array(LocaleEnum).nullable(),
   bio: z.string().nullable(),
   skills: z.array(SkillSchema).default([]),
+  email_apply_enabled: z.boolean().default(false),
+  email_apply_message_mode: z.enum(['fixed', 'variable']).nullable(),
+  email_apply_message_template: z.string().nullable(),
+  email_apply_resume_mode: z.enum(['fixed', 'variable']).nullable(),
+  email_apply_resume_id: z.number().nullable(),
 });
 export type Profile = z.infer<typeof ProfileSchema>;
 
@@ -72,6 +77,7 @@ export const JobSchema = z.object({
   posted_at: z.string().nullable(),
   match_score: z.number().optional(),
   matched_stack: z.array(z.string()).optional(),
+  contact_email: z.string().nullable().optional().default(null),
   company: z
     .object({
       id: z.number(),
@@ -106,6 +112,7 @@ export const ResumeSectionTypeEnum = z.enum([
   'skill',
   'language',
   'project',
+  'contact',
 ]);
 export type ResumeSectionType = z.infer<typeof ResumeSectionTypeEnum>;
 

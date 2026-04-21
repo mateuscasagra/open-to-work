@@ -62,6 +62,7 @@ final class PersistJob
             'salary_max' => $dto->salaryMax,
             'salary_currency' => $dto->salaryCurrency,
             'language' => $dto->language,
+            'contact_email' => $dto->contactEmail,
             'posted_at' => $dto->postedAt,
             'expires_at' => $dto->expiresAt,
             'active' => true,

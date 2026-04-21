@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\EmailApplyMode;
 use App\Enums\Modality;
 use App\Enums\Seniority;
 use App\Enums\SupportedLocale;
@@ -36,6 +37,27 @@ final class ProfileController extends Controller
             'bio' => ['nullable', 'string', 'max:2000'],
             'skills' => ['nullable', 'array'],
             'skills.*' => ['integer', 'exists:skills,id'],
+            'email_apply_enabled' => ['nullable', 'boolean'],
+            'email_apply_message_mode' => ['nullable', Rule::enum(EmailApplyMode::class)],
+            'email_apply_message_template' => [
+                'nullable',
+                'string',
+                'max:5000',
+                Rule::requiredIf(
+                    fn () => $request->boolean('email_apply_enabled')
+                        && $request->input('email_apply_message_mode') === 'fixed'
+                ),
+            ],
+            'email_apply_resume_mode' => ['nullable', Rule::enum(EmailApplyMode::class)],
+            'email_apply_resume_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('resumes', 'id')->where('user_id', $request->user()?->id),
+                Rule::requiredIf(
+                    fn () => $request->boolean('email_apply_enabled')
+                        && $request->input('email_apply_resume_mode') === 'fixed'
+                ),
+            ],
         ]);
 
         $profile = $request->user()->profile()->firstOrCreate([]);

@@ -56,27 +56,47 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-10">
         <!-- Left: Brand + nav -->
         <div class="flex items-center gap-8">
-          <RouterLink :to="{ name: 'dashboard' }" class="flex items-center gap-2.5 transition hover:opacity-80">
+          <RouterLink
+            :to="{ name: 'dashboard' }"
+            class="flex items-center gap-2.5 transition hover:opacity-80"
+          >
             <span class="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 font-bold text-white shadow-glow">
               O
             </span>
             <div class="hidden leading-tight sm:block">
-              <div class="text-sm font-semibold text-ink-900">{{ t('app.name') }}</div>
-              <div class="text-[11px] text-ink-400">{{ t('app.tagline') }}</div>
+              <div class="text-sm font-semibold text-ink-900">
+                {{ t('app.name') }}
+              </div>
+              <div class="text-[11px] text-ink-400">
+                {{ t('app.tagline') }}
+              </div>
             </div>
           </RouterLink>
 
           <!-- Desktop nav -->
           <nav class="hidden lg:block">
             <ul class="flex items-center gap-1">
-              <li v-for="item in navItems" :key="item.name">
+              <li
+                v-for="item in navItems"
+                :key="item.name"
+              >
                 <RouterLink
                   :to="{ name: item.name }"
                   class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition hover:bg-ink-100 hover:text-ink-900"
-                  active-class="!bg-brand-50 !text-brand-700"
+                  exact-active-class="!bg-brand-50 !text-brand-700"
                 >
-                  <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" :d="item.icon" />
+                  <svg
+                    class="h-4 w-4 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.75"
+                      :d="item.icon"
+                    />
                   </svg>
                   <span>{{ item.label }}</span>
                 </RouterLink>
@@ -98,10 +118,22 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
                 {{ userInitial }}
               </span>
               <div class="min-w-0 text-left">
-                <p class="truncate text-sm font-medium text-ink-900">{{ auth.user?.name ?? '—' }}</p>
+                <p class="truncate text-sm font-medium text-ink-900">
+                  {{ auth.user?.name ?? '—' }}
+                </p>
               </div>
-              <svg class="h-4 w-4 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <svg
+                class="h-4 w-4 text-ink-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
@@ -110,15 +142,27 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
               v-if="userMenuOpen"
               class="absolute right-0 mt-2 w-48 rounded-xl border border-ink-200 bg-white py-1.5 shadow-card"
             >
-              <p class="truncate px-3 py-1.5 text-xs text-ink-400">{{ auth.user?.email ?? '' }}</p>
-              <hr class="my-1 border-ink-100" />
+              <p class="truncate px-3 py-1.5 text-xs text-ink-400">
+                {{ auth.user?.email ?? '' }}
+              </p>
+              <hr class="my-1 border-ink-100">
               <button
                 type="button"
                 class="flex w-full items-center gap-2 px-3 py-2 text-sm text-ink-700 transition hover:bg-ink-50"
                 @click="userMenuOpen = false; logout()"
               >
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.75"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
                 {{ t('nav.logout') }}
               </button>
@@ -132,7 +176,12 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
             :aria-label="mobileOpen ? 'Close menu' : 'Open menu'"
             @click="mobileOpen = !mobileOpen"
           >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -145,30 +194,50 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
       </div>
 
       <!-- Mobile nav panel -->
-      <div v-if="mobileOpen" class="border-t border-ink-200 bg-white px-4 py-3 lg:hidden">
+      <div
+        v-if="mobileOpen"
+        class="border-t border-ink-200 bg-white px-4 py-3 lg:hidden"
+      >
         <ul class="space-y-1">
-          <li v-for="item in navItems" :key="item.name">
+          <li
+            v-for="item in navItems"
+            :key="item.name"
+          >
             <RouterLink
               :to="{ name: item.name }"
               class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-600 transition hover:bg-ink-100 hover:text-ink-900"
               active-class="!bg-brand-50 !text-brand-700"
               @click="mobileOpen = false"
             >
-              <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" :d="item.icon" />
+              <svg
+                class="h-5 w-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  :d="item.icon"
+                />
               </svg>
               <span>{{ item.label }}</span>
             </RouterLink>
           </li>
         </ul>
-        <hr class="my-2 border-ink-100" />
+        <hr class="my-2 border-ink-100">
         <div class="flex items-center gap-3 px-3 py-2">
           <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-100 font-semibold text-brand-700">
             {{ userInitial }}
           </span>
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium text-ink-900">{{ auth.user?.name ?? '—' }}</p>
-            <p class="truncate text-xs text-ink-400">{{ auth.user?.email ?? '' }}</p>
+            <p class="truncate text-sm font-medium text-ink-900">
+              {{ auth.user?.name ?? '—' }}
+            </p>
+            <p class="truncate text-xs text-ink-400">
+              {{ auth.user?.email ?? '' }}
+            </p>
           </div>
         </div>
         <button
@@ -176,8 +245,18 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
           class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-600 transition hover:bg-ink-100"
           @click="mobileOpen = false; logout()"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
           </svg>
           {{ t('nav.logout') }}
         </button>
@@ -190,7 +269,7 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
       class="fixed inset-0 z-20 bg-ink-900/40 backdrop-blur-sm lg:hidden"
       aria-hidden="true"
       @click="mobileOpen = false"
-    ></div>
+    />
 
     <!-- Content -->
     <main class="min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
@@ -205,6 +284,6 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
       class="fixed inset-0 z-20"
       aria-hidden="true"
       @click="userMenuOpen = false"
-    ></div>
+    />
   </div>
 </template>

@@ -16,7 +16,7 @@ it('creates application with Applied status', function (): void {
     $user = User::factory()->create();
     $job = Job::factory()->create();
 
-    $application = (new CreateApplication())->execute(
+    $application = app(CreateApplication::class)->execute(
         $user,
         new ApplicationData(jobId: $job->id, source: 'linkedin')
     );

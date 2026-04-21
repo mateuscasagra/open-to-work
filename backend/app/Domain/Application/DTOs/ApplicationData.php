@@ -14,5 +14,7 @@ final class ApplicationData extends Data
         public ?string $source = null,
         public ?string $notes = null,
         public ?int $expectedSalary = null,
+        public ?string $emailMessageOverride = null,
+        public ?int $emailResumeIdOverride = null,
     ) {}
 }

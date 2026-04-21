@@ -44,12 +44,18 @@ async function submit() {
     <aside
       class="relative hidden w-1/2 overflow-hidden bg-gradient-hero p-12 text-white lg:flex lg:flex-col lg:justify-between"
     >
-      <div class="absolute inset-0 bg-grid-slate opacity-[0.06]" aria-hidden="true"></div>
+      <div
+        class="absolute inset-0 bg-grid-slate opacity-[0.06]"
+        aria-hidden="true"
+      />
       <div
         class="absolute -left-20 top-1/3 h-80 w-80 rounded-full bg-brand-500/25 blur-3xl"
         aria-hidden="true"
-      ></div>
-      <RouterLink :to="{ name: 'landing' }" class="relative flex items-center gap-2.5">
+      />
+      <RouterLink
+        :to="{ name: 'landing' }"
+        class="relative flex items-center gap-2.5"
+      >
         <span
           class="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-bold text-white shadow-glow"
         >
@@ -67,7 +73,9 @@ async function submit() {
         </p>
       </div>
 
-      <div class="relative text-sm text-white/50">© 2026 · {{ t('app.name') }}</div>
+      <div class="relative text-sm text-white/50">
+        © 2026 · {{ t('app.name') }}
+      </div>
     </aside>
 
     <div class="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
@@ -79,7 +87,9 @@ async function submit() {
           <span aria-hidden="true">←</span> {{ t('app.name') }}
         </RouterLink>
 
-        <h1 class="text-3xl font-bold tracking-tight text-ink-900">{{ t('auth.register') }}</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-ink-900">
+          {{ t('auth.register') }}
+        </h1>
         <p class="mt-2 text-sm text-ink-500">
           {{ t('auth.haveAccount') }}
           <RouterLink
@@ -90,9 +100,15 @@ async function submit() {
           </RouterLink>
         </p>
 
-        <form class="mt-8 space-y-5" @submit.prevent="submit">
+        <form
+          class="mt-8 space-y-5"
+          @submit.prevent="submit"
+        >
           <div>
-            <label for="name" class="label">{{ t('auth.name') }}</label>
+            <label
+              for="name"
+              class="label"
+            >{{ t('auth.name') }}</label>
             <input
               id="name"
               v-model="form.name"
@@ -100,14 +116,20 @@ async function submit() {
               required
               autocomplete="name"
               class="input mt-1.5"
-            />
-            <p v-if="fieldErrors.name" class="mt-1 text-xs text-red-600">
+            >
+            <p
+              v-if="fieldErrors.name"
+              class="mt-1 text-xs text-red-600"
+            >
               {{ fieldErrors.name[0] }}
             </p>
           </div>
 
           <div>
-            <label for="email" class="label">{{ t('auth.email') }}</label>
+            <label
+              for="email"
+              class="label"
+            >{{ t('auth.email') }}</label>
             <input
               id="email"
               v-model="form.email"
@@ -115,14 +137,20 @@ async function submit() {
               required
               autocomplete="email"
               class="input mt-1.5"
-            />
-            <p v-if="fieldErrors.email" class="mt-1 text-xs text-red-600">
+            >
+            <p
+              v-if="fieldErrors.email"
+              class="mt-1 text-xs text-red-600"
+            >
               {{ fieldErrors.email[0] }}
             </p>
           </div>
 
           <div>
-            <label for="password" class="label">{{ t('auth.password') }}</label>
+            <label
+              for="password"
+              class="label"
+            >{{ t('auth.password') }}</label>
             <input
               id="password"
               v-model="form.password"
@@ -130,14 +158,20 @@ async function submit() {
               required
               autocomplete="new-password"
               class="input mt-1.5"
-            />
-            <p v-if="fieldErrors.password" class="mt-1 text-xs text-red-600">
+            >
+            <p
+              v-if="fieldErrors.password"
+              class="mt-1 text-xs text-red-600"
+            >
               {{ fieldErrors.password[0] }}
             </p>
           </div>
 
           <div>
-            <label for="password_confirmation" class="label">
+            <label
+              for="password_confirmation"
+              class="label"
+            >
               {{ t('auth.passwordConfirmation') }}
             </label>
             <input
@@ -147,7 +181,7 @@ async function submit() {
               required
               autocomplete="new-password"
               class="input mt-1.5"
-            />
+            >
           </div>
 
           <p
@@ -157,7 +191,11 @@ async function submit() {
             {{ error }}
           </p>
 
-          <button type="submit" :disabled="loading" class="btn-primary w-full !py-2.5">
+          <button
+            type="submit"
+            :disabled="loading"
+            class="btn-primary w-full !py-2.5"
+          >
             {{ loading ? t('auth.processing') : t('auth.register') }}
           </button>
         </form>
@@ -169,13 +207,22 @@ async function submit() {
         </div>
 
         <div class="space-y-2">
-          <a :href="auth.oauthUrl('google')" class="btn-secondary w-full">
+          <a
+            :href="auth.oauthUrl('google')"
+            class="btn-secondary w-full"
+          >
             {{ t('auth.continueWith', { provider: 'Google' }) }}
           </a>
-          <a :href="auth.oauthUrl('linkedin')" class="btn-secondary w-full">
+          <a
+            :href="auth.oauthUrl('linkedin')"
+            class="btn-secondary w-full"
+          >
             {{ t('auth.continueWith', { provider: 'LinkedIn' }) }}
           </a>
-          <a :href="auth.oauthUrl('github')" class="btn-secondary w-full">
+          <a
+            :href="auth.oauthUrl('github')"
+            class="btn-secondary w-full"
+          >
             {{ t('auth.continueWith', { provider: 'GitHub' }) }}
           </a>
         </div>

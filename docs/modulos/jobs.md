@@ -31,7 +31,7 @@
 
 **Container binding:** `AppServiceProvider::register` instancia cada driver e marca com `tag('job.drivers')`. `AggregateJobsCommand` recebe via `iterable<JobSourceDriver>` injetado por `tagged('job.drivers')`.
 
-**Models:** `app/Models/Job.php`, `Company.php`, `JobSource.php`
+**Models:** `app/Models/Job.php` (inclui `contact_email` em fillable), `Company.php`, `JobSource.php`
 
 ### Pipeline de agregação
 
@@ -39,10 +39,10 @@
 Driver.fetch() → NormalizeJob → DeduplicateJob → PersistJob
 ```
 
-1. **NormalizeJob:** `trim`, strip de HTML em `description`, normaliza `stack[]` (lowercase + únicos), remove campos vazios.
+1. **NormalizeJob:** `trim`, strip de HTML em `description`, normaliza `stack[]` (lowercase + únicos), remove campos vazios. **Extrai `contact_email`** da descrição via regex pipeline (padrões: `mailto:`, `@company.com`, etc.) e seta `JobDTO::contactEmail`.
 2. **DeduplicateJob:** calcula `canonical_hash = SHA256(normalize(title) + normalize(company) + normalize(location))`. Confronta com `jobs.canonical_hash` (índice único).
 3. **PersistJob:**
-   - Se `Job` não existe → cria `Company` (firstOrCreate por `name`) + `Job`
+   - Se `Job` não existe → cria `Company` (firstOrCreate por `name`) + `Job` (inclui `contact_email`)
    - Se existe → upsert apenas em `JobSource` (`job_id` ↔ `external_id`/`external_url`/`fetched_at`)
    - Vagas duplicadas entre fontes → mesma linha em `jobs`, múltiplos `job_sources`
 
@@ -73,16 +73,20 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 - **`useApplyToJob`** (`composables/useApplyToJob.ts`):
   - Mutation `POST /api/applications`
   - Trata `409` (`'duplicate'`), `422` (`'validation'`)
+  - Suporta campos opcionais `email_message_override` e `email_resume_id_override` para candidatura por e-mail
 - **`JobsListView`** (`views/JobsListView.vue`):
   - TanStack Query alterna entre `/api/jobs` e `/api/jobs/matching` (toggle `matchOnly`)
   - Tags rápidas: `php, laravel, vue, typescript, python, node, react, go`
   - **Resume selector** (dropdown) → passa `resume_id` ao `useApplyToJob`
   - Botão **Aplicar** → mutation, depois abre `external_url` em nova aba
   - Estados otimistas: `applyingJobId`, `appliedJobIds`, `alreadyAppliedJobIds`
+  - **Email tag**: vagas com `contact_email` exibem chip `chip-brand` com ícone de envelope e label `t('jobs.email_tag')`
+  - **ApplyByEmailModal** (`components/ApplyByEmailModal.vue`): modal exibido quando `email_apply_enabled` está ativo e a vaga tem `contact_email` com mode `variable`. Permite editar mensagem e selecionar currículo antes de enviar. Se modes forem `fixed`, o envio é direto sem modal.
 
 ## Efeitos colaterais
 
-- Escritas: `jobs`, `companies`, `job_sources`
+- Escritas: `jobs` (inclui `contact_email`), `companies`, `job_sources`
+- Migration: `2026_04_21_000200_add_contact_email_to_jobs`
 - Sincronização Meilisearch via Scout (queue)
 - HTTP outbound para APIs/RSS/Gupy
 
@@ -106,3 +110,5 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 - **`jobs.posted_at` vem do driver** — alguns devolvem timestamp local, outros UTC. Conferir no driver antes de comparar com `now()`.
 - **Throttle:** `/api/jobs` não tem throttle nominal (só o global do Sanctum). Se virar problema, criar limiter `feed`.
 - **`active=false` em vagas expiradas:** rotina sáb/dom. Vaga pode ainda aparecer no feed entre a expiração e a varredura — filtrar `WHERE active=true` na query do `index`.
+- **`contact_email` extraído por regex** em `NormalizeJob::extractContactEmail()`. Pode gerar falsos positivos (e-mails de suporte, não de RH). Se reportarem envio para e-mail errado, revisar os padrões de regex.
+- **Email-apply depende do perfil configurado** (`email_apply_enabled=true`). Se o botão de aplicar não mostra opção de e-mail, verificar perfil do user.

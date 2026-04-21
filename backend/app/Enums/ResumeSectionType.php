@@ -12,4 +12,5 @@ enum ResumeSectionType: string
     case Skill = 'skill';
     case Language = 'language';
     case Project = 'project';
+    case Contact = 'contact';
 }

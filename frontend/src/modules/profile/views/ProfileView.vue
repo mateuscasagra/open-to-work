@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useProfile, searchSkills } from '../composables/useProfile';
+import { useResumes } from '@/modules/resumes/composables/useResumes';
 import type { Skill, Seniority, Modality, Locale } from '@/shared/api/schemas';
 
 const MAX_SKILLS = 8;
@@ -9,6 +10,7 @@ const HIGHLIGHT_INDEX_NONE = -1;
 
 const { t } = useI18n();
 const { profile, loading, fetch, save } = useProfile();
+const resumes = useResumes();
 
 const form = ref({
   desired_role: '',
@@ -20,6 +22,11 @@ const form = ref({
   location: '',
   languages: [] as Locale[],
   bio: '',
+  email_apply_enabled: false,
+  email_apply_message_mode: null as 'fixed' | 'variable' | null,
+  email_apply_message_template: '',
+  email_apply_resume_mode: null as 'fixed' | 'variable' | null,
+  email_apply_resume_id: null as number | null,
 });
 const selectedSkills = ref<Skill[]>([]);
 const skillQuery = ref('');
@@ -47,6 +54,11 @@ onMounted(async () => {
       location: profile.value.location ?? '',
       languages: profile.value.languages ?? [],
       bio: profile.value.bio ?? '',
+      email_apply_enabled: profile.value.email_apply_enabled ?? false,
+      email_apply_message_mode: profile.value.email_apply_message_mode ?? null,
+      email_apply_message_template: profile.value.email_apply_message_template ?? '',
+      email_apply_resume_mode: profile.value.email_apply_resume_mode ?? null,
+      email_apply_resume_id: profile.value.email_apply_resume_id ?? null,
     };
     selectedSkills.value = [...profile.value.skills];
   }
@@ -129,6 +141,11 @@ async function onSubmit(): Promise<void> {
       languages: form.value.languages,
       bio: form.value.bio || null,
       skills: selectedSkills.value.map((s) => s.id),
+      email_apply_enabled: form.value.email_apply_enabled,
+      email_apply_message_mode: form.value.email_apply_message_mode,
+      email_apply_message_template: form.value.email_apply_message_template || null,
+      email_apply_resume_mode: form.value.email_apply_resume_mode,
+      email_apply_resume_id: form.value.email_apply_resume_id,
     });
     savedFlash.value = true;
     setTimeout(() => (savedFlash.value = false), 3000);
@@ -146,11 +163,18 @@ async function onSubmit(): Promise<void> {
 <template>
   <div class="lg:flex lg:h-full lg:flex-col">
     <header class="mb-4 lg:mb-3">
-      <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">{{ t('profile.title') }}</h1>
-      <p class="mt-0.5 text-xs text-ink-500">{{ t('profile.subtitle') }}</p>
+      <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+        {{ t('profile.title') }}
+      </h1>
+      <p class="mt-0.5 text-xs text-ink-500">
+        {{ t('profile.subtitle') }}
+      </p>
     </header>
 
-    <form class="card space-y-4 p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:space-y-3 lg:p-4" @submit.prevent="onSubmit">
+    <form
+      class="card space-y-4 p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:space-y-3 lg:p-4"
+      @submit.prevent="onSubmit"
+    >
       <label class="block">
         <span class="label">{{ t('profile.desired_role') }}</span>
         <input
@@ -158,8 +182,11 @@ async function onSubmit(): Promise<void> {
           type="text"
           :placeholder="t('profile.desired_role_placeholder')"
           class="input mt-1.5"
-        />
-        <span v-if="fieldErrors.desired_role" class="mt-1 block text-xs text-red-600">
+        >
+        <span
+          v-if="fieldErrors.desired_role"
+          class="mt-1 block text-xs text-red-600"
+        >
           {{ fieldErrors.desired_role[0] }}
         </span>
       </label>
@@ -167,17 +194,31 @@ async function onSubmit(): Promise<void> {
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label class="block">
           <span class="label">{{ t('profile.seniority') }}</span>
-          <select v-model="form.seniority" class="input mt-1.5">
+          <select
+            v-model="form.seniority"
+            class="input mt-1.5"
+          >
             <option :value="null">—</option>
-            <option v-for="s in seniorities" :key="s" :value="s">{{ t(`seniority.${s}`) }}</option>
+            <option
+              v-for="s in seniorities"
+              :key="s"
+              :value="s"
+            >{{ t(`seniority.${s}`) }}</option>
           </select>
         </label>
 
         <label class="block">
           <span class="label">{{ t('profile.modality') }}</span>
-          <select v-model="form.modality" class="input mt-1.5">
+          <select
+            v-model="form.modality"
+            class="input mt-1.5"
+          >
             <option :value="null">—</option>
-            <option v-for="m in modalities" :key="m" :value="m">{{ t(`modality.${m}`) }}</option>
+            <option
+              v-for="m in modalities"
+              :key="m"
+              :value="m"
+            >{{ t(`modality.${m}`) }}</option>
           </select>
         </label>
       </div>
@@ -185,15 +226,31 @@ async function onSubmit(): Promise<void> {
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <label class="block">
           <span class="label">{{ t('profile.salary_min') }}</span>
-          <input v-model.number="form.salary_min" type="number" min="0" class="input mt-1.5" />
-          <span v-if="fieldErrors.salary_min" class="mt-1 block text-xs text-red-600">
+          <input
+            v-model.number="form.salary_min"
+            type="number"
+            min="0"
+            class="input mt-1.5"
+          >
+          <span
+            v-if="fieldErrors.salary_min"
+            class="mt-1 block text-xs text-red-600"
+          >
             {{ fieldErrors.salary_min[0] }}
           </span>
         </label>
         <label class="block">
           <span class="label">{{ t('profile.salary_max') }}</span>
-          <input v-model.number="form.salary_max" type="number" min="0" class="input mt-1.5" />
-          <span v-if="fieldErrors.salary_max" class="mt-1 block text-xs text-red-600">
+          <input
+            v-model.number="form.salary_max"
+            type="number"
+            min="0"
+            class="input mt-1.5"
+          >
+          <span
+            v-if="fieldErrors.salary_max"
+            class="mt-1 block text-xs text-red-600"
+          >
             {{ fieldErrors.salary_max[0] }}
           </span>
         </label>
@@ -201,7 +258,11 @@ async function onSubmit(): Promise<void> {
 
       <label class="block">
         <span class="label">{{ t('profile.location') }}</span>
-        <input v-model="form.location" type="text" class="input mt-1.5" />
+        <input
+          v-model="form.location"
+          type="text"
+          class="input mt-1.5"
+        >
       </label>
 
       <div>
@@ -226,7 +287,10 @@ async function onSubmit(): Promise<void> {
 
       <div>
         <span class="label">{{ t('profile.skills') }}</span>
-        <div v-if="selectedSkills.length" class="mt-2 flex flex-wrap gap-2">
+        <div
+          v-if="selectedSkills.length"
+          class="mt-2 flex flex-wrap gap-2"
+        >
           <span
             v-for="s in selectedSkills"
             :key="s.id"
@@ -252,7 +316,7 @@ async function onSubmit(): Promise<void> {
             class="input"
             @keydown="onSkillKeydown"
             @blur="onSkillBlur"
-          />
+          >
           <ul
             v-if="skillDropdownOpen"
             class="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-auto rounded-lg border border-ink-200 bg-white shadow-card"
@@ -265,26 +329,155 @@ async function onSubmit(): Promise<void> {
               @mousedown.prevent="addSkill(s)"
             >
               {{ s.name }}
-              <span v-if="s.category" class="ml-1 text-[10px] text-ink-400">{{ s.category }}</span>
+              <span
+                v-if="s.category"
+                class="ml-1 text-[10px] text-ink-400"
+              >{{ s.category }}</span>
             </li>
           </ul>
         </div>
-        <p class="mt-1 text-[10px] text-ink-400">{{ selectedSkills.length }}/{{ MAX_SKILLS }}</p>
+        <p class="mt-1 text-[10px] text-ink-400">
+          {{ selectedSkills.length }}/{{ MAX_SKILLS }}
+        </p>
       </div>
 
       <label class="block">
         <span class="label">{{ t('profile.bio') }}</span>
-        <textarea v-model="form.bio" rows="4" maxlength="2000" class="input mt-1.5" />
+        <textarea
+          v-model="form.bio"
+          rows="4"
+          maxlength="2000"
+          class="input mt-1.5"
+        />
       </label>
+
+      <!-- Email Apply Section -->
+      <div class="border-t border-ink-200 pt-5">
+        <h3 class="text-sm font-semibold text-ink-900">
+          {{ t('profile.email_apply') }}
+        </h3>
+        <p class="mt-0.5 text-xs text-ink-500">
+          {{ t('profile.email_apply_desc') }}
+        </p>
+
+        <label class="mt-3 inline-flex cursor-pointer items-center gap-2">
+          <input
+            v-model="form.email_apply_enabled"
+            type="checkbox"
+            class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500"
+          >
+          <span class="text-sm text-ink-700">{{ t('profile.email_apply_enabled') }}</span>
+        </label>
+
+        <div
+          v-if="form.email_apply_enabled"
+          class="mt-4 space-y-4 rounded-lg border border-ink-200 bg-ink-50 p-4"
+        >
+          <!-- Message mode -->
+          <div>
+            <span class="label">{{ t('profile.email_apply_message_mode') }}</span>
+            <div class="mt-2 flex gap-4">
+              <label class="inline-flex cursor-pointer items-center gap-2">
+                <input
+                  v-model="form.email_apply_message_mode"
+                  type="radio"
+                  value="fixed"
+                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
+                >
+                <span class="text-sm text-ink-700">{{ t('profile.email_apply_message_fixed') }}</span>
+              </label>
+              <label class="inline-flex cursor-pointer items-center gap-2">
+                <input
+                  v-model="form.email_apply_message_mode"
+                  type="radio"
+                  value="variable"
+                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
+                >
+                <span class="text-sm text-ink-700">{{ t('profile.email_apply_message_variable') }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Message template (fixed mode) -->
+          <div v-if="form.email_apply_message_mode === 'fixed'">
+            <label class="label">{{ t('profile.email_apply_template') }}</label>
+            <textarea
+              v-model="form.email_apply_message_template"
+              rows="4"
+              class="input mt-1.5"
+            />
+            <p class="mt-1 text-[10px] text-ink-400">
+              {{ t('profile.email_apply_template_hint') }}
+            </p>
+          </div>
+
+          <!-- Resume mode -->
+          <div>
+            <span class="label">{{ t('profile.email_apply_resume_mode') }}</span>
+            <div class="mt-2 flex gap-4">
+              <label class="inline-flex cursor-pointer items-center gap-2">
+                <input
+                  v-model="form.email_apply_resume_mode"
+                  type="radio"
+                  value="fixed"
+                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
+                >
+                <span class="text-sm text-ink-700">{{ t('profile.email_apply_resume_fixed') }}</span>
+              </label>
+              <label class="inline-flex cursor-pointer items-center gap-2">
+                <input
+                  v-model="form.email_apply_resume_mode"
+                  type="radio"
+                  value="variable"
+                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
+                >
+                <span class="text-sm text-ink-700">{{ t('profile.email_apply_resume_variable') }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Resume select (fixed mode) -->
+          <div v-if="form.email_apply_resume_mode === 'fixed'">
+            <label class="label">{{ t('profile.email_apply_resume_select') }}</label>
+            <select
+              v-model="form.email_apply_resume_id"
+              class="input mt-1.5"
+            >
+              <option :value="null">
+                —
+              </option>
+              <option
+                v-for="resume in resumes.data.value?.data ?? []"
+                :key="resume.id"
+                :value="resume.id"
+              >
+                {{ resume.title }}{{ resume.is_pdf_upload ? ' (PDF)' : '' }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <div class="flex items-center justify-between border-t border-ink-200 pt-5">
         <div>
-          <p v-if="savedFlash" class="text-sm font-medium text-emerald-600">
+          <p
+            v-if="savedFlash"
+            class="text-sm font-medium text-emerald-600"
+          >
             {{ t('profile.saved') }}
           </p>
-          <p v-if="saveError" class="text-sm text-red-600">{{ saveError }}</p>
+          <p
+            v-if="saveError"
+            class="text-sm text-red-600"
+          >
+            {{ saveError }}
+          </p>
         </div>
-        <button type="submit" :disabled="loading" class="btn-primary">
+        <button
+          type="submit"
+          :disabled="loading"
+          class="btn-primary"
+        >
           {{ t('profile.save') }}
         </button>
       </div>
