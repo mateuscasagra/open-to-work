@@ -68,7 +68,7 @@ async function onDownload(id: number): Promise<void> {
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl lg:flex lg:h-full lg:flex-col">
+  <div class="lg:flex lg:h-full lg:flex-col">
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3 lg:mb-3">
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">

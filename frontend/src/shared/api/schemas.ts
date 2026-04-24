@@ -5,8 +5,26 @@ export const UserSchema = z.object({
   name: z.string(),
   email: z.string().email(),
   locale: z.enum(['pt_BR', 'en', 'es']).nullable(),
+  is_admin: z.boolean().optional().default(false),
 });
 export type User = z.infer<typeof UserSchema>;
+
+export const AdminMetricsSchema = z.object({
+  totals: z.object({
+    users: z.number().int(),
+    applications: z.number().int(),
+    resumes: z.number().int(),
+    active_users: z.number().int(),
+  }),
+  top_applicants: z.array(z.object({
+    user_id: z.number().int(),
+    name: z.string(),
+    email: z.string(),
+    applications_count: z.number().int(),
+  })),
+  generated_at: z.string(),
+});
+export type AdminMetrics = z.infer<typeof AdminMetricsSchema>;
 
 export const ApplicationStatusSchema = z.enum([
   'applied',

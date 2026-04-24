@@ -19,33 +19,45 @@ async function logout() {
 
 type NavItem = { name: string; label: string; icon: string };
 
-const navItems = computed<NavItem[]>(() => [
-  {
-    name: 'dashboard',
-    label: t('nav.dashboard'),
-    icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-  },
-  {
-    name: 'jobs',
-    label: t('nav.jobs'),
-    icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m6 7v-1a1 1 0 00-1-1h-4a1 1 0 00-1 1v1M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
-  },
-  {
-    name: 'applications',
-    label: t('nav.applications'),
-    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
-  },
-  {
-    name: 'resumes',
-    label: t('nav.resumes'),
-    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-  },
-  {
-    name: 'profile',
-    label: t('nav.profile'),
-    icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-  },
-]);
+const navItems = computed<NavItem[]>(() => {
+  const items: NavItem[] = [
+    {
+      name: 'dashboard',
+      label: t('nav.dashboard'),
+      icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+    },
+    {
+      name: 'jobs',
+      label: t('nav.jobs'),
+      icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m6 7v-1a1 1 0 00-1-1h-4a1 1 0 00-1 1v1M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+    },
+    {
+      name: 'applications',
+      label: t('nav.applications'),
+      icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+    },
+    {
+      name: 'resumes',
+      label: t('nav.resumes'),
+      icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    },
+    {
+      name: 'profile',
+      label: t('nav.profile'),
+      icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+    },
+  ];
+
+  if (auth.user?.is_admin) {
+    items.push({
+      name: 'admin',
+      label: t('nav.admin'),
+      icon: 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z',
+    });
+  }
+
+  return items;
+});
 
 const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
 </script>
@@ -54,7 +66,7 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
   <div class="min-h-screen bg-ink-200 lg:flex lg:h-screen lg:flex-col lg:overflow-hidden">
     <!-- Top navbar -->
     <header class="sticky top-0 z-30 border-b border-ink-300 bg-white shadow-soft">
-      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-10">
+      <div class="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-10 2xl:px-14">
         <!-- Left: Brand + nav -->
         <div class="flex items-center gap-8">
           <RouterLink
@@ -264,7 +276,7 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
 
     <!-- Content -->
     <main class="min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
-      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-6">
+      <div class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-10 lg:py-6 2xl:px-14">
         <RouterView />
       </div>
     </main>

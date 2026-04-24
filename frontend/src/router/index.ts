@@ -75,6 +75,12 @@ const routes: RouteRecordRaw[] = [
         name: 'profile',
         component: () => import('@/modules/profile/views/ProfileView.vue'),
       },
+      {
+        path: 'admin',
+        name: 'admin',
+        component: () => import('@/modules/admin/views/AdminView.vue'),
+        meta: { adminOnly: true },
+      },
     ],
   },
 ];
@@ -103,6 +109,11 @@ router.beforeEach(async (to) => {
   if (!to.meta.public && !auth.user) {
     return { name: 'login', query: { redirect: to.fullPath } };
   }
+
+  if (to.meta.adminOnly && !auth.user?.is_admin) {
+    return { name: 'dashboard' };
+  }
+
   return true;
 });
 

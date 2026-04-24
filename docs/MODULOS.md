@@ -12,6 +12,7 @@ Cada módulo tem seu próprio arquivo em `docs/modulos/`. Quando for caçar um b
 | **Applications** | [`modulos/applications.md`](./modulos/applications.md) | Candidaturas, Kanban, status state machine, anexos, follow-up |
 | **Resumes** | [`modulos/resumes.md`](./modulos/resumes.md) | Builder, export PDF cliente, upload PDF privado, vinculação |
 | **Metrics** | [`modulos/metrics.md`](./modulos/metrics.md) | Rollup diário, dashboard, KPIs, funil, heatmap, insights |
+| **Admin** | [`modulos/admin.md`](./modulos/admin.md) | Painel admin, métricas globais, flag `is_admin`, ranking de usuários |
 | **Account (LGPD)** | [`modulos/account.md`](./modulos/account.md) | Export de dados, delete de conta |
 | **Cross-cutting** | [`modulos/cross-cutting.md`](./modulos/cross-cutting.md) | Rate limiters, Sentry, scheduler, CSRF, middleware |
 | **Frontend compartilhado** | [`modulos/shared-frontend.md`](./modulos/shared-frontend.md) | Axios client, Zod schemas, layout, router, i18n, landing |
@@ -40,6 +41,8 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | Heatmap/funil errado | `metrics.md` (`GetUserMetrics`) |
 | Export LGPD vazio | `account.md` (`ExportUserData`) |
 | Delete de conta deixa lixo no S3 | `account.md` (`DeleteAccount` cascade) |
+| Painel admin retorna 403 mesmo logado | `admin.md` (flag `users.is_admin` no banco) |
+| Tela de admin não aparece no menu | `admin.md` (frontend lê `auth.user.is_admin` do `/api/me`) |
 | Rota nova retorna 404 | `routes/api.php` + `shared-frontend.md` (router guard) |
 | Tradução faltando | `shared-frontend.md` (i18n) + `lang/{pt_BR,en,es}/` no backend |
 

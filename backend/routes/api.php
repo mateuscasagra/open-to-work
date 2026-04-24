@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\Admin\AdminMetricsController;
 use App\Http\Controllers\Api\ApplicationAttachmentController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AuthController;
@@ -68,6 +69,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('applications.status');
 
     Route::get('/metrics', MetricsController::class)->name('metrics.show');
+
+    // Admin -------------------------------------------------------------
+    Route::middleware('admin')->prefix('admin')->group(function (): void {
+        Route::get('/metrics', AdminMetricsController::class)->name('admin.metrics.show');
+    });
 
     // Attachments (spatie/medialibrary)
     Route::get('/applications/{application}/attachments', [ApplicationAttachmentController::class, 'index'])

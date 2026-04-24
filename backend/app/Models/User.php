@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'locale',
         'two_factor_secret',
+        'is_admin',
     ];
 
     /** @var list<string> */
@@ -44,7 +45,13 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_secret' => 'encrypted',
             'locale' => SupportedLocale::class,
+            'is_admin' => 'boolean',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
     }
 
     public function profile(): HasOne

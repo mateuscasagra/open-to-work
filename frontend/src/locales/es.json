@@ -9,6 +9,7 @@
     "applications": "Candidaturas",
     "resumes": "CVs",
     "profile": "Perfil",
+    "admin": "Admin",
     "account": "Cuenta y privacidad",
     "logout": "Salir",
     "home": "Inicio",
@@ -16,52 +17,117 @@
     "how_it_works": "Cómo funciona",
     "open_app": "Abrir app"
   },
+  "admin": {
+    "title": "Panel administrativo",
+    "subtitle": "Métricas globales del producto",
+    "generated_at": "Generado el",
+    "loading": "Cargando métricas…",
+    "load_failed": "Error al cargar las métricas de admin.",
+    "kpi": {
+      "users": "Usuarios registrados",
+      "applications": "Total de candidaturas",
+      "resumes": "CVs creados",
+      "active_users": "Usuarios activos",
+      "active_users_hint": "≥ 3 candidaturas en los últimos 7 días"
+    },
+    "ranking": {
+      "title": "Top candidatos",
+      "subtitle": "Usuarios con más candidaturas en el producto",
+      "empty": "Aún no hay candidaturas registradas."
+    }
+  },
   "dashboard": {
     "funnel_empty": "Envía tu primera candidatura para seguir el embudo de etapas.",
     "channels_empty": "Envía tu primera candidatura para comparar la efectividad de los canales."
   },
   "landing": {
-    "eyebrow": "100% gratis · Sin tarjeta de crédito",
+    "nav_pricing": "Precio",
+    "eyebrow": "100% gratis para todos los candidatos",
     "title_1": "Tu búsqueda de empleo,",
     "title_2": "por fin organizada.",
-    "subtitle": "Agregamos vacantes de múltiples fuentes, calculamos compatibilidad con tu perfil y seguimos cada candidatura hasta la oferta — en un solo panel.",
+    "subtitle": "Reunimos vacantes de todo el mundo, organizamos tus candidaturas en un kanban por etapa y mostramos métricas que revelan tus fortalezas y dónde mejorar.",
     "cta_primary": "Empezar gratis",
     "cta_secondary": "Ya tengo cuenta",
-    "cta_final_title": "Deja de perder oportunidades en hojas de cálculo",
-    "cta_final_subtitle": "Crea tu cuenta en menos de un minuto y empieza a aplicar con datos de tu lado.",
+    "trust": {
+      "no_card": "Sin tarjeta de crédito",
+      "no_ads": "Sin anuncios",
+      "global": "Vacantes en todo el mundo"
+    },
+    "hero": {
+      "response_rate": "Tasa de respuesta",
+      "stage_advanced": "Etapa avanzada"
+    },
     "stats": {
-      "sources": "Fuentes de vacantes",
-      "sources_value": "5+",
-      "free": "Gratis en MVP",
-      "free_value": "€0",
-      "open_source": "Código abierto",
-      "open_source_value": "MIT"
+      "coverage": "Cobertura",
+      "coverage_value": "Mundial",
+      "price": "Costo p/ candidato",
+      "price_value": "€0",
+      "stages": "Etapas configurables",
+      "stages_value": "9+",
+      "template": "Plantilla de CV",
+      "template_value": "Aprobada"
     },
-    "features_title": "Todo lo que necesitas, en un solo lugar",
-    "features_subtitle": "Del primer clic a la oferta aceptada.",
+    "features_title": "Todo lo que necesitas para conseguir tu próximo empleo",
+    "features_subtitle": "Los cuatro pilares de una búsqueda de empleo organizada — en un solo panel.",
     "features": {
-      "aggregation_title": "Agregación de vacantes",
-      "aggregation_desc": "Drivers plugables para RemoteOK, Arbeitnow, Remotive, WeWorkRemotely y Gupy — nuevas fuentes cada release.",
-      "matching_title": "Match por perfil",
-      "matching_desc": "Puntuación por intersección de tu stack, con bonus por modalidad y seniority compatibles.",
+      "jobs_title": "Vacantes en todo el mundo",
+      "jobs_desc": "Accede a oportunidades de cualquier ciudad o país, con filtros por modalidad, seniority e idioma.",
       "kanban_title": "Kanban de candidaturas",
-      "kanban_desc": "Arrastra tarjetas entre etapas, toma notas, adjunta feedback y recibe recordatorio de seguimiento a los 7 días.",
-      "resumes_title": "Builder de CVs",
-      "resumes_desc": "Crea versiones estructuradas por vacante y exporta PDF en dos plantillas — todo en el cliente.",
-      "metrics_title": "Métricas e insights",
-      "metrics_desc": "Tasa de respuesta, embudo por etapa, canales más efectivos y heatmap de días con retorno.",
-      "privacy_title": "Privacidad primero",
-      "privacy_desc": "Exportación RGPD/LGPD de tus datos, borrado definitivo de cuenta y almacenamiento cifrado."
+      "kanban_desc": "Organiza todas tus candidaturas por etapa del proceso y arrastra tarjetas a medida que avanzas.",
+      "metrics_title": "Métricas que orientan tu camino",
+      "metrics_desc": "Identifica tus fortalezas y debilidades con tasa de respuesta, embudo por etapa y canales más efectivos.",
+      "resumes_title": "Constructor de CV",
+      "resumes_desc": "Plantilla estándar validada por el mercado, lista para que rellenes y exportes a PDF."
     },
-    "how_title": "Cómo funciona",
-    "how_subtitle": "Tres pasos para salir de la hoja de cálculo.",
+    "spotlight": {
+      "jobs_eyebrow": "Vacantes globales",
+      "jobs_title": "Oportunidades en todos los rincones del mundo",
+      "jobs_desc": "Tanto si quieres trabajar en tu ciudad, en otro país o 100% remoto — agregamos vacantes de múltiples fuentes para que no se te escape nada.",
+      "jobs_b1": "Filtros por modalidad (remoto, híbrido, presencial), seniority e idioma",
+      "jobs_b2": "Vacantes actualizadas en cada release, sin registros en sitios diferentes",
+      "jobs_b3": "Aplica directamente desde el panel o por correo, sin salir de la plataforma",
+      "metrics_eyebrow": "Métricas inteligentes",
+      "metrics_title": "Conoce tus fortalezas y debilidades",
+      "metrics_desc": "Deja de adivinar dónde está el cuello de botella. Mira en qué etapas avanzas, qué canales traen respuesta y dónde se traba tu búsqueda — y ajústalo con datos reales.",
+      "metrics_b1": "Tasa de respuesta por canal y tipo de vacante",
+      "metrics_b2": "Embudo por etapa del proceso de selección",
+      "metrics_b3": "Heatmap de los días y horarios con más retorno",
+      "metrics_chart_label": "Tasa de respuesta",
+      "metrics_period": "Últimos 30 días",
+      "metrics_legend_applied": "Aplicadas",
+      "metrics_legend_interview": "Entrevistas",
+      "metrics_legend_offers": "Ofertas",
+      "resumes_eyebrow": "CVs",
+      "resumes_title": "Constructor con plantilla validada por el mercado",
+      "resumes_desc": "Empieza con la plantilla más aceptada por reclutadores y RR. HH. — estructura optimizada con resumen, experiencia, formación, habilidades e idiomas. Sin dolores de cabeza con el formato.",
+      "resumes_b1": "Plantilla estándar validada, lista para rellenar",
+      "resumes_b2": "Crea versiones distintas por vacante o área",
+      "resumes_b3": "Exporta a PDF en dos diseños profesionales",
+      "resumes_pdf_badge": "Exportar PDF"
+    },
+    "pricing": {
+      "eyebrow": "Sin trampas",
+      "title_1": "100% gratis,",
+      "title_2": "para todos los candidatos.",
+      "subtitle": "Creemos que buscar empleo ya es bastante difícil. Por eso, todo lo que necesitas para conseguir tu próximo puesto es gratuito.",
+      "price": "€0",
+      "forever": "para siempre",
+      "b1": "Vacantes ilimitadas",
+      "b2": "Kanban con etapas personalizables",
+      "b3": "CVs y exportación a PDF",
+      "b4": "Métricas y paneles completos"
+    },
+    "cta_final_title": "Tu próximo empleo empieza aquí.",
+    "cta_final_subtitle": "Crea tu cuenta en menos de un minuto y empieza a organizar tu búsqueda de empleo como nunca antes.",
+    "how_title": "Tres pasos para salir de la hoja de cálculo",
+    "how_subtitle": "En pocos minutos lo tendrás todo organizado.",
     "how": {
-      "step1_title": "Crea tu cuenta",
-      "step1_desc": "Email, Google, LinkedIn o GitHub. OAuth de LinkedIn importa tu perfil en el primer login.",
-      "step2_title": "Arma tu perfil",
-      "step2_desc": "Puesto, stack, seniority y modalidad. Lo usamos para filtrar vacantes compatibles.",
-      "step3_title": "Aplica y da seguimiento",
-      "step3_desc": "Clic en \"aplicar\" desde el feed, mueve la tarjeta en el kanban y míralo en el panel."
+      "step1_title": "Crea tu cuenta gratis",
+      "step1_desc": "Email, Google, LinkedIn o GitHub. Sin tarjeta de crédito, sin anuncios.",
+      "step2_title": "Arma tu CV y perfil",
+      "step2_desc": "Usa la plantilla validada por el mercado. Define puesto, stack y modalidad para recibir vacantes compatibles.",
+      "step3_title": "Aplica y haz seguimiento en el kanban",
+      "step3_desc": "Cada candidatura se vuelve una tarjeta. Muévela entre etapas y mira las métricas en el panel."
     },
     "footer": {
       "tagline": "Organiza tu búsqueda de empleo.",
@@ -107,7 +173,11 @@
     "signUp": "Regístrate",
     "loginFailed": "Error al iniciar sesión. Revisa tus credenciales.",
     "registerFailed": "Error al registrarse. Revisa los campos.",
-    "processing": "Procesando…"
+    "processing": "Procesando…",
+    "forgot": "Olvidé mi contraseña",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña",
+    "terms_notice": "Al crear una cuenta, aceptas los Términos de uso y la Política de privacidad."
   },
   "profile": {
     "title": "Perfil",

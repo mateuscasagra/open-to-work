@@ -9,6 +9,7 @@
     "applications": "Applications",
     "resumes": "Resumes",
     "profile": "Profile",
+    "admin": "Admin",
     "account": "Account & privacy",
     "logout": "Log out",
     "home": "Home",
@@ -16,52 +17,117 @@
     "how_it_works": "How it works",
     "open_app": "Open app"
   },
+  "admin": {
+    "title": "Admin panel",
+    "subtitle": "Global product metrics",
+    "generated_at": "Generated at",
+    "loading": "Loading metrics…",
+    "load_failed": "Failed to load admin metrics.",
+    "kpi": {
+      "users": "Registered users",
+      "applications": "Total applications",
+      "resumes": "Resumes created",
+      "active_users": "Active users",
+      "active_users_hint": "≥ 3 applications in the last 7 days"
+    },
+    "ranking": {
+      "title": "Top applicants",
+      "subtitle": "Users with the most applications in the product",
+      "empty": "No applications recorded yet."
+    }
+  },
   "dashboard": {
     "funnel_empty": "Submit your first application to track the stages funnel.",
     "channels_empty": "Submit your first application to compare channel effectiveness."
   },
   "landing": {
-    "eyebrow": "100% free · No credit card",
+    "nav_pricing": "Pricing",
+    "eyebrow": "100% free for every candidate",
     "title_1": "Your job search,",
     "title_2": "finally organized.",
-    "subtitle": "We aggregate jobs from multiple sources, score your profile fit and track every application to offer — all in one dashboard.",
+    "subtitle": "We bring together jobs from around the world, organize your applications in a kanban by stage and surface metrics that show where you're strong and where to improve.",
     "cta_primary": "Get started free",
     "cta_secondary": "I have an account",
-    "cta_final_title": "Stop losing opportunities in spreadsheets",
-    "cta_final_subtitle": "Create your account in under a minute and start applying with data on your side.",
+    "trust": {
+      "no_card": "No credit card",
+      "no_ads": "No ads",
+      "global": "Jobs worldwide"
+    },
+    "hero": {
+      "response_rate": "Response rate",
+      "stage_advanced": "Stage advanced"
+    },
     "stats": {
-      "sources": "Job sources",
-      "sources_value": "5+",
-      "free": "Free during MVP",
-      "free_value": "€0",
-      "open_source": "Open source",
-      "open_source_value": "MIT"
+      "coverage": "Job coverage",
+      "coverage_value": "Worldwide",
+      "price": "Cost per candidate",
+      "price_value": "$0",
+      "stages": "Configurable stages",
+      "stages_value": "9+",
+      "template": "Resume template",
+      "template_value": "Approved"
     },
-    "features_title": "Everything you need, in one place",
-    "features_subtitle": "From first click to accepted offer.",
+    "features_title": "Everything you need to land your next role",
+    "features_subtitle": "The four pillars of an organized job search — in a single dashboard.",
     "features": {
-      "aggregation_title": "Job aggregation",
-      "aggregation_desc": "Pluggable drivers for RemoteOK, Arbeitnow, Remotive, WeWorkRemotely and Gupy — new sources every release.",
-      "matching_title": "Profile matching",
-      "matching_desc": "Score based on your stack intersection, with bonus points for matching modality and seniority.",
+      "jobs_title": "Jobs worldwide",
+      "jobs_desc": "Reach opportunities from any city or country, with filters for modality, seniority and language.",
       "kanban_title": "Applications kanban",
-      "kanban_desc": "Drag cards between stages, take notes, attach feedback and get a follow-up reminder after 7 days.",
+      "kanban_desc": "Organize every application by interview stage and drag cards as you move forward.",
+      "metrics_title": "Metrics that guide you",
+      "metrics_desc": "Spot your strengths and weaknesses with response rate, stage funnel and most effective channels.",
       "resumes_title": "Resume builder",
-      "resumes_desc": "Build structured versions per job and export PDFs in two templates — all client-side.",
-      "metrics_title": "Metrics & insights",
-      "metrics_desc": "Response rate, stage funnel, most effective channels and a heatmap of which days get replies.",
-      "privacy_title": "Privacy first",
-      "privacy_desc": "GDPR/LGPD export of your data, permanent account deletion and encrypted storage."
+      "resumes_desc": "Industry-approved standard template, ready for you to fill in and export to PDF."
     },
-    "how_title": "How it works",
-    "how_subtitle": "Three steps to leave the spreadsheet behind.",
+    "spotlight": {
+      "jobs_eyebrow": "Global jobs",
+      "jobs_title": "Opportunities from every corner of the world",
+      "jobs_desc": "Whether you want to work in your city, abroad or 100% remote — we aggregate jobs from multiple sources so nothing slips through the cracks.",
+      "jobs_b1": "Filters by modality (remote, hybrid, onsite), seniority and language",
+      "jobs_b2": "Jobs refreshed every release, no need to sign up on multiple sites",
+      "jobs_b3": "Apply directly from the dashboard or by email, without leaving the platform",
+      "metrics_eyebrow": "Smart metrics",
+      "metrics_title": "Know your strengths and weaknesses",
+      "metrics_desc": "Stop guessing where the bottleneck is. See which stages you advance through, which channels deliver replies and where your search stalls — and fix it with real data.",
+      "metrics_b1": "Response rate by channel and job type",
+      "metrics_b2": "Funnel by selection process stage",
+      "metrics_b3": "Heatmap of the days and times that bring the most replies",
+      "metrics_chart_label": "Response rate",
+      "metrics_period": "Last 30 days",
+      "metrics_legend_applied": "Applied",
+      "metrics_legend_interview": "Interviews",
+      "metrics_legend_offers": "Offers",
+      "resumes_eyebrow": "Resumes",
+      "resumes_title": "Builder with a template recruiters trust",
+      "resumes_desc": "Start with the template most accepted by recruiters and HR — optimized structure with summary, experience, education, skills and languages. No formatting headaches.",
+      "resumes_b1": "Approved standard template, ready to fill",
+      "resumes_b2": "Create different versions per role or industry",
+      "resumes_b3": "Export to PDF in two professional layouts",
+      "resumes_pdf_badge": "Export PDF"
+    },
+    "pricing": {
+      "eyebrow": "No catch",
+      "title_1": "100% free,",
+      "title_2": "for every candidate.",
+      "subtitle": "We believe job hunting is hard enough already. That's why everything you need to land your next role is free.",
+      "price": "$0",
+      "forever": "forever",
+      "b1": "Unlimited jobs",
+      "b2": "Kanban with custom stages",
+      "b3": "Resumes and PDF export",
+      "b4": "Full metrics and dashboards"
+    },
+    "cta_final_title": "Your next role starts here.",
+    "cta_final_subtitle": "Create your account in under a minute and start organizing your job search like never before.",
+    "how_title": "Three steps to leave the spreadsheet behind",
+    "how_subtitle": "In just a few minutes you'll have everything organized.",
     "how": {
-      "step1_title": "Create your account",
-      "step1_desc": "Email, Google, LinkedIn or GitHub. LinkedIn OAuth imports your profile on first login.",
-      "step2_title": "Build your profile",
-      "step2_desc": "Desired role, stack, seniority and modality. We use it to filter matching jobs.",
-      "step3_title": "Apply and track",
-      "step3_desc": "Click apply from the feed, move cards in the kanban as you progress and watch it in the dashboard."
+      "step1_title": "Create your free account",
+      "step1_desc": "Email, Google, LinkedIn or GitHub. No credit card, no ads.",
+      "step2_title": "Build your resume and profile",
+      "step2_desc": "Use the recruiter-approved template. Set role, stack and modality to surface the right jobs.",
+      "step3_title": "Apply and track on the kanban",
+      "step3_desc": "Each application becomes a card. Move between stages and watch metrics on the dashboard."
     },
     "footer": {
       "tagline": "Organize your job search.",
@@ -107,7 +173,11 @@
     "signUp": "Sign up",
     "loginFailed": "Login failed. Check your credentials.",
     "registerFailed": "Registration failed. Check the fields.",
-    "processing": "Processing…"
+    "processing": "Processing…",
+    "forgot": "Forgot password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "terms_notice": "By creating an account, you agree to the Terms of Use and Privacy Policy."
   },
   "profile": {
     "title": "Profile",
