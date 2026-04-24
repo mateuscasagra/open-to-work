@@ -30,10 +30,15 @@ final class ListMatchingJobs
 
         $profileModality = $profile?->modality?->value;
         $profileSeniority = $profile?->seniority?->value;
+        $profileLanguages = $profile?->languages ?? [];
 
         $query = Job::query()
             ->with(['company', 'sources:id,job_id,external_url'])
             ->where('active', true);
+
+        if ($profileLanguages !== []) {
+            $query->whereIn('language', $profileLanguages);
+        }
 
         if ($skills === []) {
             $query->whereRaw('1 = 0');

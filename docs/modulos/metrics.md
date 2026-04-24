@@ -1,6 +1,6 @@
 # Módulo Metrics
 
-**Propósito:** dashboard com KPIs, funil, canais, heatmap e insights — alimentado por **rollup diário materializado** para evitar joins caros em runtime.
+**Propósito:** dashboard com KPIs, funil, canais, heatmap e insights — **KPIs calculados em tempo real** a partir de `applications` e `application_events`. Rollup diário (`metrics_daily`) é mantido para histórico.
 
 ## Endpoints / Comandos
 
@@ -38,8 +38,8 @@ Scheduler: **03:00 UTC** diário.
 
 ### Query do dashboard
 
-`GetUserMetrics` lê `metrics_daily` + `application_events`, devolve:
-- **KPIs:** total/responses/interviews/offers/rejections + taxas
+`GetUserMetrics` consulta `applications` + `application_events` **em tempo real** (sem depender de `metrics_daily`), devolve:
+- **KPIs:** total/responses/interviews/offers/rejections + taxas (real-time via query direto nas tabelas fonte)
 - **Channels:** por `source` com `applications`, `responses`, `response_rate`
 - **Funnel:** `reached_count` por `ApplicationStatus` (inclui aplicações que **passaram** pela etapa, não só as que estão lá agora)
 - **Heatmap:** matriz `weekday × hour` baseada em `applied_at`
@@ -66,8 +66,8 @@ Scheduler: **03:00 UTC** diário.
 - **`DashboardView`** (`views/`):
   - 4 KPI cards (total apps, response_rate, interviews, offers)
   - **Insights** coloridos por `severity`
-  - **Funnel** com barras (largura proporcional ao maior estágio)
-  - **Channels table** (source, applications, responses, response_rate %)
+  - **Funnel** com barras (largura proporcional ao maior estágio) — sempre visível; mostra empty state com CTA quando não há candidaturas
+  - **Channels table** (source, applications, responses, response_rate %) — sempre visível; mostra empty state com CTA quando não há candidaturas
   - **Heatmap 7×24** (weekday × hour) pintado por intensidade indigo
   - Loading skeleton + error message
 
@@ -85,9 +85,9 @@ Scheduler: **03:00 UTC** diário.
 ## Pontos de atenção
 
 - **Dashboard vazio?** Verifique nesta ordem:
-  1. `metrics:rollup-daily` rodou? (`php artisan schedule:list` deve mostrar; em dev rodar manualmente)
-  2. Há `applications` com `applied_at` no range pedido?
-  3. Range `from`/`to` está correto? Default é 90 dias.
+  1. Há `applications` com `applied_at` no range pedido?
+  2. Range `from`/`to` está correto? Default é 90 dias.
+  3. Funil e canais mostram empty state informativo quando não há candidaturas — isso é comportamento esperado.
 - **Rollup é idempotente, mas dependente de `application_events` corretos.** Se um event for inserido com `event_type` errado, a contagem (responses/interviews/offers/rejections) sai errada. Confirme tipos via state machine antes de inserir eventos manualmente.
 - **`MetricsDaily` sem cast de `date`** — comparar como string `Y-m-d`. Se adicionar `'date' => 'date'` no `casts()`, alguns testes em SQLite quebram (driver retorna formato diferente).
 - **Funil "passou pela etapa":** olha `application_events` de `status_changed`. Aplicação que pulou direto de `applied → rejected` **não** aparece em `screening`/`assessment`. Comportamento correto, mas pode confundir.

@@ -16,6 +16,10 @@
     "how_it_works": "Como funciona",
     "open_app": "Abrir app"
   },
+  "dashboard": {
+    "funnel_empty": "Faça sua primeira candidatura para acompanhar o funil de etapas.",
+    "channels_empty": "Faça sua primeira candidatura para comparar a efetividade dos canais."
+  },
   "landing": {
     "eyebrow": "100% gratuito · Sem cartão de crédito",
     "title_1": "A sua busca por emprego,",
@@ -152,7 +156,8 @@
       "search_placeholder": "Buscar (ex.: Backend Kotlin, SRE)",
       "any_modality": "Qualquer modalidade",
       "any_seniority": "Qualquer senioridade",
-      "reset": "Limpar filtros"
+      "reset": "Limpar filtros",
+      "language": "Idioma"
     },
     "use_resume": "Usar currículo:",
     "no_resume": "Nenhum",
@@ -210,7 +215,34 @@
       "accepted": "Aceita",
       "rejected": "Recusada",
       "withdrawn": "Desistência"
-    }
+    },
+    "add_manual": "Nova candidatura",
+    "manual_title": "Título da vaga",
+    "manual_company": "Empresa",
+    "manual_description": "Descrição da vaga",
+    "manual_source": "Canal",
+    "manual_source_placeholder": "Selecione o canal",
+    "manual_source_other": "Outro",
+    "manual_resume": "Currículo enviado",
+    "manual_resume_placeholder": "Nenhum selecionado",
+    "manual_notes": "Anotações (opcional)",
+    "manual_title_required": "Informe o título da vaga",
+    "manual_save": "Salvar",
+    "manual_cancel": "Cancelar",
+    "manual_success": "Candidatura adicionada!",
+    "manual_error": "Erro ao salvar candidatura.",
+    "kanban_settings": "Configurar etapas",
+    "kanban_rename": "Renomear",
+    "kanban_color": "Cor",
+    "kanban_hide": "Ocultar etapa",
+    "kanban_show": "Mostrar etapa",
+    "kanban_add_stage": "Adicionar etapa",
+    "kanban_new_stage": "Nova etapa",
+    "kanban_remove_stage": "Remover etapa",
+    "kanban_max_stages": "Limite de 15 etapas atingido",
+    "kanban_reset": "Restaurar padrão",
+    "kanban_hidden_stages": "Etapas ocultas",
+    "kanban_no_hidden": "Todas visíveis"
   },
   "resumes": {
     "title": "Currículos",
@@ -304,5 +336,10 @@
       "website": "Website",
       "address": "Endereço"
     }
+  },
+  "languages": {
+    "pt_BR": "Português",
+    "en": "Inglês",
+    "es": "Espanhol"
   }
 }

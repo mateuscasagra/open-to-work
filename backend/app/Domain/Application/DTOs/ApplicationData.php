@@ -9,7 +9,9 @@ use Spatie\LaravelData\Data;
 final class ApplicationData extends Data
 {
     public function __construct(
-        public int $jobId,
+        public ?int $jobId = null,
+        public ?string $manualTitle = null,
+        public ?string $manualCompany = null,
         public ?int $resumeId = null,
         public ?string $source = null,
         public ?string $notes = null,

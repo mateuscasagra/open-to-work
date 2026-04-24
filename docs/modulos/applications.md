@@ -99,17 +99,22 @@ Quando o user aplica a uma vaga com `contact_email` e tem `email_apply_enabled=t
 
 **Arquivos:** `frontend/src/modules/applications/`
 
-- **`ApplicationsKanbanView`** (`views/`) — Kanban de 8 colunas (uma por status). Drag-and-drop **HTML5 nativo**.
-- **`ApplicationDetailView`** (`views/`) — rota `/app/applications/:id`. Tabs:
-  - **Timeline** — `application_events` ordenados desc
-  - **Notes** — PUT em `/api/applications/:id` (`useApplicationDetail.updateNotes`)
+- **`ApplicationsKanbanView`** (`views/`) — Kanban com colunas por status. Drag-and-drop **HTML5 nativo**. Inclui:
+  - **Modal "Nova candidatura"** — título, empresa, descrição da vaga, canal (select: LinkedIn/Indeed/Catho/Glassdoor/Gupy/InfoJobs/etc.), currículo enviado (select dos resumes do user). Envia `manualTitle`, `manualCompany`, `notes`, `source`, `resumeId`.
+  - **Modal "Configurar etapas"** — modal centralizado com etapas em row horizontal. Cada etapa mostra bolinha de cor (click abre `<input type="color">` nativo), nome (click para editar inline), setas esquerda/direita para reordenar, lixeira para excluir. Etapas `applied`, `accepted` e `rejected` são travadas (sem editar nome/cor/posição/excluir). Botão "Adicionar etapa" cria etapas customizadas (limite de 15). "Restaurar padrão" reseta tudo.
+  - **Scroll fade** — `mask-image` CSS nas bordas do kanban quando há colunas fora da viewport.
+- **`ApplicationDetailView`** (`views/`) — rota `/app/applications/:id`. Integra `useKanbanConfig` para usar labels, cores e visibilidade das etapas configuradas pelo user no Kanban. Layout com `border-l-4 border-brand-500` em todos os cards. Inclui:
+  - **Header** — título, empresa, data, badge de status com cor da etapa do Kanban + **progress stepper** horizontal mostrando as etapas visíveis do Kanban com dots coloridos
+  - **Avançar status** — botões filtrados pelas etapas visíveis do Kanban, com dot de cor da etapa. Labels respeitam renomeações feitas no Kanban
+  - **Notes, salário & currículo** — seção unificada com textarea, salário esperado e dropdown de currículo lado a lado (`sm:grid-cols-2`). **Um único botão Salvar** envia `notes`, `expected_salary` e `resume_id` juntos via `updateNotes.mutateAsync()`
   - **Attachments** — upload/list/delete via `useAttachments`
-  - **Resume vinculado** — dropdown salva `resume_id`
+  - **Timeline** — `application_events` ordenados desc, labels de status via `statusLabel()` (consistente com Kanban)
 - **Composables:**
   - `useApplicationDetail` — query + `updateNotes(notes, expectedSalary, resumeId)` (otimista)
   - `useChangeApplicationStatus` — mutation otimista com rollback em 422
   - `useApplyToJob` — POST `/api/applications`, classifica erro em `'duplicate' | 'validation' | 'unknown'`
   - `useAttachments` — GET/POST (FormData) /DELETE
+  - `useKanbanConfig` — configuração do quadro Kanban (colunas, cores hex, ordem, etapas customizadas). Armazena em `localStorage('kanban-config')`. Funções: `visibleColumns`, `styleFor` (gera estilos inline a partir de hex), `rename`, `setColor`, `moveColumn`, `addColumn` (max 15), `removeColumn`, `isLocked`, `isCustom`, `resetDefaults`. Cores são hex arbitrárias (color picker nativo). Etapas locked: `applied`, `accepted`, `rejected`.
 - **`machines/applicationStatusMachine.ts`** (XState) — espelho client-side da state machine, usado para mostrar apenas próximas etapas válidas no UI antes do request
 
 ## Efeitos colaterais
@@ -125,17 +130,20 @@ Quando o user aplica a uma vaga com `contact_email` e tem `email_apply_enabled=t
 - `backend/tests/Feature/Applications/` — `ListApplicationsTest`, `CreateApplicationTest` (com 409), `ShowApplicationTest`, `UpdateApplicationTest`, `ChangeStatusTest`, `DeleteApplicationTest`, `PolicyTest`, `AttachmentsTest`, `SendFollowUpsTest`, `ResumeLinkingTest`
 - `frontend/tests/useApplyToJob.test.ts`
 - `frontend/tests/useChangeApplicationStatus.test.ts`
-- `frontend/tests/useApplicationDetailResumeLink.test.ts`
+- `frontend/tests/useApplicationDetailResumeLink.test.ts` — 4 testes: só resumeId, clear resumeId, só notes, e envio unificado (notes + salary + resumeId)
 - `frontend/tests/applicationStatusMachine.test.ts`
+- `frontend/tests/useKanbanConfig.test.ts` — 25 testes cobrindo: defaults, isLocked/isCustom, rename, setColor, moveColumn (incluindo bloqueio por locked), addColumn (com limite 15), removeColumn (locked/default/custom), resetDefaults, styleFor (hex→rgba), singleton state
 
 ## Pontos de atenção
 
 - **State machine duplicada (back + front XState).** Se mudar transições no `ApplicationStatus` PHP, **obrigatoriamente** atualize `applicationStatusMachine.ts` e `ALLOWED_TRANSITIONS` no `ApplicationDetailView`. Existem 3 fontes da verdade — risco real de drift.
+- **Detail view depende de `useKanbanConfig`.** Labels, cores e visibilidade das etapas no detalhe da candidatura vêm do Kanban config do user (localStorage). Se o user nunca configurou, usa os defaults. Etapas ocultas no Kanban ficam ocultas também nos botões de avançar status.
 - **Drag-drop otimista:** se a API retornar 422, o `onError` precisa restaurar o snapshot do cache. Confira que o `onMutate` salvou o snapshot antes de mutar.
 - **MediaLibrary requer disk `s3` configurado.** Em dev sem MinIO subido, upload falha com erro confuso de stream. Verifique `docker compose ps` antes.
 - **Throttle `uploads`** (20/min user) bate em casos de drag-drop múltiplo. Considere agrupar em multipart se virar problema.
 - **Follow-up anti-spam:** o gate "7 dias desde último evento" considera `status_changed` E `followup_sent`. Se mudar a regra, cuide para não remover o gate de re-follow-up (caso contrário, manda e-mail diariamente).
 - **Resume linking:** o Form Request usa `Rule::exists('resumes', 'id')->where('user_id', $userId)` — isso é o que impede um user vincular currículo de outro. Não remova o `where('user_id', ...)`.
+- **Kanban config é client-side only.** Colunas, cores e ordem ficam em `localStorage('kanban-config')`. Etapas customizadas (prefixo `custom_`) são visuais — o backend não conhece esses status, então drag-drop para elas é bloqueado no frontend. Limite de 15 colunas.
 - **Vinculação ↔ vaga:** quando uma vaga é desativada (`active=false`), candidaturas existentes mantêm `job_id`. UI deve renderizar com fallback para vaga removida.
 - **`ApplicationCreated` listener** pode disparar lógica adicional (ex.: contadores). Se virar gargalo no fluxo de aplicar, mover para queue.
 - **`SendApplicationEmail` depende do perfil** (`email_apply_enabled`, modes, template, resume). Se o perfil estiver incompleto (ex.: `message_mode=fixed` sem template), a action não envia. Verificar configuração do perfil antes de debugar "e-mail não enviado".

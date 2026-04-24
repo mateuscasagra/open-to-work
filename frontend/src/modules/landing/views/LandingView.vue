@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/modules/auth/stores/auth';
+import logoSrc from '@/assets/logo.png';
 
 const { t } = useI18n();
 const auth = useAuthStore();
@@ -32,14 +33,9 @@ const steps = [
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <RouterLink
           :to="{ name: 'landing' }"
-          class="flex items-center gap-2 text-white"
+          class="transition hover:opacity-80"
         >
-          <span
-            class="grid h-8 w-8 place-items-center rounded-lg bg-brand-500 text-white font-bold shadow-glow"
-          >
-            O
-          </span>
-          <span class="font-semibold tracking-tight">{{ t('app.name') }}</span>
+          <img :src="logoSrc" alt="Open to Work" class="h-11 rounded-lg bg-white object-contain">
         </RouterLink>
 
         <div class="hidden items-center gap-8 text-sm text-white/80 md:flex">
@@ -285,11 +281,7 @@ const steps = [
         class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-ink-500 md:flex-row"
       >
         <div class="flex items-center gap-2">
-          <span
-            class="grid h-6 w-6 place-items-center rounded-md bg-brand-600 text-xs font-bold text-white"
-          >
-            O
-          </span>
+          <img :src="logoSrc" alt="Open to Work" class="h-6 w-6 rounded-md object-cover">
           <span class="text-ink-700">{{ t('app.name') }}</span>
           <span>— {{ t('landing.footer.tagline') }}</span>
         </div>

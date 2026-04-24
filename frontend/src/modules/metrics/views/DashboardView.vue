@@ -178,14 +178,13 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
       <!-- Middle row: Funnel + Channels -->
       <div class="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-2">
         <section
-          v-if="data.funnel.length > 0"
           class="card p-4 lg:flex lg:flex-col lg:p-3"
           data-testid="metrics-funnel"
         >
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
             Funil de etapas
           </h2>
-          <div class="space-y-1.5 lg:flex-1">
+          <div v-if="data.funnel.length > 0" class="space-y-1.5 lg:flex-1">
             <div
               v-for="stage in data.funnel"
               :key="stage.status"
@@ -203,17 +202,24 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
               </span>
             </div>
           </div>
+          <div v-else class="flex flex-1 flex-col items-center justify-center py-6 text-center">
+            <svg class="h-8 w-8 text-ink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+            </svg>
+            <p class="mt-2 text-xs text-ink-400">
+              {{ t('dashboard.funnel_empty') }}
+            </p>
+          </div>
         </section>
 
         <section
-          v-if="data.channels.length > 0"
           class="card p-4 lg:flex lg:flex-col lg:p-3"
           data-testid="metrics-channels"
         >
           <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
             Canais mais efetivos
           </h2>
-          <table class="w-full text-xs lg:flex-1">
+          <table v-if="data.channels.length > 0" class="w-full text-xs lg:flex-1">
             <thead>
               <tr class="border-b border-ink-200 text-left text-ink-500">
                 <th class="pb-1.5 font-medium">
@@ -251,6 +257,14 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
               </tr>
             </tbody>
           </table>
+          <div v-else class="flex flex-1 flex-col items-center justify-center py-6 text-center">
+            <svg class="h-8 w-8 text-ink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
+            </svg>
+            <p class="mt-2 text-xs text-ink-400">
+              {{ t('dashboard.channels_empty') }}
+            </p>
+          </div>
         </section>
       </div>
 

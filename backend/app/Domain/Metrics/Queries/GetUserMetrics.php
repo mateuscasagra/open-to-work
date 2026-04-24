@@ -7,17 +7,13 @@ namespace App\Domain\Metrics\Queries;
 use App\Domain\Metrics\DTOs\MetricsSummaryData;
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
-use App\Models\MetricsDaily;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Monta o payload do dashboard de métricas a partir de `metrics_daily`
- * (materializada) + consultas diretas para dados não agregados (funnel, heatmap, tempos).
- *
- * Queries usam `metrics_daily` para KPIs simples; só fazem fallback para
- * `applications`/`application_events` para funil, heatmap e tempo médio entre etapas.
+ * Monta o payload do dashboard de métricas em tempo real a partir de
+ * `applications` e `application_events`.
  */
 final class GetUserMetrics
 {
@@ -80,17 +76,45 @@ final class GetUserMetrics
      */
     private function kpis(User $user, CarbonImmutable $from, CarbonImmutable $to): array
     {
-        $row = MetricsDaily::query()
+        $apps = Application::query()
             ->where('user_id', $user->id)
-            ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
-            ->selectRaw('SUM(applications_count) as apps, SUM(responses_count) as resps, SUM(interviews_count) as ints, SUM(offers_count) as offs, SUM(rejections_count) as rejs')
-            ->first();
+            ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
+            ->count();
 
-        $apps = (int) ($row->apps ?? 0);
-        $resps = (int) ($row->resps ?? 0);
-        $ints = (int) ($row->ints ?? 0);
-        $offs = (int) ($row->offs ?? 0);
-        $rejs = (int) ($row->rejs ?? 0);
+        $events = DB::table('application_events as e')
+            ->join('applications as a', 'a.id', '=', 'e.application_id')
+            ->where('a.user_id', $user->id)
+            ->where('e.event_type', 'status_changed')
+            ->whereBetween('e.occurred_at', [$from->startOfDay(), $to->endOfDay()])
+            ->get(['e.payload']);
+
+        $resps = 0;
+        $ints = 0;
+        $offs = 0;
+        $rejs = 0;
+
+        foreach ($events as $row) {
+            $payload = is_string($row->payload) ? json_decode($row->payload, true) : (array) $row->payload;
+            $toStatus = is_array($payload) ? ($payload['to'] ?? null) : null;
+            $fromStatus = is_array($payload) ? ($payload['from'] ?? null) : null;
+
+            if (! is_string($toStatus)) {
+                continue;
+            }
+
+            if ($fromStatus === ApplicationStatus::Applied->value && in_array($toStatus, self::RESPONSE_STATUSES, true)) {
+                $resps++;
+            }
+            if ($toStatus === ApplicationStatus::InterviewHR->value || $toStatus === ApplicationStatus::InterviewTech->value) {
+                $ints++;
+            }
+            if ($toStatus === ApplicationStatus::Offer->value) {
+                $offs++;
+            }
+            if ($toStatus === ApplicationStatus::Rejected->value) {
+                $rejs++;
+            }
+        }
 
         return [
             'total_applications' => $apps,

@@ -16,6 +16,10 @@
     "how_it_works": "How it works",
     "open_app": "Open app"
   },
+  "dashboard": {
+    "funnel_empty": "Submit your first application to track the stages funnel.",
+    "channels_empty": "Submit your first application to compare channel effectiveness."
+  },
   "landing": {
     "eyebrow": "100% free · No credit card",
     "title_1": "Your job search,",
@@ -152,7 +156,8 @@
       "search_placeholder": "Search (e.g., Backend Kotlin, SRE)",
       "any_modality": "Any modality",
       "any_seniority": "Any seniority",
-      "reset": "Clear filters"
+      "reset": "Clear filters",
+      "language": "Language"
     },
     "use_resume": "Use resume:",
     "no_resume": "None",
@@ -210,7 +215,34 @@
       "accepted": "Accepted",
       "rejected": "Rejected",
       "withdrawn": "Withdrawn"
-    }
+    },
+    "add_manual": "New application",
+    "manual_title": "Job title",
+    "manual_company": "Company",
+    "manual_description": "Job description",
+    "manual_source": "Channel",
+    "manual_source_placeholder": "Select channel",
+    "manual_source_other": "Other",
+    "manual_resume": "Resume sent",
+    "manual_resume_placeholder": "None selected",
+    "manual_notes": "Notes (optional)",
+    "manual_title_required": "Job title is required",
+    "manual_save": "Save",
+    "manual_cancel": "Cancel",
+    "manual_success": "Application added!",
+    "manual_error": "Failed to save application.",
+    "kanban_settings": "Configure stages",
+    "kanban_rename": "Rename",
+    "kanban_color": "Color",
+    "kanban_hide": "Hide stage",
+    "kanban_show": "Show stage",
+    "kanban_add_stage": "Add stage",
+    "kanban_new_stage": "New stage",
+    "kanban_remove_stage": "Remove stage",
+    "kanban_max_stages": "Maximum of 15 stages reached",
+    "kanban_reset": "Reset defaults",
+    "kanban_hidden_stages": "Hidden stages",
+    "kanban_no_hidden": "All visible"
   },
   "resumes": {
     "title": "Resumes",
@@ -304,5 +336,10 @@
       "website": "Website",
       "address": "Address"
     }
+  },
+  "languages": {
+    "pt_BR": "Portuguese",
+    "en": "English",
+    "es": "Spanish"
   }
 }

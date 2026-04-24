@@ -71,4 +71,17 @@ describe('useApplicationDetail.updateNotes with resumeId', () => {
     expect(body.notes).toBe('ok');
     expect('resume_id' in body).toBe(false);
   });
+
+  it('sends notes, expected_salary and resume_id together', async () => {
+    vi.mocked(api.put).mockResolvedValueOnce({
+      data: { ...baseApp, notes: 'feedback positivo', expected_salary: 8000, resume_id: 3 },
+    });
+
+    const { updateNotes } = mount(() => useApplicationDetail(ref(1)));
+    await updateNotes.mutateAsync({ notes: 'feedback positivo', expectedSalary: 8000, resumeId: 3 });
+
+    const [url, body] = vi.mocked(api.put).mock.calls[0] as [string, Record<string, unknown>];
+    expect(url).toBe('/api/applications/1');
+    expect(body).toEqual({ notes: 'feedback positivo', expected_salary: 8000, resume_id: 3 });
+  });
 });

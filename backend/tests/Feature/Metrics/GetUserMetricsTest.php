@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
-use App\Models\MetricsDaily;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
@@ -16,28 +15,36 @@ afterEach(function (): void {
     Carbon::setTestNow();
 });
 
-it('returns kpis aggregated from metrics_daily', function (): void {
+it('returns kpis from applications and events in real time', function (): void {
     $user = User::factory()->create();
 
-    MetricsDaily::create([
-        'user_id' => $user->id,
-        'date' => '2026-04-15',
-        'applications_count' => 4,
-        'responses_count' => 1,
-        'interviews_count' => 0,
-        'offers_count' => 0,
-        'rejections_count' => 0,
-        'breakdown' => ['channels' => []],
+    $apps = Application::factory()->for($user)->count(10)->create([
+        'applied_at' => '2026-04-15 10:00:00',
     ]);
-    MetricsDaily::create([
-        'user_id' => $user->id,
-        'date' => '2026-04-16',
-        'applications_count' => 6,
-        'responses_count' => 3,
-        'interviews_count' => 2,
-        'offers_count' => 1,
-        'rejections_count' => 0,
-        'breakdown' => ['channels' => []],
+
+    foreach ($apps->take(4) as $app) {
+        $app->events()->create([
+            'event_type' => 'status_changed',
+            'payload' => ['from' => 'applied', 'to' => 'screening'],
+            'occurred_at' => '2026-04-15 14:00:00',
+        ]);
+    }
+
+    $apps[0]->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'screening', 'to' => 'interview_hr'],
+        'occurred_at' => '2026-04-16 10:00:00',
+    ]);
+    $apps[1]->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'screening', 'to' => 'interview_tech'],
+        'occurred_at' => '2026-04-16 11:00:00',
+    ]);
+
+    $apps[0]->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'interview_hr', 'to' => 'offer'],
+        'occurred_at' => '2026-04-17 10:00:00',
     ]);
 
     $response = $this->actingAs($user)->getJson('/api/metrics');
@@ -123,15 +130,14 @@ it('counts funnel reach including applications already past a stage', function (
 it('emits an insight when response rate is low', function (): void {
     $user = User::factory()->create();
 
-    MetricsDaily::create([
-        'user_id' => $user->id,
-        'date' => '2026-04-17',
-        'applications_count' => 20,
-        'responses_count' => 1,
-        'interviews_count' => 0,
-        'offers_count' => 0,
-        'rejections_count' => 0,
-        'breakdown' => ['channels' => []],
+    $apps = Application::factory()->for($user)->count(20)->create([
+        'applied_at' => '2026-04-17 10:00:00',
+    ]);
+
+    $apps[0]->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'applied', 'to' => 'screening'],
+        'occurred_at' => '2026-04-17 14:00:00',
     ]);
 
     $response = $this->actingAs($user)->getJson('/api/metrics');

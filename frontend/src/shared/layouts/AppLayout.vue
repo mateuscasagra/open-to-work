@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/modules/auth/stores/auth';
+import logoSrc from '@/assets/logo.png';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -58,19 +59,9 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
         <div class="flex items-center gap-8">
           <RouterLink
             :to="{ name: 'dashboard' }"
-            class="flex items-center gap-2.5 transition hover:opacity-80"
+            class="transition hover:opacity-80"
           >
-            <span class="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 font-bold text-white shadow-glow">
-              O
-            </span>
-            <div class="hidden leading-tight sm:block">
-              <div class="text-sm font-semibold text-ink-900">
-                {{ t('app.name') }}
-              </div>
-              <div class="text-[11px] text-ink-400">
-                {{ t('app.tagline') }}
-              </div>
-            </div>
+            <img :src="logoSrc" alt="Open to Work" class="h-20 object-contain">
           </RouterLink>
 
           <!-- Desktop nav -->

@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth';
+import logoSrc from '@/assets/logo.png';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -56,11 +57,7 @@ async function submit() {
         :to="{ name: 'landing' }"
         class="relative flex items-center gap-2.5"
       >
-        <span
-          class="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 font-bold text-white shadow-glow"
-        >
-          O
-        </span>
+        <img :src="logoSrc" alt="Open to Work" class="h-9 w-9 rounded-lg object-cover">
         <span class="font-semibold tracking-tight">{{ t('app.name') }}</span>
       </RouterLink>
 

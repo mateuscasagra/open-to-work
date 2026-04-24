@@ -77,6 +77,7 @@ export const JobSchema = z.object({
   posted_at: z.string().nullable(),
   match_score: z.number().optional(),
   matched_stack: z.array(z.string()).optional(),
+  language: LocaleEnum.nullable().optional(),
   contact_email: z.string().nullable().optional().default(null),
   company: z
     .object({
@@ -207,9 +208,11 @@ export const ApplicationSchema = z.object({
   notes: z.string().nullable(),
   expected_salary: z.number().nullable(),
   source: z.string().nullable(),
+  manual_title: z.string().nullable().optional(),
+  manual_company: z.string().nullable().optional(),
   resume_id: z.number().nullable().optional(),
   resume: ResumeSchema.nullable().optional(),
-  job: JobSchema.optional(),
+  job: JobSchema.nullable().optional(),
   events: z.array(ApplicationEventSchema).optional().default([]),
 });
 export type Application = z.infer<typeof ApplicationSchema>;

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuery } from '@tanstack/vue-query';
 import { api } from '@/shared/api/client';
-import { JobsPageSchema, type Job, type JobsPage } from '@/shared/api/schemas';
+import { JobsPageSchema, type Job, type JobsPage, type Locale } from '@/shared/api/schemas';
 import { useJobFilters } from '@/modules/jobs/composables/useJobFilters';
 import { useApplyToJob } from '@/modules/applications/composables/useApplyToJob';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
@@ -13,7 +13,12 @@ import ApplyByEmailModal from '@/modules/jobs/components/ApplyByEmailModal.vue';
 const { t } = useI18n();
 const { state, queryParams, reset, toggleStack } = useJobFilters();
 
-const QUICK_STACK_TAGS = ['php', 'laravel', 'vue', 'typescript', 'python', 'node', 'react', 'go'];
+const BASE_STACK_TAGS = ['php', 'laravel', 'vue', 'typescript', 'python', 'node', 'react', 'go'];
+
+const visibleStackTags = computed(() => {
+  const extra = state.stack.filter(t => !BASE_STACK_TAGS.includes(t));
+  return [...extra, ...BASE_STACK_TAGS];
+});
 
 async function fetchJobs(matchOnly: boolean, params: Record<string, string>): Promise<JobsPage> {
   const endpoint = matchOnly ? '/api/jobs/matching' : '/api/jobs';
@@ -38,6 +43,28 @@ const selectedResumeId = ref<number | null>(null);
 
 const { profile, fetch: fetchProfile } = useProfile();
 fetchProfile();
+
+watch(profile, (p) => {
+  if (!p) return;
+  if (p.skills.length) {
+    state.stack = p.skills.map(s => s.name.toLowerCase());
+  }
+  if (p.seniority) state.seniority = p.seniority;
+  if (p.modality) state.modality = p.modality;
+  if (p.languages?.length) state.language = [...p.languages];
+}, { once: true });
+
+const LANGUAGE_OPTIONS: { value: Locale; labelKey: string }[] = [
+  { value: 'pt_BR', labelKey: 'languages.pt_BR' },
+  { value: 'en', labelKey: 'languages.en' },
+  { value: 'es', labelKey: 'languages.es' },
+];
+
+function toggleLanguage(lang: Locale): void {
+  const i = state.language.indexOf(lang);
+  if (i >= 0) state.language.splice(i, 1);
+  else state.language.push(lang);
+}
 
 const emailModalOpen = ref(false);
 const emailModalJob = ref<Job | null>(null);
@@ -219,8 +246,27 @@ function applyLabel(jobId: number): string {
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-ink-500">{{ t('jobs.filters.language') }}</span>
         <button
-          v-for="tag in QUICK_STACK_TAGS"
+          v-for="lang in LANGUAGE_OPTIONS"
+          :key="lang.value"
+          type="button"
+          class="rounded-full border px-3 py-1 text-xs font-medium transition"
+          :class="
+            state.language.includes(lang.value)
+              ? 'border-brand-600 bg-brand-600 text-white shadow-soft'
+              : 'border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:text-brand-700'
+          "
+          @click="toggleLanguage(lang.value)"
+        >
+          {{ t(lang.labelKey) }}
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-ink-500">Stack</span>
+        <button
+          v-for="tag in visibleStackTags"
           :key="tag"
           type="button"
           class="rounded-full border px-3 py-1 text-xs font-medium transition"
@@ -235,7 +281,7 @@ function applyLabel(jobId: number): string {
         </button>
 
         <button
-          v-if="state.q || state.modality || state.seniority || state.stack.length"
+          v-if="state.q || state.modality || state.seniority || state.stack.length || state.language.length"
           type="button"
           class="ml-auto text-xs font-medium text-ink-500 hover:text-ink-900"
           @click="reset"

@@ -20,29 +20,35 @@ final class CreateApplication
 
     public function execute(User $user, ApplicationData $data): Application
     {
-        $exists = Application::query()
-            ->where('user_id', $user->id)
-            ->where('job_id', $data->jobId)
-            ->exists();
+        if ($data->jobId !== null) {
+            $exists = Application::query()
+                ->where('user_id', $user->id)
+                ->where('job_id', $data->jobId)
+                ->exists();
 
-        if ($exists) {
-            throw new DuplicateApplicationException;
+            if ($exists) {
+                throw new DuplicateApplicationException;
+            }
         }
 
         $application = Application::query()->create([
             'user_id' => $user->id,
             'job_id' => $data->jobId,
+            'manual_title' => $data->manualTitle,
+            'manual_company' => $data->manualCompany,
             'resume_id' => $data->resumeId,
             'status' => ApplicationStatus::Applied->value,
             'applied_at' => now(),
-            'source' => $data->source,
+            'source' => $data->source ?? ($data->jobId === null ? 'manual' : null),
             'notes' => $data->notes,
             'expected_salary' => $data->expectedSalary,
         ]);
 
         event(new ApplicationCreated($application));
 
-        $this->sendEmail->execute($application, $data);
+        if ($data->jobId !== null) {
+            $this->sendEmail->execute($application, $data);
+        }
 
         return $application;
     }

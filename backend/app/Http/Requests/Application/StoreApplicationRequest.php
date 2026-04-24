@@ -20,7 +20,9 @@ final class StoreApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jobId' => ['required', 'integer', 'exists:jobs,id'],
+            'jobId' => ['nullable', 'integer', 'exists:jobs,id'],
+            'manualTitle' => ['required_without:jobId', 'nullable', 'string', 'max:255'],
+            'manualCompany' => ['nullable', 'string', 'max:255'],
             'resumeId' => [
                 'nullable',
                 'integer',

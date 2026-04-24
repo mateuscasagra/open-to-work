@@ -39,6 +39,11 @@ final class JobController extends Controller
             }
         }
 
+        if ($language = $request->input('language')) {
+            $langs = is_array($language) ? $language : explode(',', (string) $language);
+            $query->whereIn('language', array_map('trim', $langs));
+        }
+
         return response()->json($query->paginate(20));
     }
 

@@ -1,11 +1,12 @@
 import { computed, reactive } from 'vue';
-import type { Modality, Seniority } from '@/shared/api/schemas';
+import type { Locale, Modality, Seniority } from '@/shared/api/schemas';
 
 export interface JobFilters {
   q: string;
   modality: Modality | '';
   seniority: Seniority | '';
   stack: string[];
+  language: Locale[];
   matchOnly: boolean;
 }
 
@@ -15,6 +16,7 @@ function makeDefaults(): JobFilters {
     modality: '',
     seniority: '',
     stack: [],
+    language: [],
     matchOnly: false,
   };
 }
@@ -28,6 +30,7 @@ export function useJobFilters() {
     if (state.modality !== '') params.modality = state.modality;
     if (state.seniority !== '') params.seniority = state.seniority;
     if (state.stack.length > 0) params.stack = state.stack.join(',');
+    if (state.language.length > 0) params.language = state.language.join(',');
     return params;
   });
 
@@ -36,6 +39,7 @@ export function useJobFilters() {
     state.modality = '';
     state.seniority = '';
     state.stack = [];
+    state.language = [];
     state.matchOnly = false;
   }
 
