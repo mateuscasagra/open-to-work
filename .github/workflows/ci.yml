@@ -49,7 +49,7 @@ jobs:
       - name: Pint (format check)
         run: vendor/bin/pint --test
       - name: PHPStan (static analysis)
-        run: vendor/bin/phpstan analyse --no-progress
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
       - name: Pest (tests)
         env:
           DB_CONNECTION: pgsql
