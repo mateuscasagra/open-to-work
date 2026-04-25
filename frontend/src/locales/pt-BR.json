@@ -177,7 +177,24 @@
     "forgot": "Esqueci minha senha",
     "show_password": "Mostrar senha",
     "hide_password": "Ocultar senha",
-    "terms_notice": "Ao criar uma conta, você concorda com os Termos de uso e a Política de privacidade."
+    "terms_notice": "Ao criar uma conta, você concorda com os Termos de uso e a Política de privacidade.",
+    "verify": {
+      "eyebrow": "Confirme seu e-mail",
+      "hero_title": "Falta só um passo para começar.",
+      "hero_subtitle": "Enviamos um código de 6 dígitos para o seu e-mail. Use-o para ativar sua conta.",
+      "title": "Confirme seu e-mail",
+      "subtitle": "Enviamos um código de 6 dígitos para você. Verifique sua caixa de entrada (e o spam).",
+      "code_label": "Código de verificação",
+      "code_hint": "Cole ou digite os 6 dígitos. O código expira em 15 minutos.",
+      "digit_aria": "Dígito {n}",
+      "submit": "Confirmar e-mail",
+      "resend": "Reenviar código",
+      "resend_in": "Reenviar em {seconds}s",
+      "resent": "Enviamos um novo código para o seu e-mail.",
+      "resend_failed": "Não conseguimos reenviar agora. Tente novamente em alguns segundos.",
+      "back_to_login": "Voltar para o login",
+      "failed": "Não foi possível confirmar o código. Tente novamente."
+    }
   },
   "profile": {
     "title": "Perfil",

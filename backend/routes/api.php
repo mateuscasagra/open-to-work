@@ -27,6 +27,12 @@ Route::prefix('auth')->group(function (): void {
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware('throttle:auth')
         ->name('auth.login');
+    Route::post('/verify-email', [AuthController::class, 'verifyEmail'])
+        ->middleware('throttle:auth')
+        ->name('auth.verify');
+    Route::post('/resend-code', [AuthController::class, 'resendVerificationCode'])
+        ->middleware('throttle:auth')
+        ->name('auth.resend');
     Route::post('/logout', [AuthController::class, 'logout'])
         ->middleware('auth:sanctum')
         ->name('auth.logout');

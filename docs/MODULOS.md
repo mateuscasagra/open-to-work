@@ -28,6 +28,8 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | `419` (Page Expired / token mismatch) | `cross-cutting.md` (CSRF) → `shared-frontend.md` (client.ts) |
 | `429` Too Many Requests | `cross-cutting.md` (RateLimiters) |
 | Login/register retorna sucesso mas front mostra erro | `auth.md` (parse Zod, refresh do User) |
+| Login retorna `403` com `email_unverified` / usuário travado em `/verify-email` | `auth.md` (fluxo Verify Email — code expirou ou attempts ≥5? checar `email_verification_*` no DB) |
+| E-mail de confirmação não chega na caixa | `auth.md` (Pontos de atenção — Resend domínio verificado, MailHog em dev em http://localhost:8025) |
 | OAuth callback não autentica | `auth.md` (Socialite stateless, redirect URL) |
 | Erro de coluna inexistente no SQL | módulo da rota + verificar migrations |
 | Vagas não aparecem / drivers quebrados | `jobs.md` (driver contract + pipeline) |

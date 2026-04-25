@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Mail\VerifyEmailCode;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
-it('registers a user and logs them in', function (): void {
+it('registers a user without logging them in and sends a verification code', function (): void {
+    Mail::fake();
+
     $response = $this->postJson('/api/auth/register', [
         'name' => 'Diego',
         'email' => 'diego@example.com',
@@ -13,11 +17,18 @@ it('registers a user and logs them in', function (): void {
     ]);
 
     $response
-        ->assertCreated()
-        ->assertJsonPath('user.email', 'diego@example.com');
+        ->assertStatus(202)
+        ->assertJson(['status' => 'verification_required', 'email' => 'diego@example.com']);
 
-    expect(User::where('email', 'diego@example.com')->exists())->toBeTrue();
-    $this->assertAuthenticated();
+    $user = User::where('email', 'diego@example.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->email_verified_at)->toBeNull();
+    expect($user->email_verification_code)->not->toBeNull();
+    expect($user->email_verification_code_expires_at)->not->toBeNull();
+
+    $this->assertGuest();
+
+    Mail::assertSent(VerifyEmailCode::class, fn (VerifyEmailCode $mail) => $mail->hasTo('diego@example.com'));
 });
 
 it('requires valid email and password', function (): void {

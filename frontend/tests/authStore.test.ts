@@ -15,6 +15,7 @@ describe('authStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it('fetchMe sets user on success', async () => {
@@ -71,5 +72,66 @@ describe('authStore', () => {
     const url = auth.oauthUrl('google');
 
     expect(url).toContain('/api/auth/google/redirect');
+  });
+
+  it('register does not authenticate user and stores pending email', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: { status: 'verification_required', email: 'new@e.com' },
+    });
+
+    const auth = useAuthStore();
+    const email = await auth.register({
+      name: 'Diego',
+      email: 'new@e.com',
+      password: 'Secret123!',
+      password_confirmation: 'Secret123!',
+    });
+
+    expect(auth.user).toBeNull();
+    expect(email).toBe('new@e.com');
+    expect(auth.pendingVerificationEmail).toBe('new@e.com');
+    expect(localStorage.getItem('auth.pending_verification_email')).toBe('new@e.com');
+  });
+
+  it('verifyEmail sets the user and clears the pending email', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: { user: { id: 7, name: 'Verified', email: 'v@e.com', locale: 'pt_BR' } },
+    });
+
+    const auth = useAuthStore();
+    auth.setPendingVerificationEmail('v@e.com');
+
+    await auth.verifyEmail('v@e.com', '123456');
+
+    expect(auth.user?.id).toBe(7);
+    expect(auth.pendingVerificationEmail).toBeNull();
+    expect(localStorage.getItem('auth.pending_verification_email')).toBeNull();
+    expect(api.post).toHaveBeenCalledWith('/api/auth/verify-email', {
+      email: 'v@e.com',
+      code: '123456',
+    });
+  });
+
+  it('resendVerificationCode posts to the resend endpoint', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { status: 'sent' } });
+
+    const auth = useAuthStore();
+    await auth.resendVerificationCode('pending@e.com');
+
+    expect(api.post).toHaveBeenCalledWith('/api/auth/resend-code', { email: 'pending@e.com' });
+  });
+
+  it('login clears any pending verification email', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: { user: { id: 3, name: 'OK', email: 'ok@e.com', locale: 'pt_BR' } },
+    });
+
+    const auth = useAuthStore();
+    auth.setPendingVerificationEmail('was@pending.com');
+
+    await auth.login('ok@e.com', 'secret');
+
+    expect(auth.user?.id).toBe(3);
+    expect(auth.pendingVerificationEmail).toBeNull();
   });
 });

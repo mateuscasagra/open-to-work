@@ -25,8 +25,8 @@ async function submit() {
   error.value = null;
   fieldErrors.value = {};
   try {
-    await auth.register({ ...form });
-    router.push({ name: 'profile' });
+    const email = await auth.register({ ...form });
+    router.push({ name: 'verify-email', query: { email } });
   } catch (e) {
     const err = e as { response?: { status?: number; data?: { errors?: Record<string, string[]> } } };
     if (err.response?.status === 422 && err.response.data?.errors) {

@@ -177,7 +177,24 @@
     "forgot": "Forgot password",
     "show_password": "Show password",
     "hide_password": "Hide password",
-    "terms_notice": "By creating an account, you agree to the Terms of Use and Privacy Policy."
+    "terms_notice": "By creating an account, you agree to the Terms of Use and Privacy Policy.",
+    "verify": {
+      "eyebrow": "Confirm your email",
+      "hero_title": "One last step to get started.",
+      "hero_subtitle": "We sent a 6-digit code to your email. Use it to activate your account.",
+      "title": "Confirm your email",
+      "subtitle": "We sent a 6-digit code your way. Check your inbox (and spam).",
+      "code_label": "Verification code",
+      "code_hint": "Paste or type the 6 digits. The code expires in 15 minutes.",
+      "digit_aria": "Digit {n}",
+      "submit": "Confirm email",
+      "resend": "Resend code",
+      "resend_in": "Resend in {seconds}s",
+      "resent": "We just sent you a new code.",
+      "resend_failed": "We couldn't resend right now. Try again in a few seconds.",
+      "back_to_login": "Back to login",
+      "failed": "We couldn't confirm the code. Please try again."
+    }
   },
   "profile": {
     "title": "Profile",

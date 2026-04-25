@@ -21,6 +21,12 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true, guestOnly: true },
   },
   {
+    path: '/verify-email',
+    name: 'verify-email',
+    component: () => import('@/modules/auth/views/VerifyEmailView.vue'),
+    meta: { public: true, guestOnly: true },
+  },
+  {
     path: '/auth/callback',
     name: 'auth.callback',
     component: () => import('@/modules/auth/views/OAuthCallbackView.vue'),
