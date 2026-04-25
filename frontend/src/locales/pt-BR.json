@@ -363,6 +363,7 @@
     "upload_pdf": "Enviar PDF",
     "uploading": "Enviando…",
     "upload_failed": "Falha ao enviar PDF.",
+    "upload_hint": "Máx {max} MB · {count} currículos por conta",
     "download": "Baixar",
     "download_failed": "Falha ao baixar PDF.",
     "export": {

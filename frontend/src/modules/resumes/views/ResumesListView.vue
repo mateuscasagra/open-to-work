@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import axios from 'axios';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -6,6 +7,9 @@ import { useResumes } from '@/modules/resumes/composables/useResumes';
 import { useDeleteResume } from '@/modules/resumes/composables/useDeleteResume';
 import { useUploadResumePdf } from '@/modules/resumes/composables/useUploadResumePdf';
 import { downloadResumePdf } from '@/modules/resumes/composables/useResumePdfDownload';
+
+const MAX_FILE_MB = 2;
+const MAX_RESUMES = 5;
 
 const { t } = useI18n();
 const router = useRouter();
@@ -42,6 +46,16 @@ function triggerUpload(): void {
   uploadInput.value?.click();
 }
 
+function extractServerMessage(e: unknown): string | null {
+  if (!axios.isAxiosError(e)) return null;
+  const data = e.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined;
+  const firstField = data?.errors ? Object.values(data.errors)[0] : undefined;
+  if (Array.isArray(firstField) && typeof firstField[0] === 'string') {
+    return firstField[0];
+  }
+  return typeof data?.message === 'string' ? data.message : null;
+}
+
 async function onUploadChange(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -50,8 +64,8 @@ async function onUploadChange(event: Event): Promise<void> {
   const title = file.name.replace(/\.pdf$/i, '');
   try {
     await uploadPdf.mutateAsync({ title, file });
-  } catch {
-    uploadError.value = t('resumes.upload_failed');
+  } catch (e: unknown) {
+    uploadError.value = extractServerMessage(e) ?? t('resumes.upload_failed');
   } finally {
     input.value = '';
   }
@@ -78,7 +92,7 @@ async function onDownload(id: number): Promise<void> {
           {{ t('resumes.subtitle') }}
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
         <input
           ref="uploadInput"
           type="file"
@@ -86,6 +100,9 @@ async function onDownload(id: number): Promise<void> {
           class="hidden"
           @change="onUploadChange"
         >
+        <p class="hidden text-xs text-ink-500 sm:block">
+          {{ t('resumes.upload_hint', { max: MAX_FILE_MB, count: MAX_RESUMES }) }}
+        </p>
         <button
           type="button"
           class="btn-secondary"

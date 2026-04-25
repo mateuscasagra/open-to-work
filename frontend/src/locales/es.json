@@ -360,6 +360,7 @@
     "language": "Idioma",
     "pdf_upload_badge": "PDF",
     "back": "Volver",
+    "upload_hint": "Máx {max} MB · {count} CVs por cuenta",
     "upload_pdf": "Subir PDF",
     "uploading": "Subiendo…",
     "upload_failed": "Error al subir PDF.",

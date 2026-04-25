@@ -360,6 +360,7 @@
     "language": "Language",
     "pdf_upload_badge": "PDF",
     "back": "Back",
+    "upload_hint": "Max {max} MB · {count} resumes per account",
     "upload_pdf": "Upload PDF",
     "uploading": "Uploading…",
     "upload_failed": "Failed to upload PDF.",

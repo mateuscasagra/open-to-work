@@ -24,6 +24,12 @@ RUN { \
         echo 'realpath_cache_ttl=600'; \
     } > /usr/local/etc/php/conf.d/opcache-prod.ini
 
+RUN { \
+        echo 'upload_max_filesize=20M'; \
+        echo 'post_max_size=20M'; \
+        echo 'memory_limit=256M'; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
