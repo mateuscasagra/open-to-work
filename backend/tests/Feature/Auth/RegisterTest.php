@@ -55,3 +55,20 @@ it('blocks duplicate emails', function (): void {
 
     $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
 });
+
+it('auto-logs in when email verification is disabled', function (): void {
+    config(['auth.email_verification_enabled' => false]);
+
+    $response = $this->postJson('/api/auth/register', [
+        'name' => 'Skip',
+        'email' => 'skip@example.com',
+        'password' => 'Secret123!',
+        'password_confirmation' => 'Secret123!',
+    ]);
+
+    $response->assertCreated()->assertJsonPath('user.email', 'skip@example.com');
+    $this->assertAuthenticated();
+
+    $user = User::where('email', 'skip@example.com')->first();
+    expect($user->email_verified_at)->not->toBeNull();
+});

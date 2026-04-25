@@ -57,6 +57,15 @@ export const useAuthStore = defineStore('auth', {
 
     async register(payload: { name: string; email: string; password: string; password_confirmation: string }) {
       const { data } = await api.post('/api/auth/register', payload);
+
+      // Backend toggles verification via auth.email_verification_enabled.
+      // When disabled, register returns the authenticated user directly.
+      if (data?.user) {
+        this.user = UserSchema.parse(data.user);
+        this.setPendingVerificationEmail(null);
+        return null;
+      }
+
       const email = (data?.email as string | undefined) ?? payload.email;
       this.setPendingVerificationEmail(email);
       return email;

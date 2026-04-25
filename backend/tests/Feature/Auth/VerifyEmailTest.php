@@ -107,3 +107,19 @@ it('blocks login for unverified accounts and resends the code', function (): voi
 
     Mail::assertSent(VerifyEmailCode::class);
 });
+
+it('allows login for unverified accounts when verification is disabled', function (): void {
+    config(['auth.email_verification_enabled' => false]);
+
+    $user = User::factory()->unverified()->create([
+        'email' => 'pending@example.com',
+        'password' => bcrypt('Secret123!'),
+    ]);
+
+    $this->postJson('/api/auth/login', [
+        'email' => 'pending@example.com',
+        'password' => 'Secret123!',
+    ])->assertOk()->assertJsonPath('user.id', $user->id);
+
+    $this->assertAuthenticatedAs($user->fresh());
+});

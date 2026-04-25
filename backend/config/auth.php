@@ -22,6 +22,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Email Verification on Sign-Up
+    |--------------------------------------------------------------------------
+    |
+    | Quando true, /api/auth/register não loga o usuário, envia código de 6
+    | dígitos por e-mail e força confirmação via /api/auth/verify-email.
+    | Quando false, register auto-loga (carimba email_verified_at=now()) e
+    | login não bloqueia contas sem verificação. Útil em dev / antes de
+    | configurar provedor de e-mail em prod.
+    |
+    */
+    'email_verification_enabled' => env('AUTH_EMAIL_VERIFICATION', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Guards
     |--------------------------------------------------------------------------
     |

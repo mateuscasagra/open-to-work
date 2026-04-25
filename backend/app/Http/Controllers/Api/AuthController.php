@@ -34,6 +34,14 @@ final class AuthController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
+        if (! config('auth.email_verification_enabled')) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return response()->json(['user' => $user->refresh()], 201);
+        }
+
         $this->issueVerificationCode($user);
 
         return response()->json([
@@ -124,7 +132,9 @@ final class AuthController extends Controller
 
         $user = Auth::user();
 
-        if ($user instanceof User && $user->email_verified_at === null) {
+        if (config('auth.email_verification_enabled')
+            && $user instanceof User
+            && $user->email_verified_at === null) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
