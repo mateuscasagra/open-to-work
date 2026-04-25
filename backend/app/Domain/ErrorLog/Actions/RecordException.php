@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\ErrorLog\Actions;
 
 use App\Models\ErrorLog;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
@@ -48,11 +50,15 @@ final class RecordException
 
     private function resolveLevel(Throwable $e): string
     {
-        return match (true) {
-            $e instanceof HttpExceptionInterface
-                && $e->getStatusCode() < 500 => 'warning',
-            default => 'error',
-        };
+        if ($e instanceof HttpExceptionInterface) {
+            return $e->getStatusCode() < 500 ? 'warning' : 'error';
+        }
+
+        if ($e instanceof AuthorizationException || $e instanceof TokenMismatchException) {
+            return 'warning';
+        }
+
+        return 'error';
     }
 
     private function resolveUserId(?Request $request): ?int
