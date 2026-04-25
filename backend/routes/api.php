@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\Admin\AdminErrorLogsController;
 use App\Http\Controllers\Api\Admin\AdminMetricsController;
 use App\Http\Controllers\Api\ApplicationAttachmentController;
 use App\Http\Controllers\Api\ApplicationController;
@@ -79,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     // Admin -------------------------------------------------------------
     Route::middleware('admin')->prefix('admin')->group(function (): void {
         Route::get('/metrics', AdminMetricsController::class)->name('admin.metrics.show');
+        Route::get('/error-logs', AdminErrorLogsController::class)->name('admin.error-logs.index');
     });
 
     // Attachments (spatie/medialibrary)

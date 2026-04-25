@@ -34,6 +34,21 @@
       "title": "Top candidatos",
       "subtitle": "Usuarios con más candidaturas en el producto",
       "empty": "Aún no hay candidaturas registradas."
+    },
+    "errors": {
+      "title": "Errores en producción",
+      "subtitle": "Últimos {n} errores capturados (se actualiza cada 5s)",
+      "empty": "Sin errores registrados. 🎉",
+      "level_error": "Error",
+      "level_warning": "Aviso",
+      "anonymous": "Anónimo",
+      "view_stack": "Ver stack",
+      "hide_stack": "Ocultar",
+      "ago_now": "ahora",
+      "ago_minute": "hace {n} min",
+      "ago_hour": "hace {n} h",
+      "ago_day": "hace {n} d",
+      "live": "en vivo"
     }
   },
   "dashboard": {

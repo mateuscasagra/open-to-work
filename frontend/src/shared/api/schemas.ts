@@ -26,6 +26,35 @@ export const AdminMetricsSchema = z.object({
 });
 export type AdminMetrics = z.infer<typeof AdminMetricsSchema>;
 
+export const ErrorLogLevelSchema = z.enum(['error', 'warning']);
+export type ErrorLogLevel = z.infer<typeof ErrorLogLevelSchema>;
+
+export const ErrorLogSchema = z.object({
+  id: z.number().int(),
+  level: ErrorLogLevelSchema,
+  exception_class: z.string(),
+  message: z.string(),
+  file: z.string().nullable(),
+  line: z.number().int().nullable(),
+  url: z.string().nullable(),
+  method: z.string().nullable(),
+  stack_trace: z.string().nullable(),
+  user: z.object({
+    id: z.number().int(),
+    name: z.string(),
+    email: z.string(),
+  }).nullable(),
+  occurred_at: z.string(),
+});
+export type ErrorLog = z.infer<typeof ErrorLogSchema>;
+
+export const AdminErrorLogsResponseSchema = z.object({
+  data: z.array(ErrorLogSchema),
+  total: z.number().int(),
+  generated_at: z.string(),
+});
+export type AdminErrorLogsResponse = z.infer<typeof AdminErrorLogsResponseSchema>;
+
 export const ApplicationStatusSchema = z.enum([
   'applied',
   'screening',

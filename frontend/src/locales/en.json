@@ -34,6 +34,21 @@
       "title": "Top applicants",
       "subtitle": "Users with the most applications in the product",
       "empty": "No applications recorded yet."
+    },
+    "errors": {
+      "title": "Production errors",
+      "subtitle": "Latest {n} captured errors (refreshes every 5s)",
+      "empty": "No errors recorded. 🎉",
+      "level_error": "Error",
+      "level_warning": "Warning",
+      "anonymous": "Anonymous",
+      "view_stack": "View stack",
+      "hide_stack": "Hide",
+      "ago_now": "just now",
+      "ago_minute": "{n}m ago",
+      "ago_hour": "{n}h ago",
+      "ago_day": "{n}d ago",
+      "live": "live"
     }
   },
   "dashboard": {

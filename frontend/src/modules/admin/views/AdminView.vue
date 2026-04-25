@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAdminMetrics } from '../composables/useAdminMetrics';
+import { useAdminErrorLogs } from '../composables/useAdminErrorLogs';
 
 const { t } = useI18n();
 const { data, isLoading, error } = useAdminMetrics();
+const { data: errorsData } = useAdminErrorLogs();
 
 const userInitial = (name: string): string => (name?.[0] ?? '?').toUpperCase();
 
@@ -22,6 +24,34 @@ const maxRanking = computed(() => {
   const top = data.value?.top_applicants ?? [];
   return Math.max(1, ...top.map((u) => u.applications_count));
 });
+
+const expandedStacks = ref<Set<number>>(new Set());
+
+function toggleStack(id: number): void {
+  const next = new Set(expandedStacks.value);
+  if (next.has(id)) next.delete(id);
+  else next.add(id);
+  expandedStacks.value = next;
+}
+
+function timeAgo(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return '';
+  const diffMs = Date.now() - then;
+  const seconds = Math.max(0, Math.floor(diffMs / 1000));
+  if (seconds < 60) return t('admin.errors.ago_now');
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return t('admin.errors.ago_minute', { n: minutes });
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return t('admin.errors.ago_hour', { n: hours });
+  const days = Math.floor(hours / 24);
+  return t('admin.errors.ago_day', { n: days });
+}
+
+function shortClass(fqcn: string): string {
+  const idx = fqcn.lastIndexOf('\\');
+  return idx >= 0 ? fqcn.slice(idx + 1) : fqcn;
+}
 </script>
 
 <template>
@@ -217,6 +247,95 @@ const maxRanking = computed(() => {
             </div>
           </li>
         </ol>
+      </section>
+
+      <!-- Production errors (live) -->
+      <section
+        class="card p-5 lg:p-4"
+        data-testid="admin-errors"
+      >
+        <header class="mb-4 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500">
+              {{ t('admin.errors.title') }}
+            </h2>
+            <p class="mt-0.5 text-xs text-ink-400">
+              {{ t('admin.errors.subtitle', { n: errorsData?.data.length ?? 0 }) }}
+            </p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <span class="relative flex h-2 w-2">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            {{ t('admin.errors.live') }}
+          </span>
+        </header>
+
+        <div
+          v-if="!errorsData || errorsData.data.length === 0"
+          class="flex flex-col items-center justify-center rounded-xl border border-dashed border-ink-200 py-10 text-center"
+        >
+          <p class="text-sm text-ink-500">
+            {{ t('admin.errors.empty') }}
+          </p>
+        </div>
+
+        <ul
+          v-else
+          class="max-h-[420px] space-y-2 overflow-y-auto pr-1"
+        >
+          <li
+            v-for="err in errorsData.data"
+            :key="err.id"
+            class="rounded-xl border border-ink-200 bg-white p-3 transition hover:border-ink-300"
+          >
+            <div class="flex items-start gap-3">
+              <span
+                class="grid h-7 flex-none place-items-center rounded-md px-2 text-[10px] font-bold uppercase tracking-wider"
+                :class="err.level === 'error'
+                  ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-200'
+                  : 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'"
+              >
+                {{ err.level === 'error' ? t('admin.errors.level_error') : t('admin.errors.level_warning') }}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate font-mono text-xs font-semibold text-ink-900">
+                  {{ shortClass(err.exception_class) }}
+                </p>
+                <p class="mt-0.5 break-words text-sm text-ink-700">
+                  {{ err.message }}
+                </p>
+                <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-500">
+                  <span>{{ timeAgo(err.occurred_at) }}</span>
+                  <span v-if="err.method && err.url" class="truncate">
+                    <span class="font-mono font-medium text-ink-600">{{ err.method }}</span>
+                    {{ err.url }}
+                  </span>
+                  <span v-if="err.file" class="truncate font-mono">
+                    {{ err.file }}<span v-if="err.line">:{{ err.line }}</span>
+                  </span>
+                  <span v-if="err.user">
+                    {{ err.user.name }} ({{ err.user.email }})
+                  </span>
+                  <span v-else class="italic">{{ t('admin.errors.anonymous') }}</span>
+                </div>
+              </div>
+              <button
+                v-if="err.stack_trace"
+                type="button"
+                class="flex-none rounded-md px-2 py-1 text-xs font-medium text-ink-500 hover:bg-ink-50 hover:text-ink-700"
+                @click="toggleStack(err.id)"
+              >
+                {{ expandedStacks.has(err.id) ? t('admin.errors.hide_stack') : t('admin.errors.view_stack') }}
+              </button>
+            </div>
+            <pre
+              v-if="expandedStacks.has(err.id) && err.stack_trace"
+              class="mt-3 max-h-64 overflow-auto rounded-lg bg-ink-900 p-3 text-[11px] leading-relaxed text-ink-100"
+            >{{ err.stack_trace }}</pre>
+          </li>
+        </ul>
       </section>
     </div>
   </div>

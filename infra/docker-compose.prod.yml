@@ -64,6 +64,12 @@ services:
       - redis
     networks:
       - otw
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan horizon:status | grep -q 'running'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     deploy:
       resources:
         limits:
@@ -79,6 +85,12 @@ services:
       - backend
     networks:
       - otw
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'schedule:work' > /dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     deploy:
       resources:
         limits:
@@ -87,6 +99,8 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
     env_file:
       - ./secrets/postgres.env
     command:

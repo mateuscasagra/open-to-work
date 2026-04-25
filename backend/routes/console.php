@@ -27,3 +27,8 @@ Schedule::command('jobs:deactivate-expired')
 Schedule::command('applications:send-followups')
     ->dailyAt('09:00')
     ->onOneServer();
+
+// Prune de error_logs antigos — diário às 04:00 UTC, mantém 30 dias
+Schedule::command('errors:prune --days=30')
+    ->dailyAt('04:00')
+    ->onOneServer();

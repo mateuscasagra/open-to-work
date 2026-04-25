@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\ErrorLog\Actions\RecordException;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -33,4 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sentry: reporta exceções não ignoradas via Integration do sentry-laravel.
         // O DSN é lido de SENTRY_LARAVEL_DSN; sem DSN vira no-op (seguro para dev/tests).
         Integration::handles($exceptions);
+
+        $exceptions->report(function (Throwable $e): void {
+            app(RecordException::class)->execute($e);
+        });
     })->create();
