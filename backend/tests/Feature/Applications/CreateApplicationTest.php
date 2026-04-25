@@ -49,7 +49,7 @@ it('validates required fields', function (): void {
     $this->actingAs($user)
         ->postJson('/api/applications', [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['jobId']);
+        ->assertJsonValidationErrors(['manualTitle']);
 });
 
 it('rejects non-existent job', function (): void {

@@ -15,6 +15,7 @@ beforeEach(function (): void {
         'user_id' => $this->user->id,
         'modality' => Modality::Remote->value,
         'seniority' => Seniority::Senior->value,
+        'languages' => ['pt'],
     ]);
 
     $php = Skill::query()->create(['name' => 'php', 'category' => 'language', 'aliases' => []]);
