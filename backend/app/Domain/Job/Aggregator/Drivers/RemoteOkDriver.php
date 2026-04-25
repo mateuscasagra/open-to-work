@@ -27,7 +27,7 @@ final class RemoteOkDriver implements JobSourceDriver
     public function fetch(): iterable
     {
         $response = Http::acceptJson()
-            ->withUserAgent('open-to-work/1.0 (https://opentowork.app)')
+            ->withUserAgent('open-to-work/1.0 (https://opentowork.app.br)')
             ->timeout(30)
             ->retry(2, 1000)
             ->get(self::ENDPOINT);

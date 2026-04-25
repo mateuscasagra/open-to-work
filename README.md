@@ -2,8 +2,8 @@
 
 Plataforma para organizar e acelerar a jornada de busca por emprego: agrega vagas de múltiplas fontes, gerencia candidaturas em Kanban, cria currículos e mede performance.
 
-**Stack:** Laravel 11 + Vue 3 (TS) + PostgreSQL + Redis + Meilisearch
-**Hospedagem:** Hetzner VPS (Docker) + Cloudflare (CDN/WAF)
+**Stack:** Laravel 12 + Vue 3 (TS) + PostgreSQL + Redis
+**Hospedagem:** VPS Hostinger (Docker) + Cloudflare (DNS/CDN)
 
 Ver [`ARQUITETURA.md`](./ARQUITETURA.md) para detalhes completos.
 
@@ -29,7 +29,7 @@ open-to-work/
 ## Subir ambiente de desenvolvimento
 
 ```bash
-# Sobe Postgres, Redis, Meilisearch, MinIO, MailHog
+# Sobe Postgres, Redis, MinIO, MailHog
 docker compose -f infra/docker-compose.yml up -d
 
 # Backend

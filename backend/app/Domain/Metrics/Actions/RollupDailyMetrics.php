@@ -7,7 +7,6 @@ namespace App\Domain\Metrics\Actions;
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\MetricsDaily;
-use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 

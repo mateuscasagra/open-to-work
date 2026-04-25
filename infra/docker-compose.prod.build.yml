@@ -1,0 +1,24 @@
+# Override pra primeira subida sem GHCR (build acontece na VPS).
+# Use junto com docker-compose.prod.yml:
+#   docker compose -f docker-compose.prod.yml -f docker-compose.prod.build.yml up -d --build
+#
+# Depois que voce migrar pro fluxo CI/CD com GHCR, pode parar de usar este arquivo.
+
+services:
+  backend:
+    image: opentowork-backend:local
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+
+  frontend:
+    image: opentowork-frontend:local
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+
+  horizon:
+    image: opentowork-backend:local
+
+  scheduler:
+    image: opentowork-backend:local

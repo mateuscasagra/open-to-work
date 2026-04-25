@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 final class ListMatchingJobs
 {
     private const MODALITY_BONUS = 1;
+
     private const SENIORITY_BONUS = 2;
 
     public function execute(User $user, int $perPage = 20): LengthAwarePaginator

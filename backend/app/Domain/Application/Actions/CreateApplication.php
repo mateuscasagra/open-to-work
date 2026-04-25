@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Application\Actions;
 
-use App\Domain\Application\Actions\SendApplicationEmail;
 use App\Domain\Application\DTOs\ApplicationData;
 use App\Domain\Application\Exceptions\DuplicateApplicationException;
 use App\Enums\ApplicationStatus;

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,5 +32,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // Sentry: reporta exceções não ignoradas via Integration do sentry-laravel.
         // O DSN é lido de SENTRY_LARAVEL_DSN; sem DSN vira no-op (seguro para dev/tests).
-        \Sentry\Laravel\Integration::handles($exceptions);
+        Integration::handles($exceptions);
     })->create();

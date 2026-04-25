@@ -34,8 +34,8 @@ final class ApplicationAttachmentController extends Controller
             'file' => [
                 'required',
                 'file',
-                'max:'.(int) (Application::MAX_ATTACHMENT_BYTES / 1024),
-                'mimetypes:'.self::ALLOWED_MIMES,
+                'max:' . (int) (Application::MAX_ATTACHMENT_BYTES / 1024),
+                'mimetypes:' . self::ALLOWED_MIMES,
             ],
         ]);
 

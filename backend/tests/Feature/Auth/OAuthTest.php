@@ -10,7 +10,7 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 
 function fakeSocialiteUser(string $providerId, string $email, string $name = 'External User'): SocialiteUserContract
 {
-    $u = new SocialiteUser();
+    $u = new SocialiteUser;
     $u->id = $providerId;
     $u->email = $email;
     $u->name = $name;

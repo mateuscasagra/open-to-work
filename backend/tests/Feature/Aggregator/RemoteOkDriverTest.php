@@ -25,7 +25,7 @@ it('fetches and transforms RemoteOK payload into JobDTOs', function (): void {
         ]),
     ]);
 
-    $driver = new RemoteOkDriver();
+    $driver = new RemoteOkDriver;
     $results = iterator_to_array($driver->fetch());
 
     expect($results)->toHaveCount(1);
@@ -44,7 +44,7 @@ it('skips items without id (meta rows)', function (): void {
         ]),
     ]);
 
-    $results = iterator_to_array((new RemoteOkDriver())->fetch());
+    $results = iterator_to_array((new RemoteOkDriver)->fetch());
 
     expect($results)->toBeEmpty();
 });
@@ -59,7 +59,7 @@ it('retries on transient failure then succeeds', function (): void {
             ]),
     ]);
 
-    $results = iterator_to_array((new RemoteOkDriver())->fetch());
+    $results = iterator_to_array((new RemoteOkDriver)->fetch());
 
     expect($results)->toHaveCount(1);
 });

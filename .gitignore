@@ -50,7 +50,9 @@ coverage/
 # Docker volumes
 infra/data/
 
-# Secrets
+# Secrets (env reais NUNCA vão pro git; só os .example)
+infra/secrets/*
+!infra/secrets/*.example
 *.pem
 *.key
 !backend/storage/oauth-*.key

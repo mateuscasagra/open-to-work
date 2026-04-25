@@ -41,7 +41,7 @@ final class WeWorkRemotelyDriver implements JobSourceDriver
     public function fetch(): iterable
     {
         $response = Http::accept('application/rss+xml')
-            ->withUserAgent('open-to-work/1.0 (https://opentowork.app)')
+            ->withUserAgent('open-to-work/1.0 (https://opentowork.app.br)')
             ->timeout(30)
             ->retry(2, 1000)
             ->get(self::ENDPOINT);
@@ -103,7 +103,7 @@ final class WeWorkRemotelyDriver implements JobSourceDriver
             location: $region !== '' ? $region : 'Remote',
             modality: Modality::Remote,
             seniority: $this->guessSeniority($title),
-            stack: $this->guessStack($title.' '.$description),
+            stack: $this->guessStack($title . ' ' . $description),
             salaryMin: null,
             salaryMax: null,
             salaryCurrency: null,

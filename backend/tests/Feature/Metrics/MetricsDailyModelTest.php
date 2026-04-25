@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 it('records daily metrics per user', function (): void {
@@ -43,5 +44,5 @@ it('enforces unique user+date', function (): void {
         'date' => '2026-04-17',
         'created_at' => now(),
         'updated_at' => now(),
-    ]))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
+    ]))->toThrow(UniqueConstraintViolationException::class);
 });

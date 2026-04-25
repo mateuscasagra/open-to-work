@@ -18,6 +18,7 @@ class Application extends Model implements HasMedia
     use InteractsWithMedia;
 
     public const ATTACHMENT_COLLECTION = 'attachments';
+
     public const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB
 
     public function registerMediaCollections(): void

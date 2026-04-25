@@ -27,7 +27,7 @@ final class ArbeitnowDriver implements JobSourceDriver
     public function fetch(): iterable
     {
         $response = Http::acceptJson()
-            ->withUserAgent('open-to-work/1.0 (https://opentowork.app)')
+            ->withUserAgent('open-to-work/1.0 (https://opentowork.app.br)')
             ->timeout(30)
             ->retry(2, 1000)
             ->get(self::ENDPOINT);
@@ -69,7 +69,7 @@ final class ArbeitnowDriver implements JobSourceDriver
             salaryMin: null,
             salaryMax: null,
             salaryCurrency: null,
-            postedAt: isset($item['created_at']) ? (new DateTimeImmutable())->setTimestamp((int) $item['created_at']) : null,
+            postedAt: isset($item['created_at']) ? (new DateTimeImmutable)->setTimestamp((int) $item['created_at']) : null,
             expiresAt: null,
             language: 'en',
         );

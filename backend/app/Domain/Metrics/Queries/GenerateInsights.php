@@ -13,6 +13,7 @@ namespace App\Domain\Metrics\Queries;
 final class GenerateInsights
 {
     private const LOW_RESPONSE_THRESHOLD = 0.10;
+
     private const MIN_VOLUME_FOR_CHANNEL_INSIGHT = 3;
 
     /**

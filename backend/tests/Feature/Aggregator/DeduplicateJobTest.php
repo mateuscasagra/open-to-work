@@ -22,7 +22,7 @@ function makeDto2(string $title, string $company, string $location): JobDTO
 it('passes null when job does not exist', function (): void {
     $dto = makeDto2('Go Dev', 'Acme', 'Remote');
 
-    [$passedDto, $existing] = (new DeduplicateJob())->handle($dto, fn ($out) => $out);
+    [$passedDto, $existing] = (new DeduplicateJob)->handle($dto, fn ($out) => $out);
 
     expect($passedDto)->toBe($dto);
     expect($existing)->toBeNull();
@@ -36,7 +36,7 @@ it('finds existing job with matching canonical hash', function (): void {
         'company_id' => $company->id,
     ]);
 
-    [, $found] = (new DeduplicateJob())->handle($dto, fn ($out) => $out);
+    [, $found] = (new DeduplicateJob)->handle($dto, fn ($out) => $out);
 
     expect($found)->not->toBeNull();
     expect($found->id)->toBe($existing->id);

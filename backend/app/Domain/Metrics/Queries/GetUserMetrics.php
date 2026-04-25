@@ -7,7 +7,9 @@ namespace App\Domain\Metrics\Queries;
 use App\Domain\Metrics\DTOs\MetricsSummaryData;
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
+use App\Models\ApplicationEvent;
 use App\Models\User;
+use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -228,6 +230,7 @@ final class GetUserMetrics
             foreach ($reachedByApp as $appId => $reached) {
                 if (isset($reached[$stage->value])) {
                     $count++;
+
                     continue;
                 }
                 // Aplicou e status atual já é posterior => considerado como alcançado.
@@ -273,7 +276,7 @@ final class GetUserMetrics
         /** @var array<int, array<int, int>> $grid */
         $grid = [];
         foreach ($rows as $row) {
-            $ts = \Carbon\Carbon::parse((string) $row->applied_at);
+            $ts = Carbon::parse((string) $row->applied_at);
             $weekday = (int) $ts->dayOfWeek; // 0=sunday .. 6=saturday
             $hour = (int) $ts->hour;
             $grid[$weekday][$hour] = ($grid[$weekday][$hour] ?? 0) + 1;
@@ -302,13 +305,13 @@ final class GetUserMetrics
 
         $diffs = [];
         foreach ($applications as $app) {
-            /** @var \App\Models\ApplicationEvent|null $first */
+            /** @var ApplicationEvent|null $first */
             $first = $app->events->first();
             if ($first === null) {
                 continue;
             }
-            $applied = \Carbon\Carbon::parse((string) $app->applied_at);
-            $occurred = \Carbon\Carbon::parse((string) $first->occurred_at);
+            $applied = Carbon::parse((string) $app->applied_at);
+            $occurred = Carbon::parse((string) $first->occurred_at);
             $diffs[] = $applied->diffInHours($occurred) / 24.0;
         }
 

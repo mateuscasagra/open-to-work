@@ -38,7 +38,7 @@ it('fetches and transforms Arbeitnow payload into JobDTOs', function (): void {
         ]),
     ]);
 
-    $results = iterator_to_array((new ArbeitnowDriver())->fetch());
+    $results = iterator_to_array((new ArbeitnowDriver)->fetch());
 
     expect($results)->toHaveCount(2);
 
@@ -66,7 +66,7 @@ it('skips items without slug', function (): void {
         ]),
     ]);
 
-    $results = iterator_to_array((new ArbeitnowDriver())->fetch());
+    $results = iterator_to_array((new ArbeitnowDriver)->fetch());
 
     expect($results)->toHaveCount(1);
 });
@@ -76,7 +76,7 @@ it('handles empty data array', function (): void {
         'www.arbeitnow.com/api/job-board-api' => Http::response(['data' => []]),
     ]);
 
-    $results = iterator_to_array((new ArbeitnowDriver())->fetch());
+    $results = iterator_to_array((new ArbeitnowDriver)->fetch());
 
     expect($results)->toBeEmpty();
 });

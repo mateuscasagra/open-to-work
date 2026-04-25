@@ -37,7 +37,7 @@ it('fetches and transforms WeWorkRemotely RSS into JobDTOs', function (): void {
         'weworkremotely.com/*' => Http::response($rss, 200, ['Content-Type' => 'application/rss+xml']),
     ]);
 
-    $results = iterator_to_array((new WeWorkRemotelyDriver())->fetch());
+    $results = iterator_to_array((new WeWorkRemotelyDriver)->fetch());
 
     expect($results)->toHaveCount(2);
 
@@ -84,7 +84,7 @@ it('skips items without link or title', function (): void {
         'weworkremotely.com/*' => Http::response($rss, 200, ['Content-Type' => 'application/rss+xml']),
     ]);
 
-    $results = iterator_to_array((new WeWorkRemotelyDriver())->fetch());
+    $results = iterator_to_array((new WeWorkRemotelyDriver)->fetch());
 
     expect($results)->toHaveCount(1)
         ->and($results[0]->title)->toBe('Backend Dev');
@@ -100,7 +100,7 @@ it('returns empty when RSS has no items', function (): void {
         'weworkremotely.com/*' => Http::response($rss, 200, ['Content-Type' => 'application/rss+xml']),
     ]);
 
-    $results = iterator_to_array((new WeWorkRemotelyDriver())->fetch());
+    $results = iterator_to_array((new WeWorkRemotelyDriver)->fetch());
 
     expect($results)->toBeEmpty();
 });
@@ -110,7 +110,7 @@ it('gracefully handles malformed XML', function (): void {
         'weworkremotely.com/*' => Http::response('<<< not xml >>>', 200),
     ]);
 
-    $results = iterator_to_array((new WeWorkRemotelyDriver())->fetch());
+    $results = iterator_to_array((new WeWorkRemotelyDriver)->fetch());
 
     expect($results)->toBeEmpty();
 });

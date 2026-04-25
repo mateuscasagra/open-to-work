@@ -38,6 +38,6 @@ final class ApplicationFollowUpNotification extends Notification
                 'company' => $company,
             ]))
             ->line(__('Que tal enviar uma mensagem curta ao recrutador ou registrar uma nova etapa?'))
-            ->action(__('Abrir candidatura'), url('/applications/'.$this->application->id));
+            ->action(__('Abrir candidatura'), url('/applications/' . $this->application->id));
     }
 }

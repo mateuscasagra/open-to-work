@@ -14,7 +14,6 @@ services:
     environment:
       DB_HOST: postgres
       REDIS_HOST: redis
-      MEILISEARCH_HOST: http://meilisearch:7700
       MAIL_HOST: mailhog
       MAIL_PORT: 1025
       AWS_ENDPOINT: http://minio:9000
@@ -50,22 +49,6 @@ services:
       - ./data/redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  meilisearch:
-    image: getmeili/meilisearch:v1.11
-    container_name: otw-meilisearch
-    environment:
-      MEILI_MASTER_KEY: dev_master_key_change_me
-      MEILI_ENV: development
-    ports:
-      - "7700:7700"
-    volumes:
-      - ./data/meilisearch:/meili_data
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7700/health"]
       interval: 10s
       timeout: 5s
       retries: 5

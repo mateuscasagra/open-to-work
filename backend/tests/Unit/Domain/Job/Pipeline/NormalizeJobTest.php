@@ -7,7 +7,7 @@ use App\Domain\Job\Aggregator\Pipeline\NormalizeJob;
 
 it('trims and collapses whitespace in title', function (): void {
     $dto = makeDto(title: '  Senior    PHP   Dev  ');
-    $stage = new NormalizeJob();
+    $stage = new NormalizeJob;
 
     $result = $stage->handle($dto, fn ($out) => $out);
 
@@ -16,14 +16,14 @@ it('trims and collapses whitespace in title', function (): void {
 
 it('lowercases and deduplicates stack tags', function (): void {
     $dto = makeDto(stack: ['PHP', 'php', 'Laravel', 'LARAVEL', '  vue  ']);
-    $result = (new NormalizeJob())->handle($dto, fn ($out) => $out);
+    $result = (new NormalizeJob)->handle($dto, fn ($out) => $out);
 
     expect($result->stack)->toBe(['php', 'laravel', 'vue']);
 });
 
 it('strips dangerous html from description', function (): void {
     $dto = makeDto(description: '<script>alert(1)</script><p>safe</p>');
-    $result = (new NormalizeJob())->handle($dto, fn ($out) => $out);
+    $result = (new NormalizeJob)->handle($dto, fn ($out) => $out);
 
     expect($result->descriptionHtml)->not->toContain('<script>');
     expect($result->descriptionHtml)->toContain('<p>safe</p>');

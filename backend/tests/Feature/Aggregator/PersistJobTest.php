@@ -23,7 +23,7 @@ function persistDto(): JobDTO
 
 it('creates a new job + company + source on first import', function (): void {
     $dto = persistDto();
-    $stage = new PersistJob();
+    $stage = new PersistJob;
 
     $job = $stage->handle([$dto, null], fn ($j) => $j);
 
@@ -40,7 +40,7 @@ it('reuses existing job and only attaches new source', function (): void {
         'company_id' => $company->id,
     ]);
 
-    $stage = new PersistJob();
+    $stage = new PersistJob;
     $result = $stage->handle([$dto, $existing], fn ($j) => $j);
 
     expect($result->id)->toBe($existing->id);
@@ -50,7 +50,7 @@ it('reuses existing job and only attaches new source', function (): void {
 
 it('idempotently updates fetched_at on repeated imports', function (): void {
     $dto = persistDto();
-    $stage = new PersistJob();
+    $stage = new PersistJob;
 
     $job1 = $stage->handle([$dto, null], fn ($j) => $j);
     $firstFetch = JobSource::where('job_id', $job1->id)->first()->fetched_at;

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 use App\Mail\VerifyEmailCode;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-function pendingUser(string $email = 'pending@example.com', string $code = '123456', ?\Illuminate\Support\Carbon $expiresAt = null, int $attempts = 0): User
+function pendingUser(string $email = 'pending@example.com', string $code = '123456', ?Carbon $expiresAt = null, int $attempts = 0): User
 {
     $user = User::factory()->unverified()->create(['email' => $email]);
     $user->forceFill([

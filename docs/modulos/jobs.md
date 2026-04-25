@@ -59,7 +59,7 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 ### Busca full-text
 
 `Job` usa `Laravel\Scout\Searchable`. `GET /api/jobs?q=...` chama `Job::search($q)`.
-- **Driver:** `collection` em testes; **Meilisearch** em staging/prod (container).
+- **Driver:** `collection` em testes; **`database`** (Postgres LIKE/ILIKE) em staging/prod. Meilisearch foi removido em 2026-04-24 pra economizar RAM em VPS pequena — se precisar de typo tolerance/ranking real, considerar `pg_trgm` + GIN ou pacote scout-postgres.
 - **Indexável:** `title`, `description`, `company.name`, `stack[]`.
 
 ## Frontend
@@ -87,7 +87,7 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 
 - Escritas: `jobs` (inclui `contact_email`), `companies`, `job_sources`
 - Migration: `2026_04_21_000200_add_contact_email_to_jobs`
-- Sincronização Meilisearch via Scout (queue)
+- Sincronização via Scout `database` driver (escreve direto na tabela, sem queue/serviço externo)
 - HTTP outbound para APIs/RSS/Gupy
 
 ## Testes
@@ -106,7 +106,7 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
   1. `profile.skills` está populado? (`/api/profile` retorna `skills: []`?)
   2. `jobs.stack` foi normalizado em lowercase no `NormalizeJob`?
   3. Comparação é case-sensitive em `ListMatchingJobs` — se não for, ajustar.
-- **Scout em testes:** driver `collection` não suporta filtros complexos. Em CI, busca textual roda em memória; em prod, no Meilisearch — divergências de comportamento são possíveis.
+- **Scout em testes:** driver `collection` não suporta filtros complexos. Em CI, busca textual roda em memória; em prod, via Postgres LIKE — divergências de comportamento são possíveis.
 - **`jobs.posted_at` vem do driver** — alguns devolvem timestamp local, outros UTC. Conferir no driver antes de comparar com `now()`.
 - **Throttle:** `/api/jobs` não tem throttle nominal (só o global do Sanctum). Se virar problema, criar limiter `feed`.
 - **`active=false` em vagas expiradas:** rotina sáb/dom. Vaga pode ainda aparecer no feed entre a expiração e a varredura — filtrar `WHERE active=true` na query do `index`.

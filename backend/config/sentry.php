@@ -1,6 +1,11 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return [
     'dsn' => env('SENTRY_LARAVEL_DSN'),
@@ -41,10 +46,10 @@ return [
 
     // Por padrão relatamos apenas 4xx/5xx não esperados. Validation/404/401 ficam fora.
     'ignore_exceptions' => [
-        \Illuminate\Validation\ValidationException::class,
-        \Illuminate\Auth\AuthenticationException::class,
-        \Illuminate\Auth\Access\AuthorizationException::class,
-        \Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class,
-        \Illuminate\Http\Exceptions\ThrottleRequestsException::class,
+        ValidationException::class,
+        AuthenticationException::class,
+        AuthorizationException::class,
+        NotFoundHttpException::class,
+        ThrottleRequestsException::class,
     ],
 ];

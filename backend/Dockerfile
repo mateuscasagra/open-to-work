@@ -1,28 +1,40 @@
 # syntax=docker/dockerfile:1
-FROM php:8.4-fpm-alpine AS base
+FROM dunglas/frankenphp:1-php8.4-alpine AS base
 
-RUN apk add --no-cache \
-        bash curl git icu-dev libzip-dev oniguruma-dev postgresql-dev sqlite-dev \
-        linux-headers autoconf g++ make $PHPIZE_DEPS \
-    && docker-php-ext-install bcmath exif intl opcache pcntl pdo pdo_pgsql pdo_sqlite zip \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del autoconf g++ make $PHPIZE_DEPS
+RUN install-php-extensions \
+        bcmath \
+        exif \
+        intl \
+        opcache \
+        pcntl \
+        pdo_pgsql \
+        pdo_sqlite \
+        redis \
+        zip \
+        gd
+
+RUN { \
+        echo 'opcache.memory_consumption=128'; \
+        echo 'opcache.interned_strings_buffer=16'; \
+        echo 'opcache.max_accelerated_files=10000'; \
+        echo 'opcache.revalidate_freq=0'; \
+        echo 'opcache.validate_timestamps=0'; \
+        echo 'opcache.enable_cli=1'; \
+        echo 'realpath_cache_size=4096K'; \
+        echo 'realpath_cache_ttl=600'; \
+    } > /usr/local/etc/php/conf.d/opcache-prod.ini
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Dependencies cache layer
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# App
 COPY . .
-RUN composer dump-autoload --optimize \
-    && php artisan storage:link || true
+RUN composer dump-autoload --optimize --classmap-authoritative \
+    && php artisan storage:link || true \
+    && chown -R www-data:www-data storage bootstrap/cache
 
-RUN chown -R www-data:www-data storage bootstrap/cache
-
+ENV SERVER_NAME=:8000
 EXPOSE 8000
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

@@ -44,7 +44,7 @@ it('fetches and transforms Gupy payload into JobDTOs', function (): void {
             ->push(['data' => []]),
     ]);
 
-    $results = iterator_to_array((new GupyDriver())->fetch());
+    $results = iterator_to_array((new GupyDriver)->fetch());
 
     expect($results)->toHaveCount(2);
 
@@ -82,7 +82,7 @@ it('skips items without id', function (): void {
         ]),
     ]);
 
-    $results = iterator_to_array((new GupyDriver())->fetch());
+    $results = iterator_to_array((new GupyDriver)->fetch());
 
     expect($results)->toHaveCount(1);
 });
@@ -102,7 +102,7 @@ it('stops paginating when page returns fewer items than page size', function ():
         ]),
     ]);
 
-    $results = iterator_to_array((new GupyDriver())->fetch());
+    $results = iterator_to_array((new GupyDriver)->fetch());
 
     expect($results)->toHaveCount(1);
 

@@ -21,7 +21,9 @@ use Throwable;
 final class GupyDriver implements JobSourceDriver
 {
     private const ENDPOINT = 'https://portal.api.gupy.io/api/job';
+
     private const PAGE_SIZE = 50;
+
     private const MAX_PAGES = 10;
 
     private const STACK_KEYWORDS = [
@@ -42,7 +44,7 @@ final class GupyDriver implements JobSourceDriver
     {
         for ($page = 1; $page <= self::MAX_PAGES; $page++) {
             $response = Http::acceptJson()
-                ->withUserAgent('open-to-work/1.0 (https://opentowork.app)')
+                ->withUserAgent('open-to-work/1.0 (https://opentowork.app.br)')
                 ->timeout(30)
                 ->retry(2, 1000)
                 ->get(self::ENDPOINT, [
@@ -93,7 +95,7 @@ final class GupyDriver implements JobSourceDriver
             location: $this->formatLocation($item),
             modality: $this->modality($item),
             seniority: $this->guessSeniority($title),
-            stack: $this->guessStack($title.' '.$description),
+            stack: $this->guessStack($title . ' ' . $description),
             salaryMin: null,
             salaryMax: null,
             salaryCurrency: null,

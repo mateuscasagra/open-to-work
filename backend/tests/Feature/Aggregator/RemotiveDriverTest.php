@@ -43,7 +43,7 @@ it('fetches and transforms Remotive payload into JobDTOs', function (): void {
         ]),
     ]);
 
-    $results = iterator_to_array((new RemotiveDriver())->fetch());
+    $results = iterator_to_array((new RemotiveDriver)->fetch());
 
     expect($results)->toHaveCount(2);
 
@@ -75,7 +75,7 @@ it('skips items without id', function (): void {
         ]),
     ]);
 
-    $results = iterator_to_array((new RemotiveDriver())->fetch());
+    $results = iterator_to_array((new RemotiveDriver)->fetch());
 
     expect($results)->toHaveCount(1);
 });
