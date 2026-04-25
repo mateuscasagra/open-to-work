@@ -7,6 +7,7 @@ namespace App\Domain\ErrorLog\Actions;
 use App\Models\ErrorLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 final class RecordException
@@ -48,7 +49,7 @@ final class RecordException
     private function resolveLevel(Throwable $e): string
     {
         return match (true) {
-            $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface
+            $e instanceof HttpExceptionInterface
                 && $e->getStatusCode() < 500 => 'warning',
             default => 'error',
         };

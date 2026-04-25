@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -19,9 +20,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $url
  * @property string|null $method
  * @property int|null $user_id
- * @property \Illuminate\Support\Carbon $occurred_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $occurred_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read User|null $user
  */
 final class ErrorLog extends Model
