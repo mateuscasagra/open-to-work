@@ -3,7 +3,8 @@ import { computed, nextTick, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth';
-import logoSrc from '@/assets/logo.png';
+import logoLight from '@/assets/logo4.png';
+import logoDark from '@/assets/logo4branca.png';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -149,7 +150,7 @@ async function resend() {
         class="relative inline-flex"
       >
         <img
-          :src="logoSrc"
+          :src="logoDark"
           alt="Open to Work"
           class="h-20 object-contain"
         >
@@ -195,7 +196,7 @@ async function resend() {
           class="mb-8 inline-flex lg:hidden"
         >
           <img
-            :src="logoSrc"
+            :src="logoLight"
             alt="Open to Work"
             class="h-16 object-contain"
           >

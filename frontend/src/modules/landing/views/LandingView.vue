@@ -3,7 +3,8 @@ import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/modules/auth/stores/auth';
-import logoSrc from '@/assets/logo.png';
+import logoSrc from '@/assets/logo4branca.png';
+import logoFooter from '@/assets/logo4.png';
 
 const { t } = useI18n();
 const auth = useAuthStore();
@@ -1163,7 +1164,7 @@ const metricsBars = [
       >
         <div class="flex items-center gap-3">
           <img
-            :src="logoSrc"
+            :src="logoFooter"
             alt="Open to Work"
             class="h-20 object-contain"
           >

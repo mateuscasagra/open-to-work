@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/modules/auth/stores/auth';
-import logoSrc from '@/assets/logo.png';
+import logoSrc from '@/assets/logo4.png';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -76,7 +76,7 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
             <img
               :src="logoSrc"
               alt="Open to Work"
-              class="h-20 object-contain"
+              class="h-14 object-contain"
             >
           </RouterLink>
 
