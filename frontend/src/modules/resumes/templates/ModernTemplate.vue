@@ -30,12 +30,27 @@ defineProps<{ resume: Resume; userName?: string }>();
           :key="`ct-${ct.order}`"
           class="space-y-1 text-sm"
         >
-          <li v-if="str(ct.content, 'email')">{{ str(ct.content, 'email') }}</li>
-          <li v-if="str(ct.content, 'phone')">{{ str(ct.content, 'phone') }}</li>
-          <li v-if="str(ct.content, 'linkedin')">{{ str(ct.content, 'linkedin') }}</li>
-          <li v-if="str(ct.content, 'github')">{{ str(ct.content, 'github') }}</li>
-          <li v-if="str(ct.content, 'website')">{{ str(ct.content, 'website') }}</li>
-          <li v-if="str(ct.content, 'address')" class="text-emerald-200 text-xs">{{ str(ct.content, 'address') }}</li>
+          <li v-if="str(ct.content, 'email')">
+            {{ str(ct.content, 'email') }}
+          </li>
+          <li v-if="str(ct.content, 'phone')">
+            {{ str(ct.content, 'phone') }}
+          </li>
+          <li v-if="str(ct.content, 'linkedin')">
+            {{ str(ct.content, 'linkedin') }}
+          </li>
+          <li v-if="str(ct.content, 'github')">
+            {{ str(ct.content, 'github') }}
+          </li>
+          <li v-if="str(ct.content, 'website')">
+            {{ str(ct.content, 'website') }}
+          </li>
+          <li
+            v-if="str(ct.content, 'address')"
+            class="text-emerald-200 text-xs"
+          >
+            {{ str(ct.content, 'address') }}
+          </li>
         </ul>
       </section>
 

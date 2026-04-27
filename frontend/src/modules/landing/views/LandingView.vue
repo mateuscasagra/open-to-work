@@ -91,7 +91,11 @@ const metricsBars = [
           :to="{ name: 'landing' }"
           class="flex items-center gap-2 transition hover:opacity-80"
         >
-          <img :src="logoSrc" alt="Open to Work" class="h-20 object-contain">
+          <img
+            :src="logoSrc"
+            alt="Open to Work"
+            class="h-20 object-contain"
+          >
         </RouterLink>
 
         <div class="hidden items-center gap-8 text-sm font-medium text-white/75 md:flex">
@@ -198,20 +202,50 @@ const metricsBars = [
           <!-- Trust strip -->
           <ul class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/60">
             <li class="flex items-center gap-2">
-              <svg class="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-4 w-4 text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
               {{ t('landing.trust.no_card') }}
             </li>
             <li class="flex items-center gap-2">
-              <svg class="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-4 w-4 text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
               {{ t('landing.trust.no_ads') }}
             </li>
             <li class="flex items-center gap-2">
-              <svg class="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-4 w-4 text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
               {{ t('landing.trust.global') }}
             </li>
@@ -291,8 +325,18 @@ const metricsBars = [
           >
             <div class="flex items-center gap-2">
               <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 18L9 11.25l4.306 4.306a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94-2.281m5.94 2.28l-2.28 5.941" />
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.25 18L9 11.25l4.306 4.306a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94-2.281m5.94 2.28l-2.28 5.941"
+                  />
                 </svg>
               </div>
               <div>
@@ -396,8 +440,18 @@ const metricsBars = [
             <div
               class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-100 text-brand-600 ring-1 ring-inset ring-brand-200/60"
             >
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" :d="feature.icon" />
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  :d="feature.icon"
+                />
               </svg>
             </div>
             <h3 class="mt-5 text-lg font-semibold text-ink-900">
@@ -417,8 +471,18 @@ const metricsBars = [
         <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <span class="chip-brand">
-              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A9.072 9.072 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247" />
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A9.072 9.072 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247"
+                />
               </svg>
               {{ t('landing.spotlight.jobs_eyebrow') }}
             </span>
@@ -431,24 +495,54 @@ const metricsBars = [
             <ul class="mt-6 space-y-3 text-sm text-ink-700">
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.jobs_b1') }}
               </li>
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.jobs_b2') }}
               </li>
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.jobs_b3') }}
@@ -475,16 +569,28 @@ const metricsBars = [
 
                 <!-- Floating job cards -->
                 <div class="absolute -left-2 top-[12%] rounded-xl border border-ink-200 bg-white px-3 py-2 shadow-card">
-                  <div class="text-[10px] font-medium text-ink-500">São Paulo · BR</div>
-                  <div class="text-xs font-semibold text-ink-900">Backend Pleno</div>
+                  <div class="text-[10px] font-medium text-ink-500">
+                    São Paulo · BR
+                  </div>
+                  <div class="text-xs font-semibold text-ink-900">
+                    Backend Pleno
+                  </div>
                 </div>
                 <div class="absolute -right-2 top-[44%] rounded-xl border border-ink-200 bg-white px-3 py-2 shadow-card">
-                  <div class="text-[10px] font-medium text-ink-500">Berlin · DE</div>
-                  <div class="text-xs font-semibold text-ink-900">Senior Engineer</div>
+                  <div class="text-[10px] font-medium text-ink-500">
+                    Berlin · DE
+                  </div>
+                  <div class="text-xs font-semibold text-ink-900">
+                    Senior Engineer
+                  </div>
                 </div>
                 <div class="absolute bottom-[8%] left-[18%] rounded-xl border border-ink-200 bg-white px-3 py-2 shadow-card">
-                  <div class="text-[10px] font-medium text-ink-500">Remote · Worldwide</div>
-                  <div class="text-xs font-semibold text-ink-900">Tech Lead</div>
+                  <div class="text-[10px] font-medium text-ink-500">
+                    Remote · Worldwide
+                  </div>
+                  <div class="text-xs font-semibold text-ink-900">
+                    Tech Lead
+                  </div>
                 </div>
               </div>
             </div>
@@ -508,14 +614,27 @@ const metricsBars = [
                   <div class="mt-1 flex items-baseline gap-2">
                     <span class="text-3xl font-bold text-ink-900">68%</span>
                     <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                      <svg
+                        class="h-3 w-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="3"
+                          d="M4.5 15.75l7.5-7.5 7.5 7.5"
+                        />
                       </svg>
                       +12%
                     </span>
                   </div>
                 </div>
-                <select disabled class="rounded-lg border border-ink-200 bg-ink-50 px-2 py-1 text-xs font-medium text-ink-600">
+                <select
+                  disabled
+                  class="rounded-lg border border-ink-200 bg-ink-50 px-2 py-1 text-xs font-medium text-ink-600"
+                >
                   <option>{{ t('landing.spotlight.metrics_period') }}</option>
                 </select>
               </div>
@@ -543,19 +662,25 @@ const metricsBars = [
                   <div class="text-[10px] uppercase tracking-wider text-ink-500">
                     {{ t('landing.spotlight.metrics_legend_applied') }}
                   </div>
-                  <div class="text-base font-bold text-ink-900">42</div>
+                  <div class="text-base font-bold text-ink-900">
+                    42
+                  </div>
                 </div>
                 <div>
                   <div class="text-[10px] uppercase tracking-wider text-ink-500">
                     {{ t('landing.spotlight.metrics_legend_interview') }}
                   </div>
-                  <div class="text-base font-bold text-ink-900">9</div>
+                  <div class="text-base font-bold text-ink-900">
+                    9
+                  </div>
                 </div>
                 <div>
                   <div class="text-[10px] uppercase tracking-wider text-ink-500">
                     {{ t('landing.spotlight.metrics_legend_offers') }}
                   </div>
-                  <div class="text-base font-bold text-brand-600">3</div>
+                  <div class="text-base font-bold text-brand-600">
+                    3
+                  </div>
                 </div>
               </div>
             </div>
@@ -563,8 +688,18 @@ const metricsBars = [
 
           <div class="order-1 lg:order-2">
             <span class="chip-brand">
-              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+                />
               </svg>
               {{ t('landing.spotlight.metrics_eyebrow') }}
             </span>
@@ -577,24 +712,54 @@ const metricsBars = [
             <ul class="mt-6 space-y-3 text-sm text-ink-700">
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.metrics_b1') }}
               </li>
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.metrics_b2') }}
               </li>
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.metrics_b3') }}
@@ -611,8 +776,18 @@ const metricsBars = [
         <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <span class="chip-brand">
-              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                />
               </svg>
               {{ t('landing.spotlight.resumes_eyebrow') }}
             </span>
@@ -625,24 +800,54 @@ const metricsBars = [
             <ul class="mt-6 space-y-3 text-sm text-ink-700">
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.resumes_b1') }}
               </li>
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.resumes_b2') }}
               </li>
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
                   </svg>
                 </span>
                 {{ t('landing.spotlight.resumes_b3') }}
@@ -659,8 +864,12 @@ const metricsBars = [
             <div class="relative mx-auto max-w-md rotate-[-2deg] overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-card transition-transform hover:rotate-0">
               <!-- Resume header -->
               <div class="bg-gradient-to-br from-ink-900 to-brand-900 px-7 py-6 text-white">
-                <div class="text-xl font-bold tracking-tight">Maria Silva</div>
-                <div class="mt-1 text-sm text-white/70">Senior Software Engineer</div>
+                <div class="text-xl font-bold tracking-tight">
+                  Maria Silva
+                </div>
+                <div class="mt-1 text-sm text-white/70">
+                  Senior Software Engineer
+                </div>
                 <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-white/60">
                   <span>maria@email.com</span>
                   <span>+55 11 9 9999-0000</span>
@@ -686,8 +895,12 @@ const metricsBars = [
                   <div class="mt-2 space-y-2">
                     <div>
                       <div class="flex items-baseline justify-between">
-                        <div class="text-xs font-semibold text-ink-900">Tech Lead · Acme</div>
-                        <div class="text-[9px] text-ink-500">2022 — atual</div>
+                        <div class="text-xs font-semibold text-ink-900">
+                          Tech Lead · Acme
+                        </div>
+                        <div class="text-[9px] text-ink-500">
+                          2022 — atual
+                        </div>
                       </div>
                       <div class="mt-1.5 space-y-1">
                         <div class="h-1.5 w-full rounded-full bg-ink-200" />
@@ -696,8 +909,12 @@ const metricsBars = [
                     </div>
                     <div>
                       <div class="flex items-baseline justify-between">
-                        <div class="text-xs font-semibold text-ink-900">Sr. Engineer · Globex</div>
-                        <div class="text-[9px] text-ink-500">2019 — 2022</div>
+                        <div class="text-xs font-semibold text-ink-900">
+                          Sr. Engineer · Globex
+                        </div>
+                        <div class="text-[9px] text-ink-500">
+                          2019 — 2022
+                        </div>
                       </div>
                       <div class="mt-1.5 space-y-1">
                         <div class="h-1.5 w-full rounded-full bg-ink-200" />
@@ -723,8 +940,18 @@ const metricsBars = [
 
             <!-- PDF badge -->
             <div class="absolute -right-2 -top-2 inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-3 py-1.5 text-xs font-bold text-white shadow-glow">
-              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                />
               </svg>
               {{ t('landing.spotlight.resumes_pdf_badge') }}
             </div>
@@ -770,32 +997,72 @@ const metricsBars = [
         <ul class="mx-auto mt-10 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
           <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
             <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
             </span>
             <span class="text-sm text-white/80">{{ t('landing.pricing.b1') }}</span>
           </li>
           <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
             <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
             </span>
             <span class="text-sm text-white/80">{{ t('landing.pricing.b2') }}</span>
           </li>
           <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
             <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
             </span>
             <span class="text-sm text-white/80">{{ t('landing.pricing.b3') }}</span>
           </li>
           <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
             <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                class="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
             </span>
             <span class="text-sm text-white/80">{{ t('landing.pricing.b4') }}</span>
@@ -895,7 +1162,11 @@ const metricsBars = [
         class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-ink-500 md:flex-row"
       >
         <div class="flex items-center gap-3">
-          <img :src="logoSrc" alt="Open to Work" class="h-20 object-contain">
+          <img
+            :src="logoSrc"
+            alt="Open to Work"
+            class="h-20 object-contain"
+          >
           <span class="hidden md:inline">— {{ t('landing.footer.tagline') }}</span>
         </div>
         <div>© 2026 · {{ t('landing.footer.rights') }}</div>

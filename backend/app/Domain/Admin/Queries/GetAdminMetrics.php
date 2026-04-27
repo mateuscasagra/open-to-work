@@ -31,6 +31,10 @@ final class GetAdminMetrics
      */
     public const TOP_APPLICANTS_LIMIT = 5;
 
+    public function __construct(
+        private readonly GetUserLocationDistribution $locationDistribution,
+    ) {}
+
     public function execute(?CarbonImmutable $now = null): AdminMetricsData
     {
         $now ??= CarbonImmutable::now();
@@ -41,6 +45,7 @@ final class GetAdminMetrics
         $totalResumes = Resume::query()->count();
         $activeUsers = $this->countActiveUsers($weekAgo, $now);
         $topApplicants = $this->topApplicants();
+        $byLocation = $this->locationDistribution->execute();
 
         return new AdminMetricsData(
             totals: [
@@ -50,6 +55,7 @@ final class GetAdminMetrics
                 'active_users' => $activeUsers,
             ],
             topApplicants: $topApplicants,
+            byLocation: $byLocation,
             generatedAt: $now->toIso8601String(),
         );
     }

@@ -14,6 +14,7 @@ Cada módulo tem seu próprio arquivo em `docs/modulos/`. Quando for caçar um b
 | **Metrics** | [`modulos/metrics.md`](./modulos/metrics.md) | Rollup diário, dashboard, KPIs, funil, heatmap, insights |
 | **Admin** | [`modulos/admin.md`](./modulos/admin.md) | Painel admin, métricas globais, flag `is_admin`, ranking de usuários |
 | **Account (LGPD)** | [`modulos/account.md`](./modulos/account.md) | Export de dados, delete de conta |
+| **Location** | [`modulos/location.md`](./modulos/location.md) | Lookup CEP/ZIP (ViaCEP, zippopotam), lista de países suportados |
 | **Cross-cutting** | [`modulos/cross-cutting.md`](./modulos/cross-cutting.md) | Rate limiters, Sentry, scheduler, CSRF, middleware |
 | **Frontend compartilhado** | [`modulos/shared-frontend.md`](./modulos/shared-frontend.md) | Axios client, Zod schemas, layout, router, i18n, landing |
 
@@ -41,6 +42,9 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | Download de PDF retorna 403/expirado | `resumes.md` (`temporaryUrl` TTL 5min) |
 | Dashboard sem dados | `metrics.md` (rollup diário rodou? período correto?) |
 | Heatmap/funil errado | `metrics.md` (`GetUserMetrics`) |
+| CEP/ZIP não preenche estado/cidade no Profile | `location.md` (ViaCEP/zippopotam, cache, regex) |
+| Lista de países não aparece no select | `location.md` (`/api/location/countries` + `useSupportedCountries`) |
+| Distribuição geográfica zerada no Admin | `admin.md` (`by_location`) — usuários precisam ter `country_code` preenchido em `profiles` |
 | Export LGPD vazio | `account.md` (`ExportUserData`) |
 | Delete de conta deixa lixo no S3 | `account.md` (`DeleteAccount` cascade) |
 | Painel admin retorna 403 mesmo logado | `admin.md` (flag `users.is_admin` no banco) |

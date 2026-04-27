@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Application;
+use App\Models\Profile;
 use App\Models\Resume;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -42,6 +43,12 @@ it('admin recebe estrutura completa', function (): void {
             ],
             'top_applicants' => [
                 '*' => ['user_id', 'name', 'email', 'applications_count'],
+            ],
+            'by_location' => [
+                'countries',
+                'states',
+                'cities',
+                'without_location',
             ],
         ]);
 });
@@ -160,6 +167,74 @@ it('ranking exclui usuários sem candidaturas', function (): void {
 
     expect($response->json('top_applicants'))->toHaveCount(1);
     $response->assertJsonPath('top_applicants.0.user_id', $u1->id);
+});
+
+it('agrega usuários por país, estado e cidade', function (): void {
+    $admin = User::factory()->admin()->create();
+
+    Profile::factory()->for(User::factory())->create([
+        'country_code' => 'BR',
+        'state_code' => 'SP',
+        'state_name' => 'São Paulo',
+        'city' => 'São Paulo',
+    ]);
+    Profile::factory()->for(User::factory())->create([
+        'country_code' => 'BR',
+        'state_code' => 'SP',
+        'state_name' => 'São Paulo',
+        'city' => 'Campinas',
+    ]);
+    Profile::factory()->for(User::factory())->create([
+        'country_code' => 'US',
+        'state_code' => 'CA',
+        'state_name' => 'California',
+        'city' => 'San Francisco',
+    ]);
+
+    $response = $this->actingAs($admin)->getJson('/api/admin/metrics')->assertOk();
+
+    $countries = collect($response->json('by_location.countries'))->keyBy('country_code');
+    expect($countries->get('BR')['count'])->toBe(2);
+    expect($countries->get('US')['count'])->toBe(1);
+
+    $states = $response->json('by_location.states');
+    expect($states[0]['country_code'])->toBe('BR');
+    expect($states[0]['state_code'])->toBe('SP');
+    expect($states[0]['count'])->toBe(2);
+});
+
+it('conta usuários sem localização cadastrada', function (): void {
+    $admin = User::factory()->admin()->create();
+
+    Profile::factory()->for(User::factory())->create([
+        'country_code' => 'BR',
+        'state_name' => 'São Paulo',
+        'city' => 'São Paulo',
+    ]);
+
+    User::factory()->count(3)->create();
+
+    $response = $this->actingAs($admin)->getJson('/api/admin/metrics')->assertOk();
+
+    expect($response->json('by_location.without_location'))->toBe(4);
+});
+
+it('limita top estados a 10 e cidades a 15', function (): void {
+    $admin = User::factory()->admin()->create();
+
+    foreach (range(1, 20) as $i) {
+        Profile::factory()->for(User::factory())->create([
+            'country_code' => 'BR',
+            'state_code' => "S{$i}",
+            'state_name' => "State {$i}",
+            'city' => "City {$i}",
+        ]);
+    }
+
+    $response = $this->actingAs($admin)->getJson('/api/admin/metrics')->assertOk();
+
+    expect($response->json('by_location.states'))->toHaveCount(10);
+    expect($response->json('by_location.cities'))->toHaveCount(15);
 });
 
 it('endpoint /api/me devolve flag is_admin', function (): void {

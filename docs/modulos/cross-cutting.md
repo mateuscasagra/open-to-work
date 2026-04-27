@@ -12,6 +12,7 @@ Definidos em `app/Providers/AppServiceProvider.php::configureRateLimiters()`. Ap
 | `uploads` | 20/min por user, 5/min por IP (anonymous) | `POST /resumes/pdf`, `POST /applications/{id}/attachments` |
 | `account-sensitive` | 5/min por user, 2/min por IP | `GET /account/export`, `DELETE /account` |
 | `search` | 120/min por user, 30/min por IP | `GET /skills` |
+| `location-lookup` | 30/min por user, 10/min por IP | `POST /location/lookup` (ViaCEP/zippopotam) |
 
 Resposta de violação: `429 Too Many Requests` com header `Retry-After`.
 
@@ -90,6 +91,11 @@ Chama `App::setLocale($locale)` antes do controller. Afeta `__()`, validações,
 2. Registrar em `config/aggregator.php#drivers`
 3. Listar em `AGGREGATOR_SOURCES` (env)
 4. Reiniciar workers / `config:clear`
+
+**Clientes de location** (`AppServiceProvider::register`):
+- `ViaCepClient` e `ZippopotamClient` ganham tag `'location.clients'`
+- `LookupPostalCode` é construído com `iterable<PostalCodeLookupClient>` (`tagged('location.clients')`) + `cache.store`
+- Veja [`location.md`](./location.md) para adicionar novo cliente
 
 ## Configs sensíveis a cache
 

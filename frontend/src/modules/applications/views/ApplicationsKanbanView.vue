@@ -276,9 +276,24 @@ function canMoveRight(status: string): boolean {
           :title="t('applications.kanban_settings')"
           @click="settingsOpen = true"
         >
-          <svg class="h-5 w-5 text-ink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826-3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <svg
+            class="h-5 w-5 text-ink-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826-3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
           </svg>
         </button>
       </div>
@@ -292,99 +307,111 @@ function canMoveRight(status: string): boolean {
       {{ errorMessage }}
     </p>
 
-    <p v-if="isLoading" class="text-ink-500">
+    <p
+      v-if="isLoading"
+      class="text-ink-500"
+    >
       {{ t('jobs.loading') }}
     </p>
 
     <!-- Kanban board -->
-    <div v-else class="lg:min-h-0 lg:flex-1">
+    <div
+      v-else
+      class="lg:min-h-0 lg:flex-1"
+    >
       <div
         ref="kanbanRef"
         class="flex h-full gap-3 overflow-x-auto pb-2"
         :style="{ maskImage: kanbanMask, WebkitMaskImage: kanbanMask }"
         @scroll="updateScrollFade"
       >
-      <div
-        v-for="col in visibleColumns()"
-        :key="col.status"
-        class="flex min-w-[280px] flex-col rounded-xl border transition lg:flex-1"
-        :class="[
-          dragOverStatus === col.status
-            ? 'border-brand-400 bg-brand-50 ring-2 ring-brand-300 shadow-card'
-            : 'border-ink-300 bg-ink-50',
-        ]"
-        @dragover="onDragOver($event, col.status)"
-        @dragleave="onDragLeave(col.status)"
-        @drop="onDrop($event, col.status)"
-      >
-        <!-- Column header -->
         <div
-          class="flex items-center gap-2 border-b px-4 py-3"
-          :style="{ borderColor: styleFor(col).border, backgroundColor: styleFor(col).bg }"
+          v-for="col in visibleColumns()"
+          :key="col.status"
+          class="flex min-w-[280px] flex-col rounded-xl border transition lg:flex-1"
+          :class="[
+            dragOverStatus === col.status
+              ? 'border-brand-400 bg-brand-50 ring-2 ring-brand-300 shadow-card'
+              : 'border-ink-300 bg-ink-50',
+          ]"
+          @dragover="onDragOver($event, col.status)"
+          @dragleave="onDragLeave(col.status)"
+          @drop="onDrop($event, col.status)"
         >
-          <span class="h-3 w-3 shrink-0 rounded-full" :style="{ backgroundColor: styleFor(col).accent }" />
-          <span class="text-xs font-bold uppercase tracking-wide" :style="{ color: styleFor(col).text }">
-            {{ colLabel(col) }}
-          </span>
-          <span
-            class="ml-auto grid h-6 w-6 place-items-center rounded-full text-xs font-bold"
-            :style="{ color: styleFor(col).text, backgroundColor: 'rgba(0,0,0,0.06)' }"
-          >
-            {{ grouped[col.status]?.length ?? 0 }}
-          </span>
-        </div>
-
-        <!-- Cards area -->
-        <div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+          <!-- Column header -->
           <div
-            v-for="app in grouped[col.status]"
-            :key="app.id"
-            class="cursor-grab rounded-lg border border-ink-200 bg-white px-3 py-2 shadow-soft transition hover:shadow-card hover:border-ink-300 active:cursor-grabbing"
-            :class="draggingId === app.id ? 'opacity-40 scale-95' : ''"
-            draggable="true"
-            @dragstart="onDragStart($event, app)"
-            @dragend="onDragEnd"
-            @click="openDetail(app.id)"
+            class="flex items-center gap-2 border-b px-4 py-3"
+            :style="{ borderColor: styleFor(col).border, backgroundColor: styleFor(col).bg }"
           >
-            <p class="text-sm font-semibold text-ink-900 leading-snug">
-              {{ appTitle(app) }}
-            </p>
-            <p class="mt-0.5 text-xs text-ink-500">
-              {{ appCompany(app) }}
-            </p>
-            <div class="mt-1.5 flex items-center justify-between">
-              <span class="text-[11px] text-ink-400">
-                {{ new Date(app.applied_at).toLocaleDateString() }}
-              </span>
-              <span
-                v-if="app.source === 'manual'"
-                class="rounded-full bg-ink-100 px-1.5 py-0.5 text-[9px] font-medium text-ink-500"
-              >
-                manual
-              </span>
-              <span
-                v-else-if="app.source === 'email'"
-                class="rounded-full bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-600"
-              >
-                e-mail
-              </span>
-              <span
-                v-else-if="app.source"
-                class="rounded-full bg-ink-100 px-1.5 py-0.5 text-[9px] font-medium text-ink-500"
-              >
-                {{ app.source }}
-              </span>
+            <span
+              class="h-3 w-3 shrink-0 rounded-full"
+              :style="{ backgroundColor: styleFor(col).accent }"
+            />
+            <span
+              class="text-xs font-bold uppercase tracking-wide"
+              :style="{ color: styleFor(col).text }"
+            >
+              {{ colLabel(col) }}
+            </span>
+            <span
+              class="ml-auto grid h-6 w-6 place-items-center rounded-full text-xs font-bold"
+              :style="{ color: styleFor(col).text, backgroundColor: 'rgba(0,0,0,0.06)' }"
+            >
+              {{ grouped[col.status]?.length ?? 0 }}
+            </span>
+          </div>
+
+          <!-- Cards area -->
+          <div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+            <div
+              v-for="app in grouped[col.status]"
+              :key="app.id"
+              class="cursor-grab rounded-lg border border-ink-200 bg-white px-3 py-2 shadow-soft transition hover:shadow-card hover:border-ink-300 active:cursor-grabbing"
+              :class="draggingId === app.id ? 'opacity-40 scale-95' : ''"
+              draggable="true"
+              @dragstart="onDragStart($event, app)"
+              @dragend="onDragEnd"
+              @click="openDetail(app.id)"
+            >
+              <p class="text-sm font-semibold text-ink-900 leading-snug">
+                {{ appTitle(app) }}
+              </p>
+              <p class="mt-0.5 text-xs text-ink-500">
+                {{ appCompany(app) }}
+              </p>
+              <div class="mt-1.5 flex items-center justify-between">
+                <span class="text-[11px] text-ink-400">
+                  {{ new Date(app.applied_at).toLocaleDateString() }}
+                </span>
+                <span
+                  v-if="app.source === 'manual'"
+                  class="rounded-full bg-ink-100 px-1.5 py-0.5 text-[9px] font-medium text-ink-500"
+                >
+                  manual
+                </span>
+                <span
+                  v-else-if="app.source === 'email'"
+                  class="rounded-full bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-600"
+                >
+                  e-mail
+                </span>
+                <span
+                  v-else-if="app.source"
+                  class="rounded-full bg-ink-100 px-1.5 py-0.5 text-[9px] font-medium text-ink-500"
+                >
+                  {{ app.source }}
+                </span>
+              </div>
+            </div>
+
+            <div
+              v-if="(grouped[col.status]?.length ?? 0) === 0"
+              class="flex items-center justify-center rounded-lg border border-dashed border-ink-300 px-3 py-6 text-xs text-ink-400"
+            >
+              —
             </div>
           </div>
-
-          <div
-            v-if="(grouped[col.status]?.length ?? 0) === 0"
-            class="flex items-center justify-center rounded-lg border border-dashed border-ink-300 px-3 py-6 text-xs text-ink-400"
-          >
-            —
-          </div>
         </div>
-      </div>
       </div>
     </div>
 
@@ -434,19 +461,35 @@ function canMoveRight(status: string): boolean {
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="label">{{ t('applications.manual_source') }}</label>
-                <select v-model="manualForm.source" class="input">
-                  <option value="">{{ t('applications.manual_source_placeholder') }}</option>
-                  <option v-for="src in SOURCE_OPTIONS" :key="src" :value="src">
+                <select
+                  v-model="manualForm.source"
+                  class="input"
+                >
+                  <option value="">
+                    {{ t('applications.manual_source_placeholder') }}
+                  </option>
+                  <option
+                    v-for="src in SOURCE_OPTIONS"
+                    :key="src"
+                    :value="src"
+                  >
                     {{ src }}
                   </option>
-                  <option value="manual">{{ t('applications.manual_source_other') }}</option>
+                  <option value="manual">
+                    {{ t('applications.manual_source_other') }}
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label class="label">{{ t('applications.manual_resume') }}</label>
-                <select v-model="manualForm.resumeId" class="input">
-                  <option :value="null">{{ t('applications.manual_resume_placeholder') }}</option>
+                <select
+                  v-model="manualForm.resumeId"
+                  class="input"
+                >
+                  <option :value="null">
+                    {{ t('applications.manual_resume_placeholder') }}
+                  </option>
                   <option
                     v-for="resume in resumesList"
                     :key="resume.id"
@@ -458,7 +501,12 @@ function canMoveRight(status: string): boolean {
               </div>
             </div>
 
-            <p v-if="manualError" class="text-sm text-red-600">{{ manualError }}</p>
+            <p
+              v-if="manualError"
+              class="text-sm text-red-600"
+            >
+              {{ manualError }}
+            </p>
           </div>
 
           <div class="flex justify-end gap-2 border-t border-ink-100 px-6 py-4">
@@ -492,7 +540,9 @@ function canMoveRight(status: string): boolean {
         <div class="w-full max-w-5xl mx-4 rounded-2xl border border-ink-200 bg-white shadow-card">
           <!-- Modal header -->
           <div class="flex items-center justify-between border-b border-ink-100 px-6 py-4">
-            <h2 class="text-lg font-semibold text-ink-900">{{ t('applications.kanban_settings') }}</h2>
+            <h2 class="text-lg font-semibold text-ink-900">
+              {{ t('applications.kanban_settings') }}
+            </h2>
             <div class="flex items-center gap-3">
               <button
                 type="button"
@@ -506,8 +556,18 @@ function canMoveRight(status: string): boolean {
                 class="rounded-lg p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700 transition"
                 @click="closeSettings"
               >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -553,13 +613,13 @@ function canMoveRight(status: string): boolean {
                 <!-- Name -->
                 <template v-if="editingColumn === col.status">
                   <input
-                    v-focus
                     v-model="editLabelDraft"
+                    v-focus
                     class="mb-1.5 w-full rounded border border-brand-400 bg-white px-1 py-0.5 text-center text-[11px] font-medium text-ink-800 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     @keyup.enter="commitRename(col.status)"
                     @blur="commitRename(col.status)"
                     @keyup.escape="editingColumn = null"
-                  />
+                  >
                 </template>
                 <button
                   v-else
@@ -584,7 +644,12 @@ function canMoveRight(status: string): boolean {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
 
                 <!-- Arrows in row (left / right) -->
@@ -598,8 +663,18 @@ function canMoveRight(status: string): boolean {
                     :disabled="!canMoveLeft(col.status)"
                     @click="moveColumn(col.status, -1)"
                   >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M15 19l-7-7 7-7"
+                      />
                     </svg>
                   </button>
                   <button
@@ -608,8 +683,18 @@ function canMoveRight(status: string): boolean {
                     :disabled="!canMoveRight(col.status)"
                     @click="moveColumn(col.status, 1)"
                   >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -622,8 +707,18 @@ function canMoveRight(status: string): boolean {
                   :title="t('applications.kanban_remove_stage')"
                   @click="removeColumn(col.status)"
                 >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <svg
+                    class="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 </button>
               </div>
@@ -638,8 +733,18 @@ function canMoveRight(status: string): boolean {
               class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-sm font-medium text-ink-600 transition hover:border-brand-400 hover:text-brand-700 hover:bg-brand-50"
               @click="addNewStage"
             >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               {{ t('applications.kanban_add_stage') }}
             </button>

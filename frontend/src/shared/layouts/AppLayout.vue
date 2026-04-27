@@ -73,7 +73,11 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
             :to="{ name: 'dashboard' }"
             class="transition hover:opacity-80"
           >
-            <img :src="logoSrc" alt="Open to Work" class="h-20 object-contain">
+            <img
+              :src="logoSrc"
+              alt="Open to Work"
+              class="h-20 object-contain"
+            >
           </RouterLink>
 
           <!-- Desktop nav -->

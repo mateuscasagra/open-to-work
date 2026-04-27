@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\JobController;
+use App\Http\Controllers\Api\Location\LookupPostalCodeController;
+use App\Http\Controllers\Api\Location\SupportedCountriesController;
 use App\Http\Controllers\Api\MetricsController;
 use App\Http\Controllers\Api\OauthController;
 use App\Http\Controllers\Api\ProfileController;
@@ -76,6 +78,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('applications.status');
 
     Route::get('/metrics', MetricsController::class)->name('metrics.show');
+
+    // Location ----------------------------------------------------------
+    Route::prefix('location')->group(function (): void {
+        Route::get('/countries', SupportedCountriesController::class)
+            ->name('location.countries');
+        Route::post('/lookup', LookupPostalCodeController::class)
+            ->middleware('throttle:location-lookup')
+            ->name('location.lookup');
+    });
 
     // Admin -------------------------------------------------------------
     Route::middleware('admin')->prefix('admin')->group(function (): void {

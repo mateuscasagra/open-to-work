@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Job\Aggregator\Contracts\JobSourceDriver;
+use App\Domain\Location\Actions\LookupPostalCode;
+use App\Domain\Location\Clients\ViaCepClient;
+use App\Domain\Location\Clients\ZippopotamClient;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +27,15 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->app->instance('job.driver_keys', array_keys($drivers));
+
+        $this->app->tag([ViaCepClient::class, ZippopotamClient::class], 'location.clients');
+        $this->app->bind(
+            LookupPostalCode::class,
+            static fn (Application $app): LookupPostalCode => new LookupPostalCode(
+                clients: $app->tagged('location.clients'),
+                cache: $app->make('cache.store'),
+            ),
+        );
     }
 
     public function boot(): void
@@ -67,6 +80,15 @@ class AppServiceProvider extends ServiceProvider
             return $user !== null
                 ? Limit::perMinute(120)->by('user:' . $user->getAuthIdentifier())
                 : Limit::perMinute(30)->by('ip:' . $request->ip());
+        });
+
+        // Lookup de CEP/ZIP: barato porém bate em APIs externas, evitar abuso.
+        RateLimiter::for('location-lookup', static function (Request $request): Limit {
+            $user = $request->user();
+
+            return $user !== null
+                ? Limit::perMinute(30)->by('user:' . $user->getAuthIdentifier())
+                : Limit::perMinute(10)->by('ip:' . $request->ip());
         });
     }
 }

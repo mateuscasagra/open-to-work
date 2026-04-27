@@ -28,7 +28,11 @@ class ProfileFactory extends Factory
             'salary_min' => fake()->numberBetween(3000, 8000),
             'salary_max' => fake()->numberBetween(8000, 25000),
             'salary_currency' => 'BRL',
-            'location' => fake()->city(),
+            'country_code' => 'BR',
+            'postal_code' => '01310100',
+            'state_code' => 'SP',
+            'state_name' => 'São Paulo',
+            'city' => fake()->city(),
             'languages' => ['pt_BR', 'en'],
             'bio' => fake()->paragraph(),
         ];

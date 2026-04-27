@@ -131,20 +131,46 @@ async function resend() {
     <aside
       class="relative hidden w-1/2 overflow-hidden bg-gradient-hero p-12 text-white lg:flex lg:flex-col lg:justify-between"
     >
-      <div class="absolute inset-0 bg-grid-slate opacity-[0.06]" aria-hidden="true" />
-      <div class="absolute -left-20 top-1/3 h-80 w-80 rounded-full bg-brand-500/25 blur-3xl" aria-hidden="true" />
-      <div class="absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" aria-hidden="true" />
+      <div
+        class="absolute inset-0 bg-grid-slate opacity-[0.06]"
+        aria-hidden="true"
+      />
+      <div
+        class="absolute -left-20 top-1/3 h-80 w-80 rounded-full bg-brand-500/25 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        class="absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl"
+        aria-hidden="true"
+      />
 
-      <RouterLink :to="{ name: 'landing' }" class="relative inline-flex">
-        <img :src="logoSrc" alt="Open to Work" class="h-20 object-contain">
+      <RouterLink
+        :to="{ name: 'landing' }"
+        class="relative inline-flex"
+      >
+        <img
+          :src="logoSrc"
+          alt="Open to Work"
+          class="h-20 object-contain"
+        >
       </RouterLink>
 
       <div class="relative">
         <span
           class="inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200 backdrop-blur"
         >
-          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          <svg
+            class="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+            />
           </svg>
           {{ t('auth.verify.eyebrow') }}
         </span>
@@ -164,8 +190,15 @@ async function resend() {
 
     <div class="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
       <div class="w-full max-w-md">
-        <RouterLink :to="{ name: 'landing' }" class="mb-8 inline-flex lg:hidden">
-          <img :src="logoSrc" alt="Open to Work" class="h-16 object-contain">
+        <RouterLink
+          :to="{ name: 'landing' }"
+          class="mb-8 inline-flex lg:hidden"
+        >
+          <img
+            :src="logoSrc"
+            alt="Open to Work"
+            class="h-16 object-contain"
+          >
         </RouterLink>
 
         <h1 class="text-3xl font-bold tracking-tight text-ink-900">
@@ -175,13 +208,29 @@ async function resend() {
           {{ t('auth.verify.subtitle') }}
         </p>
 
-        <form class="mt-8 space-y-5" @submit.prevent="submit">
+        <form
+          class="mt-8 space-y-5"
+          @submit.prevent="submit"
+        >
           <div>
-            <label for="email" class="label">{{ t('auth.email') }}</label>
+            <label
+              for="email"
+              class="label"
+            >{{ t('auth.email') }}</label>
             <div class="relative mt-1.5">
               <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-ink-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.75"
+                    d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                  />
                 </svg>
               </span>
               <input
@@ -194,7 +243,10 @@ async function resend() {
                 class="input !pl-10"
               >
             </div>
-            <p v-if="fieldErrors.email" class="mt-1 text-xs text-red-600">
+            <p
+              v-if="fieldErrors.email"
+              class="mt-1 text-xs text-red-600"
+            >
               {{ fieldErrors.email[0] }}
             </p>
           </div>
@@ -218,7 +270,10 @@ async function resend() {
                 @paste="(e) => onPaste(idx, e)"
               >
             </div>
-            <p v-if="fieldErrors.code" class="mt-2 text-xs text-red-600">
+            <p
+              v-if="fieldErrors.code"
+              class="mt-2 text-xs text-red-600"
+            >
               {{ fieldErrors.code[0] }}
             </p>
             <p class="mt-2 text-xs text-ink-500">
@@ -230,8 +285,18 @@ async function resend() {
             v-if="error"
             class="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
           >
-            <svg class="mt-0.5 h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            <svg
+              class="mt-0.5 h-4 w-4 flex-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              />
             </svg>
             {{ error }}
           </p>
@@ -240,8 +305,18 @@ async function resend() {
             v-if="successMessage"
             class="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
           >
-            <svg class="mt-0.5 h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              class="mt-0.5 h-4 w-4 flex-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             {{ successMessage }}
           </p>
@@ -252,11 +327,17 @@ async function resend() {
             class="btn-primary w-full !py-2.5 shadow-glow"
           >
             {{ loading ? t('auth.processing') : t('auth.verify.submit') }}
-            <span v-if="!loading" aria-hidden="true">→</span>
+            <span
+              v-if="!loading"
+              aria-hidden="true"
+            >→</span>
           </button>
 
           <div class="flex items-center justify-between text-sm">
-            <RouterLink :to="{ name: 'login' }" class="font-medium text-ink-500 hover:text-ink-700">
+            <RouterLink
+              :to="{ name: 'login' }"
+              class="font-medium text-ink-500 hover:text-ink-700"
+            >
               {{ t('auth.verify.back_to_login') }}
             </RouterLink>
             <button

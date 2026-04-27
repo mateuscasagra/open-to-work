@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useProfile, searchSkills } from '../composables/useProfile';
+import { useSupportedCountries } from '../composables/useLocationLookup';
+import LocationFields from '../components/LocationFields.vue';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
 import type { Skill, Seniority, Modality, Locale } from '@/shared/api/schemas';
 
@@ -11,6 +13,7 @@ const HIGHLIGHT_INDEX_NONE = -1;
 const { t } = useI18n();
 const { profile, loading, fetch, save } = useProfile();
 const resumes = useResumes();
+const countriesQuery = useSupportedCountries();
 
 const form = ref({
   desired_role: '',
@@ -19,7 +22,11 @@ const form = ref({
   salary_min: null as number | null,
   salary_max: null as number | null,
   salary_currency: 'BRL',
-  location: '',
+  country_code: null as string | null,
+  postal_code: null as string | null,
+  state_code: null as string | null,
+  state_name: '',
+  city: '',
   languages: [] as Locale[],
   bio: '',
   email_apply_enabled: false,
@@ -27,6 +34,23 @@ const form = ref({
   email_apply_message_template: '',
   email_apply_resume_mode: null as 'fixed' | 'variable' | null,
   email_apply_resume_id: null as number | null,
+});
+
+const locationModel = computed({
+  get: () => ({
+    country_code: form.value.country_code,
+    postal_code: form.value.postal_code,
+    state_code: form.value.state_code,
+    state_name: form.value.state_name,
+    city: form.value.city,
+  }),
+  set: (value) => {
+    form.value.country_code = value.country_code;
+    form.value.postal_code = value.postal_code;
+    form.value.state_code = value.state_code;
+    form.value.state_name = value.state_name;
+    form.value.city = value.city;
+  },
 });
 const selectedSkills = ref<Skill[]>([]);
 const skillQuery = ref('');
@@ -51,7 +75,11 @@ onMounted(async () => {
       salary_min: profile.value.salary_min,
       salary_max: profile.value.salary_max,
       salary_currency: profile.value.salary_currency ?? 'BRL',
-      location: profile.value.location ?? '',
+      country_code: profile.value.country_code ?? null,
+      postal_code: profile.value.postal_code ?? null,
+      state_code: profile.value.state_code ?? null,
+      state_name: profile.value.state_name ?? '',
+      city: profile.value.city ?? '',
       languages: profile.value.languages ?? [],
       bio: profile.value.bio ?? '',
       email_apply_enabled: profile.value.email_apply_enabled ?? false,
@@ -137,7 +165,11 @@ async function onSubmit(): Promise<void> {
       salary_min: form.value.salary_min,
       salary_max: form.value.salary_max,
       salary_currency: form.value.salary_currency || null,
-      location: form.value.location || null,
+      country_code: form.value.country_code,
+      postal_code: form.value.postal_code,
+      state_code: form.value.state_code,
+      state_name: form.value.state_name,
+      city: form.value.city,
       languages: form.value.languages,
       bio: form.value.bio || null,
       skills: selectedSkills.value.map((s) => s.id),
@@ -256,14 +288,11 @@ async function onSubmit(): Promise<void> {
         </label>
       </div>
 
-      <label class="block">
-        <span class="label">{{ t('profile.location') }}</span>
-        <input
-          v-model="form.location"
-          type="text"
-          class="input mt-1.5"
-        >
-      </label>
+      <LocationFields
+        v-model="locationModel"
+        :countries="countriesQuery.data.value ?? []"
+        :field-errors="fieldErrors"
+      />
 
       <div>
         <span class="label">{{ t('profile.languages') }}</span>

@@ -22,9 +22,48 @@ export const AdminMetricsSchema = z.object({
     email: z.string(),
     applications_count: z.number().int(),
   })),
+  by_location: z.object({
+    countries: z.array(z.object({
+      country_code: z.string(),
+      count: z.number().int(),
+    })),
+    states: z.array(z.object({
+      country_code: z.string(),
+      state_code: z.string().nullable(),
+      state_name: z.string().nullable(),
+      count: z.number().int(),
+    })),
+    cities: z.array(z.object({
+      country_code: z.string(),
+      city: z.string(),
+      count: z.number().int(),
+    })),
+    without_location: z.number().int(),
+  }),
   generated_at: z.string(),
 });
 export type AdminMetrics = z.infer<typeof AdminMetricsSchema>;
+
+export const SupportedCountrySchema = z.object({
+  code: z.string().length(2),
+  name_pt: z.string(),
+  name_en: z.string(),
+  name_es: z.string(),
+  postal_pattern: z.string(),
+  postal_example: z.string(),
+  supports_lookup: z.boolean(),
+});
+export type SupportedCountry = z.infer<typeof SupportedCountrySchema>;
+
+export const PostalCodeLookupResultSchema = z.object({
+  country_code: z.string(),
+  postal_code: z.string(),
+  state_code: z.string().nullable(),
+  state_name: z.string().nullable(),
+  city: z.string().nullable(),
+  source: z.string(),
+});
+export type PostalCodeLookupResult = z.infer<typeof PostalCodeLookupResultSchema>;
 
 export const ErrorLogLevelSchema = z.enum(['error', 'warning']);
 export type ErrorLogLevel = z.infer<typeof ErrorLogLevelSchema>;
@@ -93,7 +132,11 @@ export const ProfileSchema = z.object({
   salary_min: z.number().nullable(),
   salary_max: z.number().nullable(),
   salary_currency: z.string().nullable(),
-  location: z.string().nullable(),
+  country_code: z.string().nullable(),
+  postal_code: z.string().nullable(),
+  state_code: z.string().nullable(),
+  state_name: z.string().nullable(),
+  city: z.string().nullable(),
   languages: z.array(LocaleEnum).nullable(),
   bio: z.string().nullable(),
   skills: z.array(SkillSchema).default([]),
