@@ -20,9 +20,9 @@ final class GetUserLocationDistribution
 
     /**
      * @return array{
-     *     countries: list<array{country_code: string, count: int}>,
-     *     states: list<array{country_code: string, state_code: ?string, state_name: ?string, count: int}>,
-     *     cities: list<array{country_code: string, city: string, count: int}>,
+     *     countries: array<int, array{country_code: string, count: int}>,
+     *     states: array<int, array{country_code: string, state_code: ?string, state_name: ?string, count: int}>,
+     *     cities: array<int, array{country_code: string, city: string, count: int}>,
      *     without_location: int
      * }
      */
@@ -37,7 +37,7 @@ final class GetUserLocationDistribution
     }
 
     /**
-     * @return list<array{country_code: string, count: int}>
+     * @return array<int, array{country_code: string, count: int}>
      */
     private function countries(): array
     {
@@ -57,7 +57,7 @@ final class GetUserLocationDistribution
     }
 
     /**
-     * @return list<array{country_code: string, state_code: ?string, state_name: ?string, count: int}>
+     * @return array<int, array{country_code: string, state_code: ?string, state_name: ?string, count: int}>
      */
     private function states(): array
     {
@@ -82,7 +82,7 @@ final class GetUserLocationDistribution
     }
 
     /**
-     * @return list<array{country_code: string, city: string, count: int}>
+     * @return array<int, array{country_code: string, city: string, count: int}>
      */
     private function cities(): array
     {

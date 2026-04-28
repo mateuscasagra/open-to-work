@@ -31,7 +31,19 @@ parameters:
 			path: app/Domain/Account/Actions/ExportUserData.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Account/Actions/ExportUserData.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$company\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Account/Actions/ExportUserData.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$country_code\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Domain/Account/Actions/ExportUserData.php
@@ -51,11 +63,17 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$location\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Domain/Account/Actions/ExportUserData.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$modality\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Account/Actions/ExportUserData.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$postal_code\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Domain/Account/Actions/ExportUserData.php
@@ -91,6 +109,18 @@ parameters:
 			path: app/Domain/Account/Actions/ExportUserData.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$state_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Account/Actions/ExportUserData.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$state_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Account/Actions/ExportUserData.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
 			identifier: property.notFound
 			count: 1
@@ -117,6 +147,12 @@ parameters:
 		-
 			message: '#^Method App\\Domain\\Admin\\Queries\\GetAdminMetrics\:\:topApplicants\(\) should return list\<array\{user_id\: int, name\: string, email\: string, applications_count\: int\}\> but returns array\<int, array\{user_id\: int, name\: string, email\: string, applications_count\: int\}\>\.$#'
 			identifier: return.type
+			count: 1
+			path: app/Domain/Admin/Queries/GetAdminMetrics.php
+
+		-
+			message: '#^Parameter \$byLocation of class App\\Domain\\Admin\\DTOs\\AdminMetricsData constructor expects array\{countries\: list\<array\{country_code\: string, count\: int\}\>, states\: list\<array\{country_code\: string, state_code\: string\|null, state_name\: string\|null, count\: int\}\>, cities\: list\<array\{country_code\: string, city\: string, count\: int\}\>, without_location\: int\}, array\{countries\: array\<int, array\{country_code\: string, count\: int\}\>, states\: array\<int, array\{country_code\: string, state_code\: string\|null, state_name\: string\|null, count\: int\}\>, cities\: array\<int, array\{country_code\: string, city\: string, count\: int\}\>, without_location\: int\} given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Domain/Admin/Queries/GetAdminMetrics.php
 
@@ -549,12 +585,24 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
-			count: 11
+			count: 14
 			path: tests/Feature/Admin/AdminMetricsTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
 			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Admin/AdminMetricsTest.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: tests/Feature/Admin/AdminMetricsTest.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
 			count: 1
 			path: tests/Feature/Admin/AdminMetricsTest.php
 
@@ -903,6 +951,42 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
+			count: 22
+			path: tests/Feature/Location/LookupPostalCodeTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Location/LookupPostalCodeTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Location/SupportedCountriesTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Location/SupportedCountriesTest.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 3
+			path: tests/Feature/Location/SupportedCountriesTest.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 3
+			path: tests/Feature/Location/SupportedCountriesTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
 			count: 5
 			path: tests/Feature/Metrics/GetUserMetricsTest.php
 
@@ -1011,12 +1095,24 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
-			count: 3
+			count: 8
 			path: tests/Feature/Profile/UpdateProfileTest.php
 
 		-
 			message: '#^Cannot access property \$desired_role on App\\Models\\Profile\|null\.$#'
 			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Profile/UpdateProfileTest.php
+
+		-
+			message: '#^Function validLocationPayload\(\) has parameter \$overrides with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Feature/Profile/UpdateProfileTest.php
+
+		-
+			message: '#^Function validLocationPayload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Feature/Profile/UpdateProfileTest.php
 
