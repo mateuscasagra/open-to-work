@@ -6,6 +6,4 @@ namespace App\Domain\Location\Exceptions;
 
 use RuntimeException;
 
-final class PostalCodeNotFoundException extends RuntimeException
-{
-}
+final class PostalCodeNotFoundException extends RuntimeException {}

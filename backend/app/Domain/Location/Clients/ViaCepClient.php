@@ -84,7 +84,7 @@ final class ViaCepClient implements PostalCodeLookupClient
         $payload = $response->json() ?? [];
 
         if (($payload['erro'] ?? false) === true) {
-            throw new PostalCodeNotFoundException();
+            throw new PostalCodeNotFoundException;
         }
 
         $uf = isset($payload['uf']) ? (string) $payload['uf'] : null;

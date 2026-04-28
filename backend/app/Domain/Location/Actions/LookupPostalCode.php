@@ -49,7 +49,7 @@ final class LookupPostalCode
         $country = SupportedCountry::tryFrom(mb_strtoupper($countryCode));
 
         if ($country === null || ! $country->supportsLookup()) {
-            throw new UnsupportedCountryException();
+            throw new UnsupportedCountryException;
         }
 
         $normalized = PostalCodeFormatter::normalize($country, $postalCode);
@@ -62,7 +62,7 @@ final class LookupPostalCode
         }
 
         if ($this->cache->get($missKey) === true) {
-            throw new PostalCodeNotFoundException();
+            throw new PostalCodeNotFoundException;
         }
 
         foreach ($this->clients as $client) {
@@ -82,6 +82,6 @@ final class LookupPostalCode
             return $result;
         }
 
-        throw new UnsupportedCountryException();
+        throw new UnsupportedCountryException;
     }
 }

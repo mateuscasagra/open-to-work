@@ -20,7 +20,7 @@ final class PostalCodeFormatter
         $pattern = '/' . $country->meta()['postal_pattern'] . '/';
 
         if (preg_match($pattern, $trimmed) !== 1) {
-            throw new InvalidPostalCodeException();
+            throw new InvalidPostalCodeException;
         }
 
         $upper = mb_strtoupper($trimmed);

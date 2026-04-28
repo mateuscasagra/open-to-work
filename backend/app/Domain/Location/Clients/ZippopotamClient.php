@@ -51,7 +51,7 @@ final class ZippopotamClient implements PostalCodeLookupClient
                 ->get($url);
 
             if ($response->status() === 404) {
-                throw new PostalCodeNotFoundException();
+                throw new PostalCodeNotFoundException;
             }
 
             $response->throw();
@@ -68,7 +68,7 @@ final class ZippopotamClient implements PostalCodeLookupClient
         $places = is_array($payload['places'] ?? null) ? $payload['places'] : [];
 
         if ($places === []) {
-            throw new PostalCodeNotFoundException();
+            throw new PostalCodeNotFoundException;
         }
 
         /** @var array<string, mixed> $place */

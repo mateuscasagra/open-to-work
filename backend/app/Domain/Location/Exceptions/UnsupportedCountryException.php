@@ -6,6 +6,4 @@ namespace App\Domain\Location\Exceptions;
 
 use RuntimeException;
 
-final class UnsupportedCountryException extends RuntimeException
-{
-}
+final class UnsupportedCountryException extends RuntimeException {}
