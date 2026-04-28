@@ -29,6 +29,6 @@ final class VerifyEmailCode extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'mail.verify-email');
+        return new Content(markdown: 'mail.verify-email');
     }
 }
