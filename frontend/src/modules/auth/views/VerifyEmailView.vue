@@ -13,6 +13,7 @@ const auth = useAuthStore();
 
 const queryEmail = typeof route.query.email === 'string' ? route.query.email : null;
 const initialEmail = queryEmail ?? auth.pendingVerificationEmail ?? '';
+const mustVerifyNotice = computed(() => route.query.reason === 'must_verify');
 
 const email = ref(initialEmail);
 const digits = ref<string[]>(['', '', '', '', '', '']);
@@ -99,7 +100,7 @@ async function submit() {
 }
 
 function startCooldown() {
-  resendCooldown.value = 30;
+  resendCooldown.value = 60;
   const id = window.setInterval(() => {
     resendCooldown.value -= 1;
     if (resendCooldown.value <= 0) {
@@ -208,6 +209,27 @@ async function resend() {
         <p class="mt-2 text-sm text-ink-500">
           {{ t('auth.verify.subtitle') }}
         </p>
+
+        <div
+          v-if="mustVerifyNotice"
+          class="mt-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+          role="alert"
+        >
+          <svg
+            class="mt-0.5 h-5 w-5 flex-none text-amber-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.732 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+          <span>{{ t('auth.verify.must_verify_notice') }}</span>
+        </div>
 
         <form
           class="mt-8 space-y-5"

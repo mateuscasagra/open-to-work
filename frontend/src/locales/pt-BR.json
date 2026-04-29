@@ -9,6 +9,7 @@
     "applications": "Candidaturas",
     "resumes": "Currículos",
     "profile": "Perfil",
+    "suggestions": "Sugestões",
     "admin": "Admin",
     "account": "Conta & privacidade",
     "logout": "Sair",
@@ -217,7 +218,8 @@
       "resent": "Enviamos um novo código para o seu e-mail.",
       "resend_failed": "Não conseguimos reenviar agora. Tente novamente em alguns segundos.",
       "back_to_login": "Voltar para o login",
-      "failed": "Não foi possível confirmar o código. Tente novamente."
+      "failed": "Não foi possível confirmar o código. Tente novamente.",
+      "must_verify_notice": "Sua conta ainda não foi confirmada. Use o código que enviamos para o seu e-mail para entrar."
     }
   },
   "profile": {
@@ -463,5 +465,32 @@
     "pt_BR": "Português",
     "en": "Inglês",
     "es": "Espanhol"
+  },
+  "suggestions": {
+    "title": "Sugestões da comunidade",
+    "subtitle": "Veja o que outros usuários estão pedindo e dê seu voto. As sugestões mais votadas viram prioridade.",
+    "quota_used": "{used} / {limit} sugestões nesta semana",
+    "quota_next_slot": "Próxima vaga libera em {date}",
+    "new": "Nova sugestão",
+    "modal_title": "Nova sugestão",
+    "title_label": "Título",
+    "title_placeholder": "Ex.: Suporte a dark mode no dashboard",
+    "body_label": "Descrição",
+    "body_placeholder": "Conte mais sobre a ideia, problema que resolve, casos de uso…",
+    "save": "Publicar",
+    "cancel": "Cancelar",
+    "loading": "Carregando sugestões…",
+    "empty": "Nenhuma sugestão ainda. Seja o primeiro a publicar uma!",
+    "delete": "Excluir",
+    "confirm_delete": "Excluir esta sugestão? Os votos também serão removidos.",
+    "prev": "Anterior",
+    "next": "Próxima",
+    "page_of": "Página {current} de {total}",
+    "errors": {
+      "quota_exceeded": "Você atingiu o limite de 5 sugestões por semana.",
+      "cannot_vote_own": "Você não pode votar na sua própria sugestão.",
+      "validation": "Verifique os campos preenchidos.",
+      "unknown": "Algo deu errado. Tente de novo em instantes."
+    }
   }
 }

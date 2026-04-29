@@ -306,3 +306,44 @@ export const ApplicationSchema = z.object({
   events: z.array(ApplicationEventSchema).optional().default([]),
 });
 export type Application = z.infer<typeof ApplicationSchema>;
+
+export const SuggestionAuthorSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+});
+export type SuggestionAuthor = z.infer<typeof SuggestionAuthorSchema>;
+
+export const SuggestionVoteValueSchema = z.union([z.literal(1), z.literal(-1)]);
+export type SuggestionVoteValue = z.infer<typeof SuggestionVoteValueSchema>;
+
+export const SuggestionRankSchema = z.union([z.literal(1), z.literal(2), z.literal(3)]);
+export type SuggestionRank = z.infer<typeof SuggestionRankSchema>;
+
+export const SuggestionSchema = z.object({
+  id: z.number().int(),
+  user: SuggestionAuthorSchema,
+  title: z.string(),
+  body: z.string(),
+  upvotes_count: z.number().int(),
+  downvotes_count: z.number().int(),
+  score: z.number().int(),
+  my_vote: SuggestionVoteValueSchema.nullable(),
+  rank: SuggestionRankSchema.nullable(),
+  created_at: z.string(),
+});
+export type Suggestion = z.infer<typeof SuggestionSchema>;
+
+export const SuggestionsPageSchema = z.object({
+  data: z.array(SuggestionSchema),
+  current_page: z.number(),
+  last_page: z.number(),
+  total: z.number(),
+});
+export type SuggestionsPage = z.infer<typeof SuggestionsPageSchema>;
+
+export const SuggestionQuotaSchema = z.object({
+  used: z.number().int(),
+  limit: z.number().int(),
+  next_slot_at: z.string().nullable(),
+});
+export type SuggestionQuota = z.infer<typeof SuggestionQuotaSchema>;

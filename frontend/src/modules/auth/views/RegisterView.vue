@@ -28,9 +28,9 @@ async function submit() {
   try {
     const pendingEmail = await auth.register({ ...form });
     if (pendingEmail === null) {
-      router.push({ name: 'profile' });
+      await router.push({ name: 'profile' });
     } else {
-      router.push({ name: 'verify-email', query: { email: pendingEmail } });
+      await router.push({ name: 'verify-email', query: { email: pendingEmail } });
     }
   } catch (e) {
     const err = e as { response?: { status?: number; data?: { errors?: Record<string, string[]> } } };

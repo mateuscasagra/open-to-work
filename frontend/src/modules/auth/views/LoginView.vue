@@ -22,12 +22,15 @@ async function submit() {
   error.value = null;
   try {
     await auth.login(email.value, password.value, remember.value);
-    router.push({ name: 'dashboard' });
+    await router.push({ name: 'dashboard' });
   } catch (e) {
     const err = e as { response?: { status?: number; data?: { errors?: Record<string, string[]> } } };
     if (err.response?.status === 403) {
       auth.setPendingVerificationEmail(email.value);
-      router.push({ name: 'verify-email', query: { email: email.value } });
+      await router.push({
+        name: 'verify-email',
+        query: { email: email.value, reason: 'must_verify' },
+      });
       return;
     }
     error.value = t('auth.loginFailed');

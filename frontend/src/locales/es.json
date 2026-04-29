@@ -9,6 +9,7 @@
     "applications": "Candidaturas",
     "resumes": "CVs",
     "profile": "Perfil",
+    "suggestions": "Sugerencias",
     "admin": "Admin",
     "account": "Cuenta y privacidad",
     "logout": "Salir",
@@ -217,7 +218,8 @@
       "resent": "Te enviamos un nuevo código.",
       "resend_failed": "No pudimos reenviar ahora. Inténtalo en unos segundos.",
       "back_to_login": "Volver al login",
-      "failed": "No pudimos confirmar el código. Inténtalo de nuevo."
+      "failed": "No pudimos confirmar el código. Inténtalo de nuevo.",
+      "must_verify_notice": "Tu cuenta aún no fue confirmada. Usa el código que te enviamos por correo para iniciar sesión."
     }
   },
   "profile": {
@@ -463,5 +465,32 @@
     "pt_BR": "Portugués",
     "en": "Inglés",
     "es": "Español"
+  },
+  "suggestions": {
+    "title": "Sugerencias de la comunidad",
+    "subtitle": "Mira lo que otros usuarios están pidiendo y vota. Las ideas más votadas se vuelven prioridad.",
+    "quota_used": "{used} / {limit} sugerencias esta semana",
+    "quota_next_slot": "Próximo cupo libera el {date}",
+    "new": "Nueva sugerencia",
+    "modal_title": "Nueva sugerencia",
+    "title_label": "Título",
+    "title_placeholder": "Ej.: Soporte de modo oscuro en el panel",
+    "body_label": "Descripción",
+    "body_placeholder": "Cuéntanos más — la idea, el problema que resuelve, casos de uso…",
+    "save": "Publicar",
+    "cancel": "Cancelar",
+    "loading": "Cargando sugerencias…",
+    "empty": "Aún no hay sugerencias. ¡Sé el primero en publicar una!",
+    "delete": "Eliminar",
+    "confirm_delete": "¿Eliminar esta sugerencia? Los votos también se eliminarán.",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "page_of": "Página {current} de {total}",
+    "errors": {
+      "quota_exceeded": "Alcanzaste el límite de 5 sugerencias por semana.",
+      "cannot_vote_own": "No puedes votar tu propia sugerencia.",
+      "validation": "Revisa los campos del formulario.",
+      "unknown": "Algo salió mal. Intenta de nuevo en un momento."
+    }
   }
 }

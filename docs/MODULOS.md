@@ -15,6 +15,7 @@ Cada módulo tem seu próprio arquivo em `docs/modulos/`. Quando for caçar um b
 | **Admin** | [`modulos/admin.md`](./modulos/admin.md) | Painel admin, métricas globais, flag `is_admin`, ranking de usuários |
 | **Account (LGPD)** | [`modulos/account.md`](./modulos/account.md) | Export de dados, delete de conta |
 | **Location** | [`modulos/location.md`](./modulos/location.md) | Lookup CEP/ZIP (ViaCEP, zippopotam), lista de países suportados |
+| **Suggestions** | [`modulos/suggestions.md`](./modulos/suggestions.md) | Sugestões da comunidade, votação up/down, quota semanal (5/7d), ranking top-3 com coroa/troféu |
 | **Cross-cutting** | [`modulos/cross-cutting.md`](./modulos/cross-cutting.md) | Rate limiters, Sentry, scheduler, CSRF, middleware |
 | **Frontend compartilhado** | [`modulos/shared-frontend.md`](./modulos/shared-frontend.md) | Axios client, Zod schemas, layout, router, i18n, landing |
 
@@ -51,6 +52,12 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | Tela de admin não aparece no menu | `admin.md` (frontend lê `auth.user.is_admin` do `/api/me`) |
 | Rota nova retorna 404 | `routes/api.php` + `shared-frontend.md` (router guard) |
 | Tradução faltando | `shared-frontend.md` (i18n) + `lang/{pt_BR,en,es}/` no backend |
+| Mensagem de validação do backend vindo em inglês mesmo com navegador em pt/es | `auth.md` (i18n das mensagens de validação) — checar se `lang/{pt_BR,es}/validation.php` existe e se `SetLocale` está no pipeline |
+| 429 ao criar sugestão / "Você atingiu o limite de 5 sugestões por semana" | `suggestions.md` (quota rolling 7d em `CreateSuggestion`) — checar `next_slot_at` no payload da resposta |
+| Não consigo votar na minha própria sugestão (botões disabled / 403) | `suggestions.md` — comportamento esperado (`CannotVoteOwnSuggestionException`); front desabilita botões via `auth.user.id === s.user.id` |
+| Coroa/troféu não aparece para o top-3 de sugestões | `suggestions.md` — `rank` é calculado **globalmente** no controller via query separada `topIds()`; verificar se `score` do registro está na top-3 da tabela inteira |
+| Voto não persiste após reload | `suggestions.md` — verificar `my_vote` no payload do `index` (subquery `addSelect`) e schema Zod aceitando 1/-1/null; pode ser cookie de sessão expirado |
+| Score da sugestão não bate com upvotes_count - downvotes_count | `suggestions.md` (Pontos de atenção — usar `COUNT(*)` + `update()` em `CastVote`, NUNCA `loadCount` que não marca dirty) |
 
 ## Convenção dos arquivos
 

@@ -9,6 +9,7 @@
     "applications": "Applications",
     "resumes": "Resumes",
     "profile": "Profile",
+    "suggestions": "Suggestions",
     "admin": "Admin",
     "account": "Account & privacy",
     "logout": "Log out",
@@ -217,7 +218,8 @@
       "resent": "We just sent you a new code.",
       "resend_failed": "We couldn't resend right now. Try again in a few seconds.",
       "back_to_login": "Back to login",
-      "failed": "We couldn't confirm the code. Please try again."
+      "failed": "We couldn't confirm the code. Please try again.",
+      "must_verify_notice": "Your account hasn't been confirmed yet. Use the code we just emailed you to sign in."
     }
   },
   "profile": {
@@ -463,5 +465,32 @@
     "pt_BR": "Portuguese",
     "en": "English",
     "es": "Spanish"
+  },
+  "suggestions": {
+    "title": "Community suggestions",
+    "subtitle": "See what other users are asking for and cast your vote. The most upvoted ideas become priority.",
+    "quota_used": "{used} / {limit} suggestions this week",
+    "quota_next_slot": "Next slot opens on {date}",
+    "new": "New suggestion",
+    "modal_title": "New suggestion",
+    "title_label": "Title",
+    "title_placeholder": "e.g., Add dark mode support to the dashboard",
+    "body_label": "Description",
+    "body_placeholder": "Tell us more — the idea, the problem it solves, use cases…",
+    "save": "Publish",
+    "cancel": "Cancel",
+    "loading": "Loading suggestions…",
+    "empty": "No suggestions yet. Be the first to post one!",
+    "delete": "Delete",
+    "confirm_delete": "Delete this suggestion? Votes will also be removed.",
+    "prev": "Previous",
+    "next": "Next",
+    "page_of": "Page {current} of {total}",
+    "errors": {
+      "quota_exceeded": "You reached the limit of 5 suggestions per week.",
+      "cannot_vote_own": "You cannot vote on your own suggestion.",
+      "validation": "Please review the form fields.",
+      "unknown": "Something went wrong. Please try again in a moment."
+    }
   }
 }
