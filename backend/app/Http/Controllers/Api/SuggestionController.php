@@ -15,6 +15,7 @@ use App\Http\Requests\Suggestion\StoreSuggestionRequest;
 use App\Models\Suggestion;
 use App\Models\SuggestionVote;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -113,9 +114,14 @@ final class SuggestionController extends Controller
             ->get(['created_at']);
 
         $count = $rows->count();
-        $nextSlotAt = $count >= CreateSuggestion::WEEKLY_LIMIT
-            ? $rows->first()->created_at->copy()->addDays(CreateSuggestion::WINDOW_DAYS)->toIso8601String()
-            : null;
+        $nextSlotAt = null;
+        if ($count >= CreateSuggestion::WEEKLY_LIMIT) {
+            $oldest = $rows->first();
+            assert($oldest instanceof Suggestion);
+            $createdAt = $oldest->created_at;
+            assert($createdAt instanceof CarbonInterface);
+            $nextSlotAt = $createdAt->copy()->addDays(CreateSuggestion::WINDOW_DAYS)->toIso8601String();
+        }
 
         return response()->json([
             'used' => $count,
@@ -129,13 +135,15 @@ final class SuggestionController extends Controller
      */
     private function topIds(): array
     {
-        return Suggestion::query()
-            ->orderByDesc('score')
-            ->orderBy('created_at')
-            ->limit(3)
-            ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
-            ->all();
+        return array_values(
+            Suggestion::query()
+                ->orderByDesc('score')
+                ->orderBy('created_at')
+                ->limit(3)
+                ->pluck('id')
+                ->map(fn ($id): int => (int) $id)
+                ->all()
+        );
     }
 
     /**
@@ -146,11 +154,16 @@ final class SuggestionController extends Controller
     {
         $position = array_search($s->id, $topIds, true);
 
+        $author = $s->user;
+        assert($author instanceof User);
+        $createdAt = $s->created_at;
+        assert($createdAt instanceof CarbonInterface);
+
         return [
             'id' => $s->id,
             'user' => [
-                'id' => $s->user->id,
-                'name' => $s->user->name,
+                'id' => $author->id,
+                'name' => $author->name,
             ],
             'title' => $s->title,
             'body' => $s->body,
@@ -159,7 +172,7 @@ final class SuggestionController extends Controller
             'score' => $s->score,
             'my_vote' => $myVote,
             'rank' => $position === false ? null : $position + 1,
-            'created_at' => $s->created_at->toIso8601String(),
+            'created_at' => $createdAt->toIso8601String(),
         ];
     }
 }

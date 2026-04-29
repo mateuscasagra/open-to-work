@@ -8,6 +8,7 @@ use App\Domain\Suggestion\DTOs\SuggestionData;
 use App\Domain\Suggestion\Exceptions\WeeklyQuotaExceededException;
 use App\Models\Suggestion;
 use App\Models\User;
+use Carbon\CarbonInterface;
 
 final class CreateSuggestion
 {
@@ -27,8 +28,12 @@ final class CreateSuggestion
 
         if ($recent->count() >= self::WEEKLY_LIMIT) {
             $oldest = $recent->first();
+            assert($oldest instanceof Suggestion);
+            $createdAt = $oldest->created_at;
+            assert($createdAt instanceof CarbonInterface);
+
             throw new WeeklyQuotaExceededException(
-                $oldest->created_at->copy()->addDays(self::WINDOW_DAYS)
+                $createdAt->copy()->addDays(self::WINDOW_DAYS)
             );
         }
 

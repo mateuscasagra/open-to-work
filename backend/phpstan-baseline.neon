@@ -277,6 +277,12 @@ parameters:
 			path: app/Domain/Job/Queries/ListMatchingJobs.php
 
 		-
+			message: '#^Cannot call method diffInMinutes\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/AuthController.php
+
+		-
 			message: '#^Cannot call method diffInSeconds\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -493,6 +499,42 @@ parameters:
 			path: app/Models/Skill.php
 
 		-
+			message: '#^Class App\\Models\\Suggestion uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Suggestion.php
+
+		-
+			message: '#^Method App\\Models\\Suggestion\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Suggestion.php
+
+		-
+			message: '#^Method App\\Models\\Suggestion\:\:votes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Suggestion.php
+
+		-
+			message: '#^Class App\\Models\\SuggestionVote uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SuggestionVote.php
+
+		-
+			message: '#^Method App\\Models\\SuggestionVote\:\:suggestion\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SuggestionVote.php
+
+		-
+			message: '#^Method App\\Models\\SuggestionVote\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SuggestionVote.php
+
+		-
 			message: '#^Method App\\Models\\User\:\:applications\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -512,6 +554,12 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\User\:\:resumes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:suggestions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/User.php
@@ -813,13 +861,19 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
 			identifier: method.notFound
-			count: 4
+			count: 6
+			path: tests/Feature/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access property \$email_verification_attempts on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 2
 			path: tests/Feature/Auth/RegisterTest.php
 
 		-
 			message: '#^Cannot access property \$email_verification_code on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
-			count: 1
+			count: 2
 			path: tests/Feature/Auth/RegisterTest.php
 
 		-
@@ -838,6 +892,24 @@ parameters:
 			message: '#^Cannot access property \$email_verified_at on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 2
+			path: tests/Feature/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access property \$name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access property \$password on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Auth/RegisterTest.php
+
+		-
+			message: '#^Parameter \#2 \$hashedValue of static method Illuminate\\Support\\Facades\\Hash\:\:check\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
 			path: tests/Feature/Auth/RegisterTest.php
 
 		-
@@ -1307,6 +1379,120 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: tests/Feature/SmokeTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 16
+			path: tests/Feature/Suggestions/CastVoteTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:assertDatabaseHas\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/CastVoteTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:assertDatabaseMissing\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Suggestions/CastVoteTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/CastVoteTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 7
+			path: tests/Feature/Suggestions/CreateSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:assertDatabaseHas\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/CreateSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/CreateSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Suggestions/DeleteSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:assertDatabaseHas\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/DeleteSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:assertDatabaseMissing\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Suggestions/DeleteSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:deleteJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/DeleteSuggestionTest.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\Suggestion\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Suggestions/DeleteSuggestionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Suggestions/ListSuggestionsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/ListSuggestionsTest.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 3
+			path: tests/Feature/Suggestions/ListSuggestionsTest.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 3
+			path: tests/Feature/Suggestions/ListSuggestionsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Suggestions/QuotaTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Suggestions/QuotaTest.php
+
+		-
+			message: '#^Cannot call method copy\(\) on Carbon\\Carbon\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Suggestions/QuotaTest.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
