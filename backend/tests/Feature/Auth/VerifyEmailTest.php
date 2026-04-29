@@ -14,6 +14,7 @@ function pendingUser(string $email = 'pending@example.com', string $code = '1234
     $user->forceFill([
         'email_verification_code' => Hash::make($code),
         'email_verification_code_expires_at' => $expiresAt ?? now()->addMinutes(10),
+        'email_verification_code_sent_at' => now()->subMinutes(5),
         'email_verification_attempts' => $attempts,
     ])->save();
 
@@ -91,7 +92,7 @@ it('does not send a code for already-verified accounts but still returns 200', f
     Mail::assertNothingSent();
 });
 
-it('blocks login for unverified accounts and resends the code', function (): void {
+it('blocks login for unverified accounts and issues a code when none is active', function (): void {
     Mail::fake();
 
     User::factory()->unverified()->create([
@@ -105,6 +106,74 @@ it('blocks login for unverified accounts and resends the code', function (): voi
     ])->assertStatus(403)->assertJsonValidationErrors(['email']);
 
     $this->assertGuest();
+
+    Mail::assertSent(VerifyEmailCode::class);
+});
+
+it('does not resend a code on login when one is still active', function (): void {
+    Mail::fake();
+
+    $user = pendingUser('pending@example.com');
+    $user->forceFill([
+        'password' => bcrypt('Secret123!'),
+        'email_verification_code_sent_at' => now(),
+    ])->save();
+
+    $this->postJson('/api/auth/login', [
+        'email' => 'pending@example.com',
+        'password' => 'Secret123!',
+    ])->assertStatus(403)->assertJsonValidationErrors(['email']);
+
+    Mail::assertNothingSent();
+});
+
+it('reissues a code on login if the previous one expired', function (): void {
+    Mail::fake();
+
+    $user = User::factory()->unverified()->create([
+        'email' => 'pending@example.com',
+        'password' => bcrypt('Secret123!'),
+    ]);
+    $user->forceFill([
+        'email_verification_code' => Hash::make('999999'),
+        'email_verification_code_expires_at' => now()->subMinutes(1),
+        'email_verification_code_sent_at' => now()->subMinutes(20),
+    ])->save();
+
+    $this->postJson('/api/auth/login', [
+        'email' => 'pending@example.com',
+        'password' => 'Secret123!',
+    ])->assertStatus(403);
+
+    Mail::assertSent(VerifyEmailCode::class);
+});
+
+it('rate-limits the resend endpoint by cooldown', function (): void {
+    Mail::fake();
+
+    $user = pendingUser('pending@example.com');
+    $user->forceFill([
+        'email_verification_code_sent_at' => now()->subSeconds(10),
+    ])->save();
+
+    $this->postJson('/api/auth/resend-code', [
+        'email' => $user->email,
+    ])->assertOk();
+
+    Mail::assertNothingSent();
+});
+
+it('allows resend once the cooldown elapsed', function (): void {
+    Mail::fake();
+
+    $user = pendingUser('pending@example.com');
+    $user->forceFill([
+        'email_verification_code_sent_at' => now()->subSeconds(120),
+    ])->save();
+
+    $this->postJson('/api/auth/resend-code', [
+        'email' => $user->email,
+    ])->assertOk();
 
     Mail::assertSent(VerifyEmailCode::class);
 });

@@ -24,23 +24,58 @@ final class AuthController extends Controller
 
     private const MAX_VERIFICATION_ATTEMPTS = 5;
 
+    private const RESEND_COOLDOWN_SECONDS = 60;
+
+    private const REGISTER_REISSUE_THRESHOLD_MINUTES = 5;
+
     public function register(RegisterRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-
         if (! config('auth.email_verification_enabled')) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
             $user->forceFill(['email_verified_at' => now()])->save();
             Auth::login($user);
             $request->session()->regenerate();
 
             return response()->json(['user' => $user->refresh()], 201);
         }
+
+        $existing = User::query()
+            ->where('email', $data['email'])
+            ->whereNull('email_verified_at')
+            ->first();
+
+        if ($existing !== null) {
+            // Re-cadastro com e-mail pendente: trata como retry do verify.
+            // Atualiza nome/senha (usuário pode ter errado) e zera attempts.
+            // Só reissue o código se o último envio foi há > threshold,
+            // pra não spammar quem é dono do e-mail real.
+            $existing->forceFill([
+                'name' => $data['name'],
+                'password' => Hash::make($data['password']),
+                'email_verification_attempts' => 0,
+            ])->save();
+
+            if ($this->shouldReissueOnRegister($existing)) {
+                $this->issueVerificationCode($existing);
+            }
+
+            return response()->json([
+                'status' => 'verification_required',
+                'email' => $existing->email,
+            ], 202);
+        }
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
 
         $this->issueVerificationCode($user);
 
@@ -96,6 +131,7 @@ final class AuthController extends Controller
             'email_verified_at' => now(),
             'email_verification_code' => null,
             'email_verification_code_expires_at' => null,
+            'email_verification_code_sent_at' => null,
             'email_verification_attempts' => 0,
         ])->save();
 
@@ -112,7 +148,8 @@ final class AuthController extends Controller
         $user = User::query()->where('email', $data['email'])->first();
 
         // Always respond 200 to avoid leaking which emails are registered.
-        if ($user && $user->email_verified_at === null) {
+        // Cooldown is enforced server-side so repeated requests don't spam mail.
+        if ($user && $user->email_verified_at === null && $this->canResend($user)) {
             $this->issueVerificationCode($user);
         }
 
@@ -139,7 +176,11 @@ final class AuthController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            $this->issueVerificationCode($user);
+            // Avoid resending the code on every login attempt: only issue a new
+            // one if the existing one is missing/expired AND cooldown allows it.
+            if (! $this->hasActiveVerificationCode($user) && $this->canResend($user)) {
+                $this->issueVerificationCode($user);
+            }
 
             throw ValidationException::withMessages([
                 'email' => __('auth.verify.must_verify'),
@@ -173,6 +214,7 @@ final class AuthController extends Controller
         $user->forceFill([
             'email_verification_code' => Hash::make($code),
             'email_verification_code_expires_at' => now()->addMinutes(self::CODE_TTL_MINUTES),
+            'email_verification_code_sent_at' => now(),
             'email_verification_attempts' => 0,
         ])->save();
 
@@ -181,5 +223,30 @@ final class AuthController extends Controller
             code: $code,
             expiresInMinutes: self::CODE_TTL_MINUTES,
         ));
+    }
+
+    private function hasActiveVerificationCode(User $user): bool
+    {
+        return $user->email_verification_code !== null
+            && $user->email_verification_code_expires_at !== null
+            && $user->email_verification_code_expires_at->isFuture();
+    }
+
+    private function canResend(User $user): bool
+    {
+        if ($user->email_verification_code_sent_at === null) {
+            return true;
+        }
+
+        return $user->email_verification_code_sent_at->diffInSeconds(now()) >= self::RESEND_COOLDOWN_SECONDS;
+    }
+
+    private function shouldReissueOnRegister(User $user): bool
+    {
+        if ($user->email_verification_code_sent_at === null) {
+            return true;
+        }
+
+        return $user->email_verification_code_sent_at->diffInMinutes(now()) >= self::REGISTER_REISSUE_THRESHOLD_MINUTES;
     }
 }

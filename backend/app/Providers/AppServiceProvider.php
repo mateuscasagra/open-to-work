@@ -90,5 +90,23 @@ class AppServiceProvider extends ServiceProvider
                 ? Limit::perMinute(30)->by('user:' . $user->getAuthIdentifier())
                 : Limit::perMinute(10)->by('ip:' . $request->ip());
         });
+
+        // Sugestões — burst protection no POST de criação (quota 5/semana fica na Action).
+        RateLimiter::for('suggestions-write', static function (Request $request): Limit {
+            $user = $request->user();
+
+            return $user !== null
+                ? Limit::perMinute(10)->by('user:' . $user->getAuthIdentifier())
+                : Limit::perMinute(3)->by('ip:' . $request->ip());
+        });
+
+        // Votos podem ser rápidos (toggle/replace), liberar bastante.
+        RateLimiter::for('suggestions-vote', static function (Request $request): Limit {
+            $user = $request->user();
+
+            return $user !== null
+                ? Limit::perMinute(60)->by('user:' . $user->getAuthIdentifier())
+                : Limit::perMinute(10)->by('ip:' . $request->ip());
+        });
     }
 }

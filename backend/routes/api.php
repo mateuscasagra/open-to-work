@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ResumeController;
 use App\Http\Controllers\Api\ResumePdfController;
 use App\Http\Controllers\Api\SkillController;
+use App\Http\Controllers\Api\SuggestionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('health');
@@ -78,6 +79,17 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('applications.status');
 
     Route::get('/metrics', MetricsController::class)->name('metrics.show');
+
+    // Suggestions ------------------------------------------------------
+    Route::get('/suggestions/quota', [SuggestionController::class, 'quota'])->name('suggestions.quota');
+    Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions.index');
+    Route::post('/suggestions', [SuggestionController::class, 'store'])
+        ->middleware('throttle:suggestions-write')
+        ->name('suggestions.store');
+    Route::delete('/suggestions/{suggestion}', [SuggestionController::class, 'destroy'])->name('suggestions.destroy');
+    Route::post('/suggestions/{suggestion}/vote', [SuggestionController::class, 'vote'])
+        ->middleware('throttle:suggestions-vote')
+        ->name('suggestions.vote');
 
     // Location ----------------------------------------------------------
     Route::prefix('location')->group(function (): void {

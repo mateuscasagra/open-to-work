@@ -35,6 +35,7 @@ class User extends Authenticatable
         'two_factor_secret',
         'email_verification_code',
         'email_verification_code_expires_at',
+        'email_verification_code_sent_at',
         'email_verification_attempts',
     ];
 
@@ -46,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'email_verification_code_expires_at' => 'datetime',
+            'email_verification_code_sent_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_secret' => 'encrypted',
             'locale' => SupportedLocale::class,
@@ -71,6 +73,11 @@ class User extends Authenticatable
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
+    }
+
+    public function suggestions(): HasMany
+    {
+        return $this->hasMany(Suggestion::class);
     }
 
     public function oauthAccounts(): HasMany
