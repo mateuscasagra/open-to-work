@@ -44,7 +44,8 @@ describe('useMetrics', () => {
     const metrics = useMetrics();
     await metrics.load();
 
-    expect(api.get).toHaveBeenCalledWith('/api/metrics', { params: {} });
+    const [, opts] = vi.mocked(api.get).mock.calls[0];
+    expect(opts?.params).toMatchObject({ tz: expect.any(String) });
     expect(metrics.data.value?.kpis.total_applications).toBe(10);
     expect(metrics.data.value?.channels[0].source).toBe('linkedin');
     expect(metrics.data.value?.insights[0].severity).toBe('success');
@@ -52,15 +53,31 @@ describe('useMetrics', () => {
     expect(metrics.error.value).toBeNull();
   });
 
-  it('forwards from/to params', async () => {
+  it('forwards from/to params alongside tz', async () => {
     vi.mocked(api.get).mockResolvedValueOnce({ data: payload });
 
     const metrics = useMetrics();
     await metrics.load({ from: '2026-03-01', to: '2026-04-01' });
 
-    expect(api.get).toHaveBeenCalledWith('/api/metrics', {
-      params: { from: '2026-03-01', to: '2026-04-01' },
+    const [, opts] = vi.mocked(api.get).mock.calls[0];
+    expect(opts?.params).toMatchObject({
+      from: '2026-03-01',
+      to: '2026-04-01',
+      tz: expect.any(String),
     });
+  });
+
+  it('sends browser timezone via Intl.DateTimeFormat', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({ data: payload });
+    const spy = vi.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions').mockReturnValue({
+      timeZone: 'America/Sao_Paulo',
+    } as Intl.ResolvedDateTimeFormatOptions);
+
+    await useMetrics().load();
+
+    const [, opts] = vi.mocked(api.get).mock.calls[0];
+    expect(opts?.params).toMatchObject({ tz: 'America/Sao_Paulo' });
+    spy.mockRestore();
   });
 
   it('exposes error when the API rejects', async () => {

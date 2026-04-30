@@ -27,6 +27,18 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true, guestOnly: true },
   },
   {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: () => import('@/modules/auth/views/ForgotPasswordView.vue'),
+    meta: { public: true, guestOnly: true },
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: () => import('@/modules/auth/views/ResetPasswordView.vue'),
+    meta: { public: true, guestOnly: true },
+  },
+  {
     path: '/auth/callback',
     name: 'auth.callback',
     component: () => import('@/modules/auth/views/OAuthCallbackView.vue'),

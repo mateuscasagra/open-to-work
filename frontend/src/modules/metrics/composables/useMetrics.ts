@@ -11,7 +11,8 @@ export function useMetrics() {
     loading.value = true;
     error.value = null;
     try {
-      const response = await api.get('/api/metrics', { params });
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const response = await api.get('/api/metrics', { params: { ...params, tz } });
       data.value = MetricsSummarySchema.parse(response.data);
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Erro ao carregar métricas';

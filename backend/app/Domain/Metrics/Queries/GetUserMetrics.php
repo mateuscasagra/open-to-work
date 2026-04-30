@@ -48,7 +48,7 @@ final class GetUserMetrics
 
     public function __construct(private readonly GenerateInsights $insights) {}
 
-    public function execute(User $user, ?CarbonImmutable $from = null, ?CarbonImmutable $to = null): MetricsSummaryData
+    public function execute(User $user, ?CarbonImmutable $from = null, ?CarbonImmutable $to = null, string $timezone = 'UTC'): MetricsSummaryData
     {
         $to ??= CarbonImmutable::now()->startOfDay();
         $from ??= $to->subDays(89);
@@ -56,7 +56,7 @@ final class GetUserMetrics
         $kpis = $this->kpis($user, $from, $to);
         $channels = $this->channels($user, $from, $to);
         $funnel = $this->funnel($user, $from, $to);
-        $heatmap = $this->heatmap($user, $from, $to);
+        $heatmap = $this->heatmap($user, $from, $to, $timezone);
         $avgDays = $this->avgDaysBetweenStages($user, $from, $to);
 
         $insights = $this->insights->execute($kpis, $channels, $funnel);
@@ -80,12 +80,14 @@ final class GetUserMetrics
     {
         $apps = Application::query()
             ->where('user_id', $user->id)
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
             ->count();
 
         $events = DB::table('application_events as e')
             ->join('applications as a', 'a.id', '=', 'e.application_id')
             ->where('a.user_id', $user->id)
+            ->whereNull('a.archived_at')
             ->where('e.event_type', 'status_changed')
             ->whereBetween('e.occurred_at', [$from->startOfDay(), $to->endOfDay()])
             ->get(['e.payload']);
@@ -137,6 +139,7 @@ final class GetUserMetrics
     {
         $applicationsByChannel = Application::query()
             ->where('user_id', $user->id)
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
             ->whereNotNull('source')
             ->selectRaw('source, COUNT(*) as total')
@@ -150,6 +153,7 @@ final class GetUserMetrics
         $responsesByChannel = DB::table('application_events as e')
             ->join('applications as a', 'a.id', '=', 'e.application_id')
             ->where('a.user_id', $user->id)
+            ->whereNull('a.archived_at')
             ->whereNotNull('a.source')
             ->where('e.event_type', 'status_changed')
             ->whereBetween('e.occurred_at', [$from->startOfDay(), $to->endOfDay()])
@@ -192,6 +196,7 @@ final class GetUserMetrics
     {
         $applications = Application::query()
             ->where('user_id', $user->id)
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
             ->get(['id', 'status']);
 
@@ -262,21 +267,22 @@ final class GetUserMetrics
     }
 
     /**
-     * Heatmap dia-da-semana × hora (UTC) — contagem de candidaturas aplicadas.
+     * Heatmap dia-da-semana × hora — contagem de candidaturas aplicadas no timezone do user.
      *
      * @return list<array{weekday: int, hour: int, count: int}>
      */
-    private function heatmap(User $user, CarbonImmutable $from, CarbonImmutable $to): array
+    private function heatmap(User $user, CarbonImmutable $from, CarbonImmutable $to, string $timezone = 'UTC'): array
     {
         $rows = Application::query()
             ->where('user_id', $user->id)
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
             ->get(['applied_at']);
 
         /** @var array<int, array<int, int>> $grid */
         $grid = [];
         foreach ($rows as $row) {
-            $ts = Carbon::parse((string) $row->applied_at);
+            $ts = Carbon::parse((string) $row->applied_at)->setTimezone($timezone);
             $weekday = (int) $ts->dayOfWeek; // 0=sunday .. 6=saturday
             $hour = (int) $ts->hour;
             $grid[$weekday][$hour] = ($grid[$weekday][$hour] ?? 0) + 1;
@@ -299,6 +305,7 @@ final class GetUserMetrics
     {
         $applications = Application::query()
             ->where('user_id', $user->id)
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
             ->with(['events' => fn ($q) => $q->where('event_type', 'status_changed')->orderBy('occurred_at')])
             ->get();

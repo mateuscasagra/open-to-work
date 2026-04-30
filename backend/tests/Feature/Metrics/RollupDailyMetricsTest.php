@@ -112,3 +112,28 @@ it('defaults to yesterday when no date is provided', function (): void {
 
     Carbon::setTestNow();
 });
+
+it('excludes archived applications from rollup counts and channels', function (): void {
+    Carbon::setTestNow('2026-04-18 12:00:00');
+    $user = User::factory()->create();
+
+    Application::factory()->for($user)->create([
+        'applied_at' => '2026-04-17 09:00:00',
+        'source' => 'linkedin',
+        'archived_at' => null,
+    ]);
+    Application::factory()->for($user)->create([
+        'applied_at' => '2026-04-17 10:00:00',
+        'source' => 'gupy',
+        'archived_at' => '2026-04-17 18:00:00',
+    ]);
+
+    $this->artisan('metrics:rollup-daily', ['--date' => '2026-04-17'])->assertSuccessful();
+
+    $row = MetricsDaily::query()->where('user_id', $user->id)->where('date', '2026-04-17')->first();
+    expect($row->applications_count)->toBe(1);
+    expect($row->breakdown['channels'])->toHaveKey('linkedin');
+    expect($row->breakdown['channels'])->not->toHaveKey('gupy');
+
+    Carbon::setTestNow();
+});

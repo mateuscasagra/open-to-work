@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { Resume } from '@/shared/api/schemas';
-import { dateRange, sectionsByType, str, sectionLabel, levelLabel } from './helpers';
+import { dateRange, orderedGroups, str, sectionLabel, levelLabel } from './helpers';
 
 defineProps<{ resume: Resume; userName?: string }>();
+
+const SIDEBAR_TYPES = ['contact', 'skill', 'language'] as const;
+const MAIN_TYPES = ['summary', 'experience', 'education', 'project'] as const;
 </script>
 
 <template>
@@ -18,188 +21,199 @@ defineProps<{ resume: Resume; userName?: string }>();
         {{ resume.title }}
       </p>
 
-      <section
-        v-if="sectionsByType(resume.sections, 'contact').length"
-        class="mt-6"
+      <template
+        v-for="group in orderedGroups(resume.sections, [...SIDEBAR_TYPES])"
+        :key="group.type"
       >
-        <h2 class="text-xs uppercase tracking-widest font-semibold text-emerald-200 mb-2">
-          {{ sectionLabel('contact') }}
-        </h2>
-        <ul
-          v-for="ct in sectionsByType(resume.sections, 'contact')"
-          :key="`ct-${ct.order}`"
-          class="space-y-1 text-sm"
+        <section
+          v-if="group.type === 'contact'"
+          class="mt-6"
         >
-          <li v-if="str(ct.content, 'email')">
-            {{ str(ct.content, 'email') }}
-          </li>
-          <li v-if="str(ct.content, 'phone')">
-            {{ str(ct.content, 'phone') }}
-          </li>
-          <li v-if="str(ct.content, 'linkedin')">
-            {{ str(ct.content, 'linkedin') }}
-          </li>
-          <li v-if="str(ct.content, 'github')">
-            {{ str(ct.content, 'github') }}
-          </li>
-          <li v-if="str(ct.content, 'website')">
-            {{ str(ct.content, 'website') }}
-          </li>
-          <li
-            v-if="str(ct.content, 'address')"
-            class="text-emerald-200 text-xs"
+          <h2 class="text-xs uppercase tracking-widest font-semibold text-emerald-200 mb-2">
+            {{ sectionLabel('contact') }}
+          </h2>
+          <ul
+            v-for="ct in group.sections"
+            :key="`ct-${ct.order}`"
+            class="space-y-1 text-sm"
           >
-            {{ str(ct.content, 'address') }}
-          </li>
-        </ul>
-      </section>
-
-      <section
-        v-if="sectionsByType(resume.sections, 'skill').length"
-        class="mt-8"
-      >
-        <h2 class="text-xs uppercase tracking-widest font-semibold text-emerald-200 mb-2">
-          {{ sectionLabel('skill') }}
-        </h2>
-        <ul class="space-y-1 text-sm">
-          <li
-            v-for="sk in sectionsByType(resume.sections, 'skill')"
-            :key="`sk-${sk.order}`"
-          >
-            <span class="font-medium">{{ str(sk.content, 'name') }}</span>
-            <span
-              v-if="str(sk.content, 'level')"
-              class="text-emerald-200 text-xs block"
+            <li v-if="str(ct.content, 'email')">
+              {{ str(ct.content, 'email') }}
+            </li>
+            <li v-if="str(ct.content, 'phone')">
+              {{ str(ct.content, 'phone') }}
+            </li>
+            <li v-if="str(ct.content, 'linkedin')">
+              {{ str(ct.content, 'linkedin') }}
+            </li>
+            <li v-if="str(ct.content, 'github')">
+              {{ str(ct.content, 'github') }}
+            </li>
+            <li v-if="str(ct.content, 'website')">
+              {{ str(ct.content, 'website') }}
+            </li>
+            <li
+              v-if="str(ct.content, 'address')"
+              class="text-emerald-200 text-xs"
             >
-              {{ levelLabel(str(sk.content, 'level')) }}
-            </span>
-          </li>
-        </ul>
-      </section>
+              {{ str(ct.content, 'address') }}
+            </li>
+          </ul>
+        </section>
 
-      <section
-        v-if="sectionsByType(resume.sections, 'language').length"
-        class="mt-6"
-      >
-        <h2 class="text-xs uppercase tracking-widest font-semibold text-emerald-200 mb-2">
-          {{ sectionLabel('language') }}
-        </h2>
-        <ul class="space-y-1 text-sm">
-          <li
-            v-for="lang in sectionsByType(resume.sections, 'language')"
-            :key="`lang-${lang.order}`"
-          >
-            <span class="font-medium">{{ str(lang.content, 'name') }}</span>
-            <span
-              v-if="str(lang.content, 'level')"
-              class="text-emerald-200 text-xs block"
+        <section
+          v-else-if="group.type === 'skill'"
+          class="mt-6"
+        >
+          <h2 class="text-xs uppercase tracking-widest font-semibold text-emerald-200 mb-2">
+            {{ sectionLabel('skill') }}
+          </h2>
+          <ul class="space-y-1 text-sm">
+            <li
+              v-for="sk in group.sections"
+              :key="`sk-${sk.order}`"
             >
-              {{ levelLabel(str(lang.content, 'level')) }}
-            </span>
-          </li>
-        </ul>
-      </section>
+              <span class="font-medium">{{ str(sk.content, 'name') }}</span>
+              <span
+                v-if="str(sk.content, 'level')"
+                class="text-emerald-200 text-xs block"
+              >
+                {{ levelLabel(str(sk.content, 'level')) }}
+              </span>
+            </li>
+          </ul>
+        </section>
+
+        <section
+          v-else-if="group.type === 'language'"
+          class="mt-6"
+        >
+          <h2 class="text-xs uppercase tracking-widest font-semibold text-emerald-200 mb-2">
+            {{ sectionLabel('language') }}
+          </h2>
+          <ul class="space-y-1 text-sm">
+            <li
+              v-for="lang in group.sections"
+              :key="`lang-${lang.order}`"
+            >
+              <span class="font-medium">{{ str(lang.content, 'name') }}</span>
+              <span
+                v-if="str(lang.content, 'level')"
+                class="text-emerald-200 text-xs block"
+              >
+                {{ levelLabel(str(lang.content, 'level')) }}
+              </span>
+            </li>
+          </ul>
+        </section>
+      </template>
     </aside>
 
     <main class="col-span-2 p-8">
-      <section
-        v-for="sum in sectionsByType(resume.sections, 'summary')"
-        :key="`sum-${sum.order}`"
-        class="mb-6"
+      <template
+        v-for="group in orderedGroups(resume.sections, [...MAIN_TYPES])"
+        :key="group.type"
       >
-        <p
-          class="text-sm leading-relaxed text-slate-700"
-          style="white-space: pre-wrap;"
+        <section
+          v-if="group.type === 'summary'"
+          class="mb-6"
         >
-          {{ str(sum.content, 'text') }}
-        </p>
-      </section>
-
-      <section
-        v-if="sectionsByType(resume.sections, 'experience').length"
-        class="mb-6"
-      >
-        <h2 class="text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3">
-          {{ sectionLabel('experience') }}
-        </h2>
-        <div
-          v-for="exp in sectionsByType(resume.sections, 'experience')"
-          :key="`exp-${exp.order}`"
-          class="mb-4"
-        >
-          <div class="flex justify-between items-baseline">
-            <h3 class="font-semibold text-slate-900">
-              {{ str(exp.content, 'role') }}
-            </h3>
-            <span class="text-xs text-slate-500">{{ dateRange(exp.content) }}</span>
-          </div>
           <p
-            v-if="str(exp.content, 'company')"
-            class="text-sm text-emerald-700 font-medium"
-          >
-            {{ str(exp.content, 'company') }}
-          </p>
-          <p
-            v-if="str(exp.content, 'description')"
-            class="text-sm text-slate-700 mt-1"
+            v-for="sum in group.sections"
+            :key="`sum-${sum.order}`"
+            class="text-sm leading-relaxed text-slate-700"
             style="white-space: pre-wrap;"
           >
-            {{ str(exp.content, 'description') }}
+            {{ str(sum.content, 'text') }}
           </p>
-        </div>
-      </section>
+        </section>
 
-      <section
-        v-if="sectionsByType(resume.sections, 'education').length"
-        class="mb-6"
-      >
-        <h2 class="text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3">
-          {{ sectionLabel('education') }}
-        </h2>
-        <div
-          v-for="edu in sectionsByType(resume.sections, 'education')"
-          :key="`edu-${edu.order}`"
-          class="mb-3"
+        <section
+          v-else-if="group.type === 'experience'"
+          class="mb-6"
         >
-          <div class="flex justify-between items-baseline">
-            <h3 class="font-semibold">
-              {{ str(edu.content, 'degree') }}
-            </h3>
-            <span class="text-xs text-slate-500">{{ dateRange(edu.content) }}</span>
-          </div>
-          <p class="text-sm text-slate-700">
-            {{ str(edu.content, 'institution') }}
-          </p>
-        </div>
-      </section>
-
-      <section v-if="sectionsByType(resume.sections, 'project').length">
-        <h2 class="text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3">
-          {{ sectionLabel('project') }}
-        </h2>
-        <div
-          v-for="proj in sectionsByType(resume.sections, 'project')"
-          :key="`proj-${proj.order}`"
-          class="mb-3"
-        >
-          <h3 class="font-semibold">
-            {{ str(proj.content, 'name') }}
-            <span
-              v-if="str(proj.content, 'url')"
-              class="font-normal text-emerald-600 text-xs"
+          <h2 class="text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3">
+            {{ sectionLabel('experience') }}
+          </h2>
+          <div
+            v-for="exp in group.sections"
+            :key="`exp-${exp.order}`"
+            class="mb-4"
+          >
+            <div class="flex justify-between items-baseline">
+              <h3 class="font-semibold text-slate-900">
+                {{ str(exp.content, 'role') }}
+              </h3>
+              <span class="text-xs text-slate-500">{{ dateRange(exp.content) }}</span>
+            </div>
+            <p
+              v-if="str(exp.content, 'company')"
+              class="text-sm text-emerald-700 font-medium"
             >
-              · {{ str(proj.content, 'url') }}
-            </span>
-          </h3>
-          <p
-            v-if="str(proj.content, 'description')"
-            class="text-sm text-slate-700"
-            style="white-space: pre-wrap;"
+              {{ str(exp.content, 'company') }}
+            </p>
+            <p
+              v-if="str(exp.content, 'description')"
+              class="text-sm text-slate-700 mt-1"
+              style="white-space: pre-wrap;"
+            >
+              {{ str(exp.content, 'description') }}
+            </p>
+          </div>
+        </section>
+
+        <section
+          v-else-if="group.type === 'education'"
+          class="mb-6"
+        >
+          <h2 class="text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3">
+            {{ sectionLabel('education') }}
+          </h2>
+          <div
+            v-for="edu in group.sections"
+            :key="`edu-${edu.order}`"
+            class="mb-3"
           >
-            {{ str(proj.content, 'description') }}
-          </p>
-        </div>
-      </section>
+            <div class="flex justify-between items-baseline">
+              <h3 class="font-semibold">
+                {{ str(edu.content, 'degree') }}
+              </h3>
+              <span class="text-xs text-slate-500">{{ dateRange(edu.content) }}</span>
+            </div>
+            <p class="text-sm text-slate-700">
+              {{ str(edu.content, 'institution') }}
+            </p>
+          </div>
+        </section>
+
+        <section v-else-if="group.type === 'project'">
+          <h2 class="text-xs uppercase tracking-widest font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3">
+            {{ sectionLabel('project') }}
+          </h2>
+          <div
+            v-for="proj in group.sections"
+            :key="`proj-${proj.order}`"
+            class="mb-3"
+          >
+            <h3 class="font-semibold">
+              {{ str(proj.content, 'name') }}
+              <span
+                v-if="str(proj.content, 'url')"
+                class="font-normal text-emerald-600 text-xs"
+              >
+                · {{ str(proj.content, 'url') }}
+              </span>
+            </h3>
+            <p
+              v-if="str(proj.content, 'description')"
+              class="text-sm text-slate-700"
+              style="white-space: pre-wrap;"
+            >
+              {{ str(proj.content, 'description') }}
+            </p>
+          </div>
+        </section>
+      </template>
     </main>
   </article>
 </template>

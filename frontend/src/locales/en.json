@@ -220,6 +220,27 @@
       "back_to_login": "Back to login",
       "failed": "We couldn't confirm the code. Please try again.",
       "must_verify_notice": "Your account hasn't been confirmed yet. Use the code we just emailed you to sign in."
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "submit": "Send link",
+      "sending": "Sending…",
+      "sent_title": "We sent you an email",
+      "sent_subtitle": "If an account exists for this email, you'll get a reset link. Check your inbox (and spam folder).",
+      "back_to_login": "Back to login",
+      "failed": "We couldn't send the email right now. Please try again in a moment."
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Choose a new password for your account.",
+      "new_password": "New password",
+      "confirm_password": "Confirm new password",
+      "submit": "Reset password",
+      "processing": "Resetting…",
+      "missing_token": "Invalid link. Request a new one from the login screen.",
+      "invalid_token": "Invalid or expired link. Please request a new one.",
+      "failed": "We couldn't reset your password. Please try again."
     }
   },
   "profile": {
@@ -365,7 +386,14 @@
     "kanban_max_stages": "Maximum of 15 stages reached",
     "kanban_reset": "Reset defaults",
     "kanban_hidden_stages": "Hidden stages",
-    "kanban_no_hidden": "All visible"
+    "kanban_no_hidden": "All visible",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "archive_failed": "Failed to archive application.",
+    "archived_badge": "Archived",
+    "filter_active": "Active",
+    "filter_archived": "Archived",
+    "archived_empty": "No archived applications."
   },
   "resumes": {
     "title": "Resumes",

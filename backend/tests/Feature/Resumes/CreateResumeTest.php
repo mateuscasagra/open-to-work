@@ -62,6 +62,17 @@ it('creates a resume with no sections', function (): void {
         ->assertJsonCount(0, 'sections');
 });
 
+it('returns file_path and metadata in response (frontend schema requires them)', function (): void {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->postJson('/api/resumes', ['title' => 'X', 'language' => 'pt_BR'])
+        ->assertCreated();
+
+    expect($response->json())->toHaveKeys(['id', 'user_id', 'title', 'language', 'is_pdf_upload', 'file_path', 'metadata', 'sections']);
+    expect($response->json('file_path'))->toBeNull();
+});
+
 it('validates required title', function (): void {
     $user = User::factory()->create();
 

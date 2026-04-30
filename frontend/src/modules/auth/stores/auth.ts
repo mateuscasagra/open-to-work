@@ -81,6 +81,16 @@ export const useAuthStore = defineStore('auth', {
       await api.post('/api/auth/resend-code', { email });
     },
 
+    async forgotPassword(email: string) {
+      await api.post('/api/auth/forgot-password', { email });
+    },
+
+    async resetPassword(payload: { email: string; token: string; password: string; password_confirmation: string }) {
+      const { data } = await api.post('/api/auth/reset-password', payload);
+      this.user = UserSchema.parse(data.user);
+      this.setPendingVerificationEmail(null);
+    },
+
     setPendingVerificationEmail(email: string | null) {
       this.pendingVerificationEmail = email;
       savePendingEmail(email);

@@ -6,7 +6,7 @@
 
 | Método | Rota / Comando | Handler |
 |---|---|---|
-| `GET` | `/api/metrics?from=&to=` | `MetricsController` (invokable) |
+| `GET` | `/api/metrics?from=&to=&tz=` | `MetricsController` (invokable) |
 | CLI | `php artisan metrics:rollup-daily [--date=YYYY-MM-DD] [--from=... --to=...]` | `RollupDailyMetricsCommand` |
 
 Scheduler: **03:00 UTC** diário.
@@ -38,7 +38,7 @@ Scheduler: **03:00 UTC** diário.
 
 ### Query do dashboard
 
-`GetUserMetrics` consulta `applications` + `application_events` **em tempo real** (sem depender de `metrics_daily`), devolve:
+`GetUserMetrics` consulta `applications` + `application_events` **em tempo real** (sem depender de `metrics_daily`), **excluindo arquivadas** via `whereNull('archived_at')`. Devolve:
 - **KPIs:** total/responses/interviews/offers/rejections + taxas (real-time via query direto nas tabelas fonte)
 - **Channels:** por `source` com `applications`, `responses`, `response_rate`
 - **Funnel:** `reached_count` por `ApplicationStatus` (inclui aplicações que **passaram** pela etapa, não só as que estão lá agora)
@@ -91,7 +91,8 @@ Scheduler: **03:00 UTC** diário.
 - **Rollup é idempotente, mas dependente de `application_events` corretos.** Se um event for inserido com `event_type` errado, a contagem (responses/interviews/offers/rejections) sai errada. Confirme tipos via state machine antes de inserir eventos manualmente.
 - **`MetricsDaily` sem cast de `date`** — comparar como string `Y-m-d`. Se adicionar `'date' => 'date'` no `casts()`, alguns testes em SQLite quebram (driver retorna formato diferente).
 - **Funil "passou pela etapa":** olha `application_events` de `status_changed`. Aplicação que pulou direto de `applied → rejected` **não** aparece em `screening`/`assessment`. Comportamento correto, mas pode confundir.
-- **Heatmap por hora:** baseia-se em `applied_at` no timezone do servidor. Em prod (`UTC`), candidatura criada às 23h BRT aparece como 02h do dia seguinte. Se virar UX problem, fazer conversão para `user.locale` no client.
+- **Heatmap respeita timezone do navegador.** Frontend envia `?tz=America/Sao_Paulo` (de `Intl.DateTimeFormat().resolvedOptions().timeZone`); backend valida contra `DateTimeZone::listIdentifiers()` (TZ inválido cai pra UTC) e aplica em `setTimezone()` antes de extrair `weekday`/`hour`. Sem `?tz`, fallback é UTC. **KPIs/funnel/channels não dependem de TZ** (operam só sobre janela de datas com `whereBetween`).
 - **Insights são heurísticas, não estatísticas.** Thresholds (`<10%`, `≥30%`, etc.) estão hardcoded em `GenerateInsights` — se quiser tunar por user, mover para config.
 - **Backfill em massa:** `--from=2026-01-01 --to=2026-04-19` itera dia a dia em loop. Para >365 dias, considerar batch ou queue.
 - **Cache de `/api/metrics`:** se mudar a forma do JSON retornado, **invalidar o cache** (`php artisan cache:clear`) ou subir a versão da chave.
+- **Candidaturas arquivadas (`archived_at != null`) são excluídas** em todas as agregações (`kpis`, `channels`, `funnel`, `heatmap`, `avgDaysBetweenStages`) e também no `RollupDailyMetrics`. Se o usuário arquivar uma candidatura **depois** que o rollup do dia já rodou, o `metrics_daily` daquele dia mantém ela contada — fazer `php artisan metrics:rollup-daily --date=YYYY-MM-DD` pra reprocessar. **Admin metrics não filtra arquivadas** (decisão consciente: admin precisa ver tudo).

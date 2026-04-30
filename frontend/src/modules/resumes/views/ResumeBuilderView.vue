@@ -76,6 +76,7 @@ function defaultSections(): ResumeSection[] {
 }
 
 const sections = ref<ResumeSection[]>(isEdit.value ? [] : defaultSections());
+const seededFor = ref<number | null>(null);
 
 function clearSections(): void {
   sections.value = [];
@@ -88,10 +89,13 @@ function restoreDefaults(): void {
 watch(
   () => detail.data.value,
   (resume) => {
-    if (resume) {
+    if (resume && seededFor.value !== resume.id) {
+      seededFor.value = resume.id;
       title.value = resume.title;
       language.value = resume.language;
-      sections.value = [...resume.sections].sort((a, b) => a.order - b.order);
+      sections.value = resume.sections
+        .map((s) => ({ ...s, content: { ...s.content } }))
+        .sort((a, b) => a.order - b.order);
     }
   },
   { immediate: true }
@@ -127,6 +131,34 @@ function hasSection(type: ResumeSectionType): boolean {
 
 function removeEntry(idx: number): void {
   sections.value.splice(idx, 1);
+  reindex();
+}
+
+function moveEntryWithinGroup(group: GroupedSection, entryIdx: number, delta: -1 | 1): void {
+  const target = entryIdx + delta;
+  if (target < 0 || target >= group.indices.length) return;
+  const a = group.indices[entryIdx];
+  const b = group.indices[target];
+  const arr = sections.value;
+  const tmp = arr[a];
+  arr[a] = arr[b];
+  arr[b] = tmp;
+  reindex();
+}
+
+function moveGroup(groupIdx: number, delta: -1 | 1): void {
+  const target = groupIdx + delta;
+  const groups = groupedSections.value;
+  if (target < 0 || target >= groups.length) return;
+  const newOrder = [...groups];
+  [newOrder[groupIdx], newOrder[target]] = [newOrder[target], newOrder[groupIdx]];
+  const flat: ResumeSection[] = [];
+  for (const g of newOrder) {
+    for (const i of g.indices) {
+      flat.push(sections.value[i]);
+    }
+  }
+  sections.value = flat;
   reindex();
 }
 
@@ -422,50 +454,65 @@ function onCancel(): void {
             class="space-y-3"
           >
             <div
-              v-for="group in groupedSections"
+              v-for="(group, groupIdx) in groupedSections"
               :key="group.type"
               class="card p-4"
             >
               <!-- Group header -->
-              <div class="mb-3 flex items-center justify-between">
+              <div class="mb-3 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
                   <span class="chip-brand !py-0.5">{{ t(`resumes.sections.${group.type}`) }}</span>
                   <span class="text-[10px] text-ink-400">{{ group.indices.length }} {{ group.indices.length === 1 ? 'item' : 'itens' }}</span>
                 </div>
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand-700 transition hover:bg-brand-50"
-                  @click="addSection(group.type)"
-                >
-                  <svg
-                    class="h-3.5 w-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Adicionar
-                </button>
-              </div>
-
-              <!-- Entries -->
-              <div class="space-y-3">
-                <div
-                  v-for="(idx, entryIdx) in group.indices"
-                  :key="idx"
-                  class="relative rounded-lg border border-ink-200 bg-ink-50/50 p-3"
-                >
-                  <!-- Entry remove button -->
+                <div class="flex items-center gap-1">
                   <button
                     type="button"
-                    class="absolute right-2 top-2 rounded p-1 text-ink-300 hover:bg-red-50 hover:text-red-500"
-                    @click="removeEntry(idx)"
+                    class="rounded-md p-1.5 text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink-500"
+                    :disabled="groupIdx === 0"
+                    :title="t('resumes.builder.move_up')"
+                    :aria-label="t('resumes.builder.move_up')"
+                    @click="moveGroup(groupIdx, -1)"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M5 15l7-7 7 7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-md p-1.5 text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink-500"
+                    :disabled="groupIdx === groupedSections.length - 1"
+                    :title="t('resumes.builder.move_down')"
+                    :aria-label="t('resumes.builder.move_down')"
+                    @click="moveGroup(groupIdx, 1)"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="ml-1 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand-700 transition hover:bg-brand-50"
+                    @click="addSection(group.type)"
                   >
                     <svg
                       class="h-3.5 w-3.5"
@@ -477,18 +524,103 @@ function onCancel(): void {
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
+                        d="M12 4v16m8-8H4"
                       />
                     </svg>
+                    Adicionar
                   </button>
+                </div>
+              </div>
 
-                  <!-- Entry number -->
-                  <span
-                    v-if="group.indices.length > 1"
-                    class="mb-2 inline-block text-[10px] font-bold text-ink-400"
-                  >
-                    #{{ entryIdx + 1 }}
-                  </span>
+              <!-- Entries -->
+              <div class="space-y-3">
+                <div
+                  v-for="(idx, entryIdx) in group.indices"
+                  :key="idx"
+                  class="rounded-lg border border-ink-200 bg-ink-50/50 p-3"
+                >
+                  <!-- Entry header -->
+                  <div class="mb-2 flex items-center justify-between gap-2">
+                    <span
+                      v-if="group.indices.length > 1"
+                      class="text-[10px] font-bold text-ink-400"
+                    >
+                      #{{ entryIdx + 1 }}
+                    </span>
+                    <span
+                      v-else
+                      aria-hidden="true"
+                    />
+                    <div class="flex items-center gap-0.5">
+                      <button
+                        v-if="group.indices.length > 1"
+                        type="button"
+                        class="rounded p-1 text-ink-400 transition hover:bg-brand-50 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink-400"
+                        :disabled="entryIdx === 0"
+                        :title="t('resumes.builder.move_up')"
+                        :aria-label="t('resumes.builder.move_up')"
+                        @click="moveEntryWithinGroup(group, entryIdx, -1)"
+                      >
+                        <svg
+                          class="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2.5"
+                            d="M5 15l7-7 7 7"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        v-if="group.indices.length > 1"
+                        type="button"
+                        class="rounded p-1 text-ink-400 transition hover:bg-brand-50 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink-400"
+                        :disabled="entryIdx === group.indices.length - 1"
+                        :title="t('resumes.builder.move_down')"
+                        :aria-label="t('resumes.builder.move_down')"
+                        @click="moveEntryWithinGroup(group, entryIdx, 1)"
+                      >
+                        <svg
+                          class="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2.5"
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded p-1 text-ink-300 hover:bg-red-50 hover:text-red-500"
+                        :title="t('resumes.builder.remove_section')"
+                        :aria-label="t('resumes.builder.remove_section')"
+                        @click="removeEntry(idx)"
+                      >
+                        <svg
+                          class="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
 
                   <!-- summary -->
                   <template v-if="sections[idx].type === 'summary'">

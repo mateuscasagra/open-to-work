@@ -57,7 +57,7 @@ it('fetches and transforms Gupy payload into JobDTOs', function (): void {
         ->and($a->modality)->toBe(Modality::Remote)
         ->and($a->seniority)->toBe(Seniority::Senior)
         ->and($a->location)->toBe('São Paulo, SP, Brasil')
-        ->and($a->language)->toBe('pt')
+        ->and($a->language)->toBe('pt_BR')
         ->and($a->stack)->toContain('node', 'postgresql', 'aws');
 
     expect($b->modality)->toBe(Modality::Hybrid)

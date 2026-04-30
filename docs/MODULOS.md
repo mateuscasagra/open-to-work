@@ -29,20 +29,28 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | `401` em rota `/api/*` autenticada | `auth.md` + `cross-cutting.md` (CSRF/Sanctum) |
 | `419` (Page Expired / token mismatch) | `cross-cutting.md` (CSRF) → `shared-frontend.md` (client.ts) |
 | `429` Too Many Requests | `cross-cutting.md` (RateLimiters) |
+| Rota nova retorna 404 mesmo com `route:list` listando ela | `cross-cutting.md` (FrankenPHP opcache) — `docker compose restart backend` |
 | Login/register retorna sucesso mas front mostra erro | `auth.md` (parse Zod, refresh do User) |
 | Login retorna `403` com `email_unverified` / usuário travado em `/verify-email` | `auth.md` (fluxo Verify Email — code expirou ou attempts ≥5? checar `email_verification_*` no DB) |
 | E-mail de confirmação não chega na caixa | `auth.md` (Pontos de atenção — Resend domínio verificado, MailHog em dev em http://localhost:8025) |
 | OAuth callback não autentica | `auth.md` (Socialite stateless, redirect URL) |
+| Link de "Esqueci minha senha" não funciona / e-mail não chega | `auth.md` (Forgot/Reset Password) — checar `APP_FRONTEND_URL` no .env (URL do link), TTL `config('auth.passwords.users.expire')` (60min default), MailHog em http://localhost:8025 em dev |
 | Erro de coluna inexistente no SQL | módulo da rota + verificar migrations |
 | Vagas não aparecem / drivers quebrados | `jobs.md` (driver contract + pipeline) |
+| Tela de vagas dá erro no front mas API retorna 200 | `jobs.md` — `language` no DB precisa ser `pt_BR\|en\|es` (enum canônico); `LocaleEnum` Zod do front rejeita `'pt'` cru |
 | Matching retorna lista vazia | `jobs.md` (`ListMatchingJobs`) + `profile.md` (skills do user) |
 | Kanban não move card / 422 ao mudar status | `applications.md` (state machine) |
 | Anexos não fazem upload | `applications.md` (MediaLibrary + S3) + `cross-cutting.md` (`throttle:uploads`) |
+| Candidatura arquivada continua aparecendo no Kanban "Ativas" | `applications.md` — verificar `archived_at` no DB; query default usa `whereNull('archived_at')`. Cache stale: invalidar `['applications']` (prefix match cobre `active`/`archived`) |
 | Follow-up não é enviado | `applications.md` (`SendApplicationFollowUpsCommand`) + `cross-cutting.md` (scheduler) |
 | Export PDF do currículo trava | `resumes.md` (jsPDF + html2canvas, multi-página) |
 | Download de PDF retorna 403/expirado | `resumes.md` (`temporaryUrl` TTL 5min) |
+| Edição de seção do currículo não persiste (só título salva) | `resumes.md` — vue-query 5 retorna data readonly; seeding precisa deep clone (`map(s => ({ ...s, content: { ...s.content } }))`), senão `setContent` falha silencioso |
+| POST de currículo retorna 201 mas front mostra "Falha ao salvar" | `resumes.md` — `CreateResume` precisa setar `file_path: null`/`metadata: null` no `create()`, senão Zod do front faz throw em `ResumeSchema.parse` |
 | Dashboard sem dados | `metrics.md` (rollup diário rodou? período correto?) |
 | Heatmap/funil errado | `metrics.md` (`GetUserMetrics`) |
+| Heatmap mostra hora errada (offset de timezone) | `metrics.md` — front envia `?tz=` via `Intl.DateTimeFormat().resolvedOptions().timeZone`; conferir se composable `useMetrics` está enviando |
+| Candidatura arquivada aparece no dashboard | `metrics.md` — `GetUserMetrics` filtra `whereNull('archived_at')`. Se rollup antigo, reprocessar com `metrics:rollup-daily --date=...` |
 | CEP/ZIP não preenche estado/cidade no Profile | `location.md` (ViaCEP/zippopotam, cache, regex) |
 | Lista de países não aparece no select | `location.md` (`/api/location/countries` + `useSupportedCountries`) |
 | Distribuição geográfica zerada no Admin | `admin.md` (`by_location`) — usuários precisam ter `country_code` preenchido em `profiles` |

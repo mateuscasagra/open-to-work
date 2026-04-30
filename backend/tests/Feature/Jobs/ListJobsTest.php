@@ -19,6 +19,21 @@ it('lists active jobs with pagination', function (): void {
         ->assertJsonCount(20, 'data');
 });
 
+it('returns language values from the canonical SupportedLocale enum (frontend schema requires pt_BR/en/es/null)', function (): void {
+    $user = User::factory()->create();
+    Job::factory()->count(5)->create(['language' => 'pt_BR']);
+    Job::factory()->count(3)->create(['language' => 'en']);
+    Job::factory()->count(1)->create(['language' => null]);
+
+    $response = $this->actingAs($user)->getJson('/api/jobs')->assertOk();
+
+    $languages = collect($response->json('data'))->pluck('language')->unique()->values();
+    foreach ($languages as $lang) {
+        expect($lang === null || in_array($lang, ['pt_BR', 'en', 'es'], true))
+            ->toBeTrue("Language '{$lang}' is not in the canonical SupportedLocale enum");
+    }
+});
+
 it('filters by modality', function (): void {
     $user = User::factory()->create();
     Job::factory()->count(3)->create(['modality' => Modality::Remote->value]);

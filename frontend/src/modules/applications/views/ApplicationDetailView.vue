@@ -6,6 +6,7 @@ import type { ApplicationStatus } from '@/shared/api/schemas';
 import { useApplicationDetail } from '@/modules/applications/composables/useApplicationDetail';
 import { useChangeApplicationStatus } from '@/modules/applications/composables/useChangeApplicationStatus';
 import { useAttachments } from '@/modules/applications/composables/useAttachments';
+import { useArchiveApplication } from '@/modules/applications/composables/useArchiveApplication';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
 import { useKanbanConfig, type ColumnConfig } from '@/modules/applications/composables/useKanbanConfig';
 
@@ -16,8 +17,23 @@ const { t } = useI18n();
 const applicationId = computed(() => Number(route.params.id));
 const { detail, updateNotes } = useApplicationDetail(applicationId);
 const changeStatus = useChangeApplicationStatus();
+const archive = useArchiveApplication();
 const { list: attachments, upload: uploadAttachment, remove: removeAttachment } = useAttachments(applicationId);
 const { columns, visibleColumns, styleFor, isCustom } = useKanbanConfig();
+
+const isArchived = computed(() => detail.data.value?.archived_at != null);
+const archiveError = ref<string | null>(null);
+
+async function onToggleArchive(): Promise<void> {
+  if (!detail.data.value) return;
+  archiveError.value = null;
+  try {
+    await archive.mutateAsync({ id: detail.data.value.id, archive: !isArchived.value });
+    detail.refetch();
+  } catch {
+    archiveError.value = t('applications.archive_failed');
+  }
+}
 
 const uploadError = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -162,7 +178,7 @@ function goBack(): void {
 
 <template>
   <div class="mx-auto max-w-3xl lg:flex lg:h-full lg:flex-col">
-    <div class="mb-3 flex items-center gap-3 lg:mb-2">
+    <div class="mb-3 flex items-center justify-between gap-3 lg:mb-2">
       <button
         type="button"
         class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 transition hover:text-brand-700"
@@ -183,7 +199,36 @@ function goBack(): void {
         </svg>
         {{ t('applications.back') }}
       </button>
+      <button
+        v-if="detail.data.value"
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-60"
+        :disabled="archive.isPending.value"
+        @click="onToggleArchive"
+      >
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75"
+            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+          />
+        </svg>
+        {{ isArchived ? t('applications.unarchive') : t('applications.archive') }}
+      </button>
     </div>
+    <p
+      v-if="archiveError"
+      class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+      role="alert"
+    >
+      {{ archiveError }}
+    </p>
 
     <p
       v-if="detail.isLoading.value"
@@ -218,12 +263,33 @@ function goBack(): void {
                 {{ t('applications.applied_at', { date: formatDate(detail.data.value.applied_at) }) }}
               </p>
             </div>
-            <span
-              class="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold"
-              :style="statusBadgeStyle(detail.data.value.status)"
-            >
-              {{ statusLabel(detail.data.value.status) }}
-            </span>
+            <div class="flex shrink-0 flex-col items-end gap-1.5">
+              <span
+                v-if="isArchived"
+                class="inline-flex items-center gap-1 rounded-md bg-ink-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-600"
+              >
+                <svg
+                  class="h-3 w-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"
+                  />
+                </svg>
+                {{ t('applications.archived_badge') }}
+              </span>
+              <span
+                class="rounded-lg border px-3 py-1.5 text-xs font-semibold"
+                :style="statusBadgeStyle(detail.data.value.status)"
+              >
+                {{ statusLabel(detail.data.value.status) }}
+              </span>
+            </div>
           </div>
         </div>
 

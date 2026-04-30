@@ -114,3 +114,4 @@ Em prod, `config:cache` cacheia tudo de `config/`. Mudanças em env afetando con
 - **Scheduler precisa de cron rodando no host** (`* * * * * cd /var/www && php artisan schedule:run`). Em Docker, isso vai num container dedicado ou via Supervisor. Confira `infra/docker-compose.prod.yml`.
 - **Rate limiters não cobrem rotas web** (só API). Se adicionar rota `web.php`, configurar throttle separadamente.
 - **`auth` limiter** considera IP **+** e-mail — em ambiente atrás de proxy (Cloudflare), confirme que `TrustProxies` está pegando o IP real, senão todo mundo bate o limite global do proxy.
+- **FrankenPHP cacheia bytecode (opcache).** Se você adicionar uma rota nova em `routes/api.php` e `php artisan route:list` mostrar a rota, mas requests HTTP retornarem `404`, é opcache servindo o `api.php` antigo. **Solução:** `docker compose restart backend`. Em prod o deploy reinicia o container, então só pega quem desenvolve com hot-edit dos arquivos PHP.

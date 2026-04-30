@@ -21,4 +21,15 @@ return [
         'too_many_attempts' => 'Muitas tentativas inválidas. Solicite um novo código.',
         'already_verified' => 'Este e-mail já foi confirmado.',
     ],
+
+    'reset' => [
+        'email_subject' => 'Redefinir sua senha',
+        'email_greeting' => 'Olá, :name!',
+        'email_intro' => 'Recebemos um pedido para redefinir a senha da sua conta. Clique no botão abaixo para escolher uma nova senha.',
+        'email_button' => 'Redefinir senha',
+        'email_expires' => 'Este link expira em :minutes minutos.',
+        'email_ignore' => 'Se você não solicitou a redefinição, ignore este e-mail — sua senha não será alterada.',
+        'email_thanks' => 'Obrigado,',
+        'invalid_token' => 'Link de redefinição inválido ou expirado. Solicite um novo.',
+    ],
 ];

@@ -76,13 +76,13 @@ describe('useChangeApplicationStatus', () => {
 
     const { result, queryClient } = mountWithClient(() => useChangeApplicationStatus());
     const initial = [buildApp(1, 'applied')];
-    queryClient.setQueryData(['applications'], initial);
+    queryClient.setQueryData(['applications', 'active'], initial);
 
     await expect(
       result.mutateAsync({ applicationId: 1, status: 'offer' })
     ).rejects.toMatchObject({ kind: 'invalid_transition' });
 
-    const afterRollback = queryClient.getQueryData<Application[]>(['applications']);
+    const afterRollback = queryClient.getQueryData<Application[]>(['applications', 'active']);
     expect(afterRollback?.[0].status).toBe('applied');
   });
 

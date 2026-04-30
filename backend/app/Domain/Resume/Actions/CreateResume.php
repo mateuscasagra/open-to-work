@@ -21,6 +21,8 @@ final class CreateResume
                 'title' => $data->title instanceof Optional ? '' : $data->title,
                 'language' => $data->language instanceof Optional ? 'pt_BR' : $data->language,
                 'is_pdf_upload' => false,
+                'file_path' => null,
+                'metadata' => null,
             ]);
 
             if (! ($data->sections instanceof Optional)) {

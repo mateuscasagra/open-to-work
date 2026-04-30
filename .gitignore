@@ -59,3 +59,11 @@ infra/secrets/*
 
 # Logs
 *.log
+
+# Windows reserved device names — alguma ferramenta gerou redirect tipo `> nul`
+# que o git tenta indexar mas o Windows não consegue abrir, quebrando `git add .`
+backend/nul
+nul
+
+# Claude Code (estado local da sessão — não vai pro repo)
+.claude/

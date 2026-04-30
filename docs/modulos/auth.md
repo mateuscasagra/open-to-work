@@ -10,6 +10,8 @@
 | `POST` | `/api/auth/login` | `AuthController@login` | `throttle:auth` |
 | `POST` | `/api/auth/verify-email` | `AuthController@verifyEmail` | `throttle:auth` |
 | `POST` | `/api/auth/resend-code` | `AuthController@resendVerificationCode` | `throttle:auth` |
+| `POST` | `/api/auth/forgot-password` | `AuthController@forgotPassword` | `throttle:auth` |
+| `POST` | `/api/auth/reset-password` | `AuthController@resetPassword` | `throttle:auth` |
 | `POST` | `/api/auth/logout` | `AuthController@logout` | `auth:sanctum` |
 | `GET` | `/api/auth/{provider}/redirect` | `OauthController@redirect` | `throttle:auth` |
 | `GET` | `/api/auth/{provider}/callback` | `OauthController@callback` | `throttle:auth` |
@@ -26,6 +28,8 @@
 - `app/Http/Requests/Auth/LoginRequest.php` — `email`, `password`, `remember` (nullable boolean)
 - `app/Http/Requests/Auth/VerifyEmailRequest.php` — `email`, `code` (digits:6)
 - `app/Http/Requests/Auth/ResendVerificationCodeRequest.php` — `email`
+- `app/Http/Requests/Auth/ForgotPasswordRequest.php` — `email`
+- `app/Http/Requests/Auth/ResetPasswordRequest.php` — `email`, `token`, `password` (confirmed + min 8 + maiúscula + minúscula + número)
 
 **Models:** `app/Models/User.php`, `app/Models/OauthAccount.php`
 
@@ -57,6 +61,12 @@
 4. **Se autenticou mas `email_verified_at === null`:** desloga, regenera token. Só dispara novo código se NÃO houver código ativo (`hasActiveVerificationCode = false`) E o cooldown permitir — evita spam de e-mails em tentativas repetidas. Retorna `403` com `email = __('auth.verify.must_verify')`. Front redireciona para `/verify-email?reason=must_verify` e exibe banner âmbar.
 5. Sucesso e verificado → `session()->regenerate()` + `200 { user }`. Falha de credencial → `ValidationException` em `email` com `__('auth.failed')`.
 
+### Fluxo — Forgot / Reset Password
+
+1. **`POST /forgot-password`**: usa `Password::broker()->createToken($user)` (broker built-in do Laravel, tabela `password_reset_tokens` já existe). Constrói URL `${app.frontend_url}/reset-password?token=X&email=Y` (token URL-encoded) e envia `ResetPasswordEmail` mailable. **Sempre retorna `200 { status: 'sent' }`** — não vaza enumeração de e-mails.
+2. **`POST /reset-password`**: passa o payload pro `Password::broker()->reset()` que valida o token contra `password_reset_tokens` (TTL `config('auth.passwords.users.expire')`, default 60min, one-time use). Callback faz `Hash::make(password)`, regenera `remember_token`, e — se a conta tinha `email_verified_at = null` — carimba `email_verified_at = now()` (resetar via e-mail prova controle do endereço). Falha em qualquer status que não `Password::PasswordReset` → `422` no campo `token` com `auth.reset.invalid_token`.
+3. Sucesso: `Auth::login($user)` + `session()->regenerate()` → `200 { user }`. Front redireciona pra `/app` (dashboard).
+
 ### Fluxo — OAuth
 1. `redirect`: `Socialite::driver($provider)->stateless()->redirect()`.
 2. `callback`:
@@ -70,18 +80,20 @@
 
 **Arquivos:** `frontend/src/modules/auth/`
 
-- **Store** (`stores/auth.ts`) — Pinia: state `{ user, initialized, pendingVerificationEmail }`; actions `fetchMe`, `login`, `register`, `verifyEmail`, `resendVerificationCode`, `setPendingVerificationEmail`, `logout`; helper `oauthUrl(provider)`. `pendingVerificationEmail` persiste em `localStorage` (chave `auth.pending_verification_email`) para sobreviver a reload entre register e verify. Toda resposta de login/verify passa por `UserSchema.parse(data.user)`.
-- **LoginView** — form e-mail + senha + checkbox **remember**. OAuth como `<a :href>` (full page navigation, obrigatório para redirect server-side). Sucesso → `router.push({ name: 'dashboard' })`. Em `403`, salva email pendente e redireciona para `verify-email`.
+- **Store** (`stores/auth.ts`) — Pinia: state `{ user, initialized, pendingVerificationEmail }`; actions `fetchMe`, `login`, `register`, `verifyEmail`, `resendVerificationCode`, `forgotPassword`, `resetPassword`, `setPendingVerificationEmail`, `logout`; helper `oauthUrl(provider)`. `pendingVerificationEmail` persiste em `localStorage` (chave `auth.pending_verification_email`) para sobreviver a reload entre register e verify. Toda resposta de login/verify/reset passa por `UserSchema.parse(data.user)`.
+- **LoginView** — form e-mail + senha + checkbox **remember**. OAuth como `<a :href>` (full page navigation, obrigatório para redirect server-side). Link "Esqueci minha senha" como `<RouterLink :to="{ name: 'forgot-password' }">`. Sucesso → `router.push({ name: 'dashboard' })`. Em `403`, salva email pendente e redireciona para `verify-email`.
 - **RegisterView** — form name + e-mail + senha + confirmação. Captura `422` em `fieldErrors`. Sucesso → `router.push({ name: 'verify-email', query: { email } })` (não há mais auto-login).
 - **VerifyEmailView** — 6 inputs de 1 dígito com paste handler, autocomplete `one-time-code`, contador de reenvio (60s alinhado com cooldown server-side). Banner âmbar quando `route.query.reason === 'must_verify'` (vindo do redirect do login). Sucesso → `router.push({ name: 'profile' })`.
+- **ForgotPasswordView** — rota `/forgot-password` (guestOnly). Form simples com e-mail. Após submit: troca para painel "enviado" com texto genérico (não vaza se a conta existe). Erro só se a chamada HTTP falhar (não 422).
+- **ResetPasswordView** — rota `/reset-password?token=X&email=Y` (guestOnly). Pega `token`/`email` da query string. Form com `password` + `password_confirmation`. Em 422 captura `fieldErrors` (mostra erro de complexidade no campo, e erro de token no banner). Sucesso → `auth.user` é setado pelo store (auto-login) → `router.push({ name: 'dashboard' })`. Sem `token`/`email` na URL → mostra banner "Link inválido" sem renderizar o form.
 - **OAuthCallbackView** — lê `?success=1`, chama `auth.fetchMe()`, redireciona para dashboard ou login.
 
 **Router guard** (`router/index.ts` → ver `shared-frontend.md`): `beforeEach` chama `fetchMe()` antes do primeiro render se `!initialized`.
 
 ## Efeitos colaterais
 
-- Escritas: `users` (incluindo `email_verification_code`, `email_verification_code_expires_at`, `email_verification_code_sent_at`, `email_verification_attempts`, `email_verified_at`), `oauth_accounts`
-- E-mails: `VerifyEmailCode` (sync) — view `resources/views/mail/verify-email.blade.php`. Cooldown de 60s entre envios é gravado em `email_verification_code_sent_at` e checado por `canResend()`.
+- Escritas: `users` (incluindo `email_verification_code`, `email_verification_code_expires_at`, `email_verification_code_sent_at`, `email_verification_attempts`, `email_verified_at`, `password`, `remember_token`), `oauth_accounts`, `password_reset_tokens` (broker do Laravel)
+- E-mails: `VerifyEmailCode` (sync) — view `resources/views/mail/verify-email.blade.php`. Cooldown de 60s entre envios é gravado em `email_verification_code_sent_at` e checado por `canResend()`. `ResetPasswordEmail` (sync) — view `resources/views/mail/reset-password.blade.php`. TTL do token em `config('auth.passwords.users.expire')` (default 60min).
 - Sessão Sanctum em Redis (cookies `XSRF-TOKEN` + sessão)
 
 ## Testes
@@ -92,7 +104,8 @@
 - `backend/tests/Feature/Auth/MeTest.php`
 - `backend/tests/Feature/Auth/OAuthTest.php`
 - `backend/tests/Feature/Auth/VerifyEmailTest.php`
-- `frontend/tests/authStore.test.ts`
+- `backend/tests/Feature/Auth/PasswordResetTest.php` — 8 casos: envia e-mail, no-leak para e-mail inexistente, validação, reset com token válido + auto-login, token inválido, e-mail inexistente, complexidade da senha, marca `email_verified_at` se era null
+- `frontend/tests/authStore.test.ts` (cobre `forgotPassword` e `resetPassword`)
 
 ## Pontos de atenção
 
@@ -113,4 +126,8 @@
 - **Provedor de e-mail em prod:** `resend/resend-laravel` — setar `MAIL_MAILER=resend` + `RESEND_KEY=<api_key>`. Domínio precisa estar verificado no painel da Resend (3 registros DNS: SPF, DKIM, DMARC). `MAIL_FROM_ADDRESS` deve usar o domínio verificado, senão Resend rejeita com 403. Em dev, `MAIL_MAILER=smtp` aponta pra MailHog (config no docker-compose).
 - **Não loga em `verifyEmail`:** o controller intencionalmente não vaza se o e-mail está cadastrado (resposta 200 sempre). Mantenha esse contrato.
 - **i18n das mensagens de validação:** `backend/lang/{pt_BR,es}/validation.php` cobrem todas as regras default + bloco `attributes` (`name → nome/nombre`, `email → e-mail/correo electrónico`, `password → senha/contraseña`). Locale resolvido por `SetLocale` middleware: `user->locale` se autenticado, senão `Accept-Language`. Sem `validation.php` em `lang/en/` — fallback do framework (`vendor/laravel/framework/.../lang/en/validation.php`) já cobre.
-- **Para fluxo de senha esquecida** (não implementado no MVP), seguir o mesmo padrão de Form Request + Action.
+- **Forgot/Reset password usa o broker built-in do Laravel** (`Password::broker()`). Token TTL vem de `config('auth.passwords.users.expire')` (default 60min). Tabela `password_reset_tokens` é parte do skeleton padrão do Laravel.
+- **Reset auto-loga o usuário** e carimba `email_verified_at = now()` se era `null` (premissa: receber o e-mail prova controle do endereço, então é seguro pular o flow de verify após reset). Se quiser desacoplar, remover o `forceFill(['email_verified_at' => now()])` no callback de `Password::reset` no `AuthController`.
+- **Sessões em outros dispositivos NÃO são invalidadas no reset.** Escopo mínimo. Se virar requisito (compliance, recuperação após comprometimento), fazer `DB::table('sessions')->where('user_id', $user->id)->delete()` no callback antes do `Auth::login`.
+- **`forgot-password` sempre retorna 200**, mesmo para e-mail não cadastrado — manter esse contrato pra não vazar enumeração.
+- **URL de reset depende de `app.frontend_url`.** Se a env faltar, o link no e-mail vai vir tipo `/reset-password?...` (URL relativa quebrada). Garantir `APP_FRONTEND_URL` no `.env`.

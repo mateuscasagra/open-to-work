@@ -7,6 +7,29 @@ export function sectionsByType(
   return sections.filter((s) => s.type === type).sort((a, b) => a.order - b.order);
 }
 
+export interface OrderedGroup {
+  type: ResumeSectionType;
+  sections: ResumeSection[];
+}
+
+export function orderedGroups(
+  sections: ResumeSection[],
+  only?: ResumeSectionType[]
+): OrderedGroup[] {
+  const sorted = [...sections].sort((a, b) => a.order - b.order);
+  const groups: OrderedGroup[] = [];
+  const idx = new Map<ResumeSectionType, number>();
+  for (const s of sorted) {
+    if (only && !only.includes(s.type)) continue;
+    if (!idx.has(s.type)) {
+      idx.set(s.type, groups.length);
+      groups.push({ type: s.type, sections: [] });
+    }
+    groups[idx.get(s.type)!].sections.push(s);
+  }
+  return groups;
+}
+
 export function str(content: Record<string, unknown>, key: string): string {
   const v = content[key];
   return typeof v === 'string' ? v : '';

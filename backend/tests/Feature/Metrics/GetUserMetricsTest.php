@@ -159,3 +159,84 @@ it('emits a no_data insight when there is no activity', function (): void {
 it('requires authentication', function (): void {
     $this->getJson('/api/metrics')->assertUnauthorized();
 });
+
+it('heatmap respects user timezone via ?tz query param', function (): void {
+    $user = User::factory()->create();
+
+    // 2026-04-15 22:41 UTC = 2026-04-15 19:41 in America/Sao_Paulo (UTC-3)
+    Application::factory()->for($user)->create([
+        'applied_at' => '2026-04-15 22:41:00',
+    ]);
+
+    // Without tz: hour 22 (UTC)
+    $utcCells = collect($this->actingAs($user)->getJson('/api/metrics')->json('heatmap'))
+        ->keyBy(fn ($c) => $c['weekday'] . ':' . $c['hour']);
+    expect($utcCells)->toHaveKey('3:22'); // wednesday 22h UTC
+
+    // With tz=America/Sao_Paulo: hour 19, same weekday (wednesday)
+    $brtCells = collect($this->actingAs($user)
+        ->getJson('/api/metrics?tz=America/Sao_Paulo')
+        ->json('heatmap'))
+        ->keyBy(fn ($c) => $c['weekday'] . ':' . $c['hour']);
+    expect($brtCells)->toHaveKey('3:19');
+    expect($brtCells)->not->toHaveKey('3:22');
+});
+
+it('falls back to UTC when ?tz is invalid', function (): void {
+    $user = User::factory()->create();
+    Application::factory()->for($user)->create(['applied_at' => '2026-04-15 22:41:00']);
+
+    $cells = collect($this->actingAs($user)
+        ->getJson('/api/metrics?tz=Invalid/Zone')
+        ->json('heatmap'))
+        ->keyBy(fn ($c) => $c['weekday'] . ':' . $c['hour']);
+    expect($cells)->toHaveKey('3:22');
+});
+
+it('excludes archived applications from kpis, channels, funnel and heatmap', function (): void {
+    $user = User::factory()->create();
+
+    // 5 active applications with linkedin source
+    $active = Application::factory()->for($user)->count(5)->create([
+        'applied_at' => '2026-04-15 10:00:00',
+        'source' => 'linkedin',
+        'archived_at' => null,
+    ]);
+    $active[0]->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'applied', 'to' => 'screening'],
+        'occurred_at' => '2026-04-15 14:00:00',
+    ]);
+
+    // 3 archived applications (should be excluded everywhere)
+    $archived = Application::factory()->for($user)->count(3)->create([
+        'applied_at' => '2026-04-15 10:00:00',
+        'source' => 'gupy',
+        'archived_at' => '2026-04-16 09:00:00',
+    ]);
+    $archived[0]->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'applied', 'to' => 'screening'],
+        'occurred_at' => '2026-04-15 14:00:00',
+    ]);
+
+    $response = $this->actingAs($user)->getJson('/api/metrics')->assertOk();
+
+    // KPIs only count active
+    expect($response->json('kpis.total_applications'))->toBe(5);
+    expect($response->json('kpis.total_responses'))->toBe(1);
+
+    // Channels: only linkedin (gupy was archived only)
+    $channels = collect($response->json('channels'))->keyBy('source');
+    expect($channels)->toHaveKey('linkedin');
+    expect($channels)->not->toHaveKey('gupy');
+
+    // Funnel: applied=5, screening=1
+    $funnel = collect($response->json('funnel'))->keyBy('status');
+    expect($funnel['applied']['reached'])->toBe(5);
+    expect($funnel['screening']['reached'])->toBe(1);
+
+    // Heatmap totals only the active applications
+    $heatmapTotal = collect($response->json('heatmap'))->sum('count');
+    expect($heatmapTotal)->toBe(5);
+});

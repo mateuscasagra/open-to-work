@@ -39,14 +39,15 @@ export function useChangeApplicationStatus() {
     },
     onMutate: async ({ applicationId, status }) => {
       await qc.cancelQueries({ queryKey: ['applications'] });
-      const previous = qc.getQueryData<Application[]>(['applications']);
-      qc.setQueryData<Application[]>(['applications'], (old) =>
+      const activeKey = ['applications', 'active'] as const;
+      const previous = qc.getQueryData<Application[]>(activeKey);
+      qc.setQueryData<Application[]>(activeKey, (old) =>
         (old ?? []).map((a) => (a.id === applicationId ? { ...a, status } : a))
       );
       return { previous };
     },
     onError: (_err, _payload, context) => {
-      if (context?.previous) qc.setQueryData(['applications'], context.previous);
+      if (context?.previous) qc.setQueryData(['applications', 'active'], context.previous);
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ['applications'] });

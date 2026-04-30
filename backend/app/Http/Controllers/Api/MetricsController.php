@@ -22,11 +22,13 @@ final class MetricsController extends Controller
 
         $from = $request->string('from')->toString();
         $to = $request->string('to')->toString();
+        $tz = $request->string('tz')->toString();
 
         $fromDate = $from !== '' ? CarbonImmutable::parse($from) : null;
         $toDate = $to !== '' ? CarbonImmutable::parse($to) : null;
+        $timezone = $tz !== '' && in_array($tz, \DateTimeZone::listIdentifiers(), true) ? $tz : 'UTC';
 
-        $summary = $this->query->execute($user, $fromDate, $toDate);
+        $summary = $this->query->execute($user, $fromDate, $toDate, $timezone);
 
         return response()->json($summary);
     }

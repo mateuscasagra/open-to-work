@@ -21,4 +21,15 @@ return [
         'too_many_attempts' => 'Too many invalid attempts. Please request a new code.',
         'already_verified' => 'This email has already been verified.',
     ],
+
+    'reset' => [
+        'email_subject' => 'Reset your password',
+        'email_greeting' => 'Hi, :name!',
+        'email_intro' => 'We received a request to reset the password for your account. Click the button below to choose a new password.',
+        'email_button' => 'Reset password',
+        'email_expires' => 'This link expires in :minutes minutes.',
+        'email_ignore' => "If you didn't request a password reset, just ignore this email — your password won't change.",
+        'email_thanks' => 'Thanks,',
+        'invalid_token' => 'Invalid or expired reset link. Please request a new one.',
+    ],
 ];

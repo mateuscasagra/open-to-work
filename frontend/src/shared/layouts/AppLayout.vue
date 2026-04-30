@@ -218,7 +218,7 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
             <RouterLink
               :to="{ name: item.name }"
               class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-600 transition hover:bg-ink-100 hover:text-ink-900"
-              active-class="!bg-brand-50 !text-brand-700"
+              exact-active-class="!bg-brand-50 !text-brand-700"
               @click="mobileOpen = false"
             >
               <svg

@@ -39,6 +39,7 @@ class Application extends Model implements HasMedia
         'notes',
         'expected_salary',
         'sent_via_email_at',
+        'archived_at',
     ];
 
     /**
@@ -50,6 +51,7 @@ class Application extends Model implements HasMedia
             'status' => ApplicationStatus::class,
             'applied_at' => 'datetime',
             'sent_via_email_at' => 'datetime',
+            'archived_at' => 'datetime',
         ];
     }
 

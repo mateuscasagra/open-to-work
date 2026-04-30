@@ -37,6 +37,12 @@ Route::prefix('auth')->group(function (): void {
     Route::post('/resend-code', [AuthController::class, 'resendVerificationCode'])
         ->middleware('throttle:auth')
         ->name('auth.resend');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+        ->middleware('throttle:auth')
+        ->name('auth.forgot');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+        ->middleware('throttle:auth')
+        ->name('auth.reset');
     Route::post('/logout', [AuthController::class, 'logout'])
         ->middleware('auth:sanctum')
         ->name('auth.logout');
@@ -77,6 +83,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('applications', ApplicationController::class);
     Route::patch('/applications/{application}/status', [ApplicationController::class, 'changeStatus'])
         ->name('applications.status');
+    Route::post('/applications/{application}/archive', [ApplicationController::class, 'archive'])
+        ->name('applications.archive');
+    Route::post('/applications/{application}/unarchive', [ApplicationController::class, 'unarchive'])
+        ->name('applications.unarchive');
 
     Route::get('/metrics', MetricsController::class)->name('metrics.show');
 

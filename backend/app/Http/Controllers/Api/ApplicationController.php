@@ -33,6 +33,12 @@ final class ApplicationController extends Controller
             $query->where('status', $status);
         }
 
+        if ($request->boolean('archived')) {
+            $query->whereNotNull('archived_at');
+        } else {
+            $query->whereNull('archived_at');
+        }
+
         return response()->json($query->latest('applied_at')->paginate(20));
     }
 
@@ -94,6 +100,38 @@ final class ApplicationController extends Controller
         Gate::authorize('update', $application);
 
         $application->update($request->validated());
+
+        return response()->json($application->load(['job.company', 'resume']));
+    }
+
+    public function archive(Application $application): JsonResponse
+    {
+        Gate::authorize('update', $application);
+
+        if ($application->archived_at === null) {
+            $application->update(['archived_at' => now()]);
+            $application->events()->create([
+                'event_type' => 'archived',
+                'payload' => null,
+                'occurred_at' => now(),
+            ]);
+        }
+
+        return response()->json($application->load(['job.company', 'resume']));
+    }
+
+    public function unarchive(Application $application): JsonResponse
+    {
+        Gate::authorize('update', $application);
+
+        if ($application->archived_at !== null) {
+            $application->update(['archived_at' => null]);
+            $application->events()->create([
+                'event_type' => 'unarchived',
+                'payload' => null,
+                'occurred_at' => now(),
+            ]);
+        }
 
         return response()->json($application->load(['job.company', 'resume']));
     }

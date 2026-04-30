@@ -5,17 +5,23 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResendVerificationCodeRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
+use App\Mail\ResetPasswordEmail;
 use App\Mail\VerifyEmailCode;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 final class AuthController extends Controller
@@ -205,6 +211,66 @@ final class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json(['user' => $request->user()]);
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $email = $request->validated('email');
+        $user = User::query()->where('email', $email)->first();
+
+        // Sempre 200 — não vaza se o e-mail está cadastrado.
+        if ($user instanceof User) {
+            $token = Password::broker()->createToken($user);
+            $resetUrl = rtrim((string) config('app.frontend_url'), '/')
+                . '/reset-password?token=' . urlencode($token)
+                . '&email=' . urlencode($user->email);
+
+            Mail::to($user->email)->send(new ResetPasswordEmail(
+                name: $user->name,
+                resetUrl: $resetUrl,
+                expiresInMinutes: (int) config('auth.passwords.users.expire', 60),
+            ));
+        }
+
+        return response()->json(['status' => 'sent']);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $status = Password::broker()->reset(
+            [
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'password_confirmation' => $data['password'],
+                'token' => $data['token'],
+            ],
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ]);
+                if ($user->email_verified_at === null) {
+                    // Reset de senha via e-mail prova controle do endereço.
+                    $user->forceFill(['email_verified_at' => now()]);
+                }
+                $user->save();
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status !== Password::PasswordReset) {
+            throw ValidationException::withMessages([
+                'token' => __('auth.reset.invalid_token'),
+            ]);
+        }
+
+        $user = User::query()->where('email', $data['email'])->firstOrFail();
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return response()->json(['user' => $user->refresh()]);
     }
 
     private function issueVerificationCode(User $user): void

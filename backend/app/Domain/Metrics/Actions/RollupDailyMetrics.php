@@ -43,10 +43,12 @@ final class RollupDailyMetrics
     private function usersWithActivity(CarbonImmutable $start, CarbonImmutable $end): array
     {
         $fromApplications = Application::query()
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$start, $end])
             ->pluck('user_id');
 
         $fromEvents = Application::query()
+            ->whereNull('archived_at')
             ->whereHas('events', fn ($q) => $q->whereBetween('occurred_at', [$start, $end]))
             ->pluck('user_id');
 
@@ -57,12 +59,14 @@ final class RollupDailyMetrics
     {
         $appliedToday = Application::query()
             ->where('user_id', $userId)
+            ->whereNull('archived_at')
             ->whereBetween('applied_at', [$start, $end])
             ->get();
 
         $responses = DB::table('application_events as e')
             ->join('applications as a', 'a.id', '=', 'e.application_id')
             ->where('a.user_id', $userId)
+            ->whereNull('a.archived_at')
             ->where('e.event_type', 'status_changed')
             ->whereBetween('e.occurred_at', [$start, $end])
             ->get(['e.payload']);

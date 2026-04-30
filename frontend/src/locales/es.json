@@ -220,6 +220,27 @@
       "back_to_login": "Volver al login",
       "failed": "No pudimos confirmar el código. Inténtalo de nuevo.",
       "must_verify_notice": "Tu cuenta aún no fue confirmada. Usa el código que te enviamos por correo para iniciar sesión."
+    },
+    "forgotPassword": {
+      "title": "Olvidé mi contraseña",
+      "subtitle": "Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.",
+      "submit": "Enviar enlace",
+      "sending": "Enviando…",
+      "sent_title": "Te enviamos un correo",
+      "sent_subtitle": "Si existe una cuenta con este correo, recibirás un enlace para restablecer la contraseña. Revisa tu bandeja de entrada (y la carpeta de spam).",
+      "back_to_login": "Volver al inicio de sesión",
+      "failed": "No pudimos enviar el correo ahora. Inténtalo de nuevo en un momento."
+    },
+    "resetPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Elige una nueva contraseña para tu cuenta.",
+      "new_password": "Nueva contraseña",
+      "confirm_password": "Confirmar nueva contraseña",
+      "submit": "Restablecer contraseña",
+      "processing": "Restableciendo…",
+      "missing_token": "Enlace inválido. Solicita uno nuevo desde el inicio de sesión.",
+      "invalid_token": "Enlace inválido o expirado. Solicita uno nuevo.",
+      "failed": "No pudimos restablecer tu contraseña. Inténtalo de nuevo."
     }
   },
   "profile": {
@@ -365,7 +386,14 @@
     "kanban_max_stages": "Límite de 15 etapas alcanzado",
     "kanban_reset": "Restaurar predeterminado",
     "kanban_hidden_stages": "Etapas ocultas",
-    "kanban_no_hidden": "Todas visibles"
+    "kanban_no_hidden": "Todas visibles",
+    "archive": "Archivar",
+    "unarchive": "Desarchivar",
+    "archive_failed": "Error al archivar candidatura.",
+    "archived_badge": "Archivada",
+    "filter_active": "Activas",
+    "filter_archived": "Archivadas",
+    "archived_empty": "Ninguna candidatura archivada."
   },
   "resumes": {
     "title": "Currículos",

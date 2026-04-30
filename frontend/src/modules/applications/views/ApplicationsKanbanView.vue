@@ -24,20 +24,33 @@ const {
 
 const PageSchema = z.object({ data: z.array(ApplicationSchema) });
 
-async function fetchApplications(): Promise<Application[]> {
-  const { data } = await api.get('/api/applications');
+const viewArchived = ref(false);
+
+async function fetchApplications(archived: boolean): Promise<Application[]> {
+  const { data } = await api.get('/api/applications', {
+    params: archived ? { archived: 1 } : {},
+  });
   return PageSchema.parse(data).data;
 }
 
 const { data: applications, isLoading } = useQuery({
-  queryKey: ['applications'],
-  queryFn: fetchApplications,
+  queryKey: computed(() => ['applications', viewArchived.value ? 'archived' : 'active'] as const),
+  queryFn: () => fetchApplications(viewArchived.value),
 });
 
 const changeStatus = useChangeApplicationStatus();
 const draggingId = ref<number | null>(null);
 const dragOverStatus = ref<string | null>(null);
 const errorMessage = ref<string | null>(null);
+
+// Drag-drop só em desktop (lg breakpoint do Tailwind = 1024px).
+// HTML5 drag em touch não é confiável, então mobile usa o detail view.
+const isDesktop = ref(typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
+let mql: MediaQueryList | null = null;
+function onMqlChange(e: MediaQueryListEvent): void {
+  isDesktop.value = e.matches;
+}
+const dragEnabled = computed(() => isDesktop.value && !viewArchived.value);
 
 const totalCount = computed(() => applications.value?.length ?? 0);
 
@@ -51,6 +64,10 @@ const grouped = computed<Record<string, Application[]>>(() => {
 });
 
 function onDragStart(event: DragEvent, app: Application): void {
+  if (!dragEnabled.value) {
+    event.preventDefault();
+    return;
+  }
   draggingId.value = app.id;
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move';
@@ -64,7 +81,7 @@ function onDragEnd(): void {
 }
 
 function onDragOver(event: DragEvent, status: string): void {
-  if (isCustom(status)) return;
+  if (!dragEnabled.value || isCustom(status)) return;
   event.preventDefault();
   if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
   dragOverStatus.value = status;
@@ -77,7 +94,7 @@ function onDragLeave(status: string): void {
 async function onDrop(event: DragEvent, status: string): Promise<void> {
   event.preventDefault();
   dragOverStatus.value = null;
-  if (isCustom(status)) return;
+  if (!dragEnabled.value || isCustom(status)) return;
   const id = Number(event.dataTransfer?.getData('text/plain'));
   if (!Number.isFinite(id) || id === 0) return;
   const current = (applications.value ?? []).find((a) => a.id === id);
@@ -213,6 +230,10 @@ function updateScrollFade(): void {
 }
 
 onMounted(() => {
+  if (typeof window !== 'undefined') {
+    mql = window.matchMedia('(min-width: 1024px)');
+    mql.addEventListener('change', onMqlChange);
+  }
   const el = kanbanRef.value;
   if (!el) return;
   updateScrollFade();
@@ -222,6 +243,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   resizeObs?.disconnect();
+  mql?.removeEventListener('change', onMqlChange);
 });
 
 const kanbanMask = computed(() => {
@@ -265,7 +287,28 @@ function canMoveRight(status: string): boolean {
       <div class="flex items-center gap-2">
         <button
           type="button"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
+          @click="viewArchived = !viewArchived"
+        >
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+            />
+          </svg>
+          {{ viewArchived ? t('applications.filter_active') : t('applications.filter_archived') }}
+        </button>
+        <button
+          type="button"
           class="btn-primary !px-4 !py-2 text-sm"
+          :disabled="viewArchived"
           @click="showManualModal = true"
         >
           + {{ t('applications.add_manual') }}
@@ -321,14 +364,14 @@ function canMoveRight(status: string): boolean {
     >
       <div
         ref="kanbanRef"
-        class="flex h-full gap-3 overflow-x-auto pb-2"
+        class="flex flex-col gap-3 pb-2 lg:h-full lg:flex-row lg:overflow-x-auto"
         :style="{ maskImage: kanbanMask, WebkitMaskImage: kanbanMask }"
         @scroll="updateScrollFade"
       >
         <div
           v-for="col in visibleColumns()"
           :key="col.status"
-          class="flex min-w-[280px] flex-col rounded-xl border transition lg:flex-1"
+          class="flex flex-col rounded-xl border transition lg:min-w-[280px] lg:flex-1"
           :class="[
             dragOverStatus === col.status
               ? 'border-brand-400 bg-brand-50 ring-2 ring-brand-300 shadow-card'
@@ -362,13 +405,16 @@ function canMoveRight(status: string): boolean {
           </div>
 
           <!-- Cards area -->
-          <div class="flex-1 space-y-1.5 overflow-y-auto p-2">
+          <div class="flex-1 space-y-1.5 p-2 lg:overflow-y-auto">
             <div
               v-for="app in grouped[col.status]"
               :key="app.id"
-              class="cursor-grab rounded-lg border border-ink-200 bg-white px-3 py-2 shadow-soft transition hover:shadow-card hover:border-ink-300 active:cursor-grabbing"
-              :class="draggingId === app.id ? 'opacity-40 scale-95' : ''"
-              draggable="true"
+              class="rounded-lg border border-ink-200 bg-white px-3 py-2 shadow-soft transition hover:shadow-card hover:border-ink-300"
+              :class="[
+                dragEnabled ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
+                draggingId === app.id ? 'opacity-40 scale-95' : '',
+              ]"
+              :draggable="dragEnabled"
               @dragstart="onDragStart($event, app)"
               @dragend="onDragEnd"
               @click="openDetail(app.id)"

@@ -101,7 +101,7 @@ final class GupyDriver implements JobSourceDriver
             salaryCurrency: null,
             postedAt: $this->parseDate((string) ($item['publishedDate'] ?? '')),
             expiresAt: null,
-            language: 'pt',
+            language: 'pt_BR',
         );
     }
 

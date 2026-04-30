@@ -21,4 +21,15 @@ return [
         'too_many_attempts' => 'Demasiados intentos inválidos. Solicita un nuevo código.',
         'already_verified' => 'Este correo ya fue confirmado.',
     ],
+
+    'reset' => [
+        'email_subject' => 'Restablecer tu contraseña',
+        'email_greeting' => '¡Hola, :name!',
+        'email_intro' => 'Recibimos una solicitud para restablecer la contraseña de tu cuenta. Haz clic en el botón a continuación para elegir una nueva contraseña.',
+        'email_button' => 'Restablecer contraseña',
+        'email_expires' => 'Este enlace expira en :minutes minutos.',
+        'email_ignore' => 'Si no solicitaste el restablecimiento, ignora este correo — tu contraseña no cambiará.',
+        'email_thanks' => 'Gracias,',
+        'invalid_token' => 'Enlace de restablecimiento inválido o expirado. Solicita uno nuevo.',
+    ],
 ];

@@ -295,6 +295,7 @@ export const ApplicationSchema = z.object({
   id: z.number(),
   status: ApplicationStatusSchema,
   applied_at: z.string(),
+  archived_at: z.string().nullable().optional(),
   notes: z.string().nullable(),
   expected_salary: z.number().nullable(),
   source: z.string().nullable(),

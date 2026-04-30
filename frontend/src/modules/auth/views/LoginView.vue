@@ -225,9 +225,12 @@ async function submit() {
                 for="password"
                 class="label"
               >{{ t('auth.password') }}</label>
-              <a class="text-xs font-medium text-brand-600 hover:text-brand-700">
+              <RouterLink
+                :to="{ name: 'forgot-password' }"
+                class="text-xs font-medium text-brand-600 hover:text-brand-700"
+              >
                 {{ t('auth.forgot') }}
-              </a>
+              </RouterLink>
             </div>
             <div class="relative mt-1.5">
               <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-ink-400">

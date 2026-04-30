@@ -34,7 +34,7 @@ class JobFactory extends Factory
             'salary_min' => fake()->numberBetween(3000, 8000),
             'salary_max' => fake()->numberBetween(8000, 25000),
             'salary_currency' => 'BRL',
-            'language' => 'pt',
+            'language' => 'pt_BR',
             'posted_at' => now()->subDays(fake()->numberBetween(0, 30)),
             'expires_at' => null,
             'active' => true,

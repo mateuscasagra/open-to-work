@@ -134,4 +134,35 @@ describe('authStore', () => {
     expect(auth.user?.id).toBe(3);
     expect(auth.pendingVerificationEmail).toBeNull();
   });
+
+  it('forgotPassword POSTs email to /api/auth/forgot-password', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { status: 'sent' } });
+
+    const auth = useAuthStore();
+    await auth.forgotPassword('me@e.com');
+
+    expect(api.post).toHaveBeenCalledWith('/api/auth/forgot-password', { email: 'me@e.com' });
+  });
+
+  it('resetPassword POSTs payload and sets the user from response', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: { user: { id: 9, name: 'Reset', email: 'r@e.com', locale: 'pt_BR' } },
+    });
+
+    const auth = useAuthStore();
+    await auth.resetPassword({
+      email: 'r@e.com',
+      token: 'tok',
+      password: 'NewPass1',
+      password_confirmation: 'NewPass1',
+    });
+
+    expect(api.post).toHaveBeenCalledWith('/api/auth/reset-password', {
+      email: 'r@e.com',
+      token: 'tok',
+      password: 'NewPass1',
+      password_confirmation: 'NewPass1',
+    });
+    expect(auth.user?.id).toBe(9);
+  });
 });

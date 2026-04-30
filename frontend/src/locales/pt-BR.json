@@ -220,6 +220,27 @@
       "back_to_login": "Voltar para o login",
       "failed": "Não foi possível confirmar o código. Tente novamente.",
       "must_verify_notice": "Sua conta ainda não foi confirmada. Use o código que enviamos para o seu e-mail para entrar."
+    },
+    "forgotPassword": {
+      "title": "Esqueci minha senha",
+      "subtitle": "Digite seu e-mail e enviaremos um link para redefinir sua senha.",
+      "submit": "Enviar link",
+      "sending": "Enviando…",
+      "sent_title": "Enviamos um e-mail para você",
+      "sent_subtitle": "Se houver uma conta com este e-mail, você receberá um link para redefinir a senha. Verifique sua caixa de entrada (e o spam).",
+      "back_to_login": "Voltar para o login",
+      "failed": "Não foi possível enviar agora. Tente novamente em alguns segundos."
+    },
+    "resetPassword": {
+      "title": "Redefinir senha",
+      "subtitle": "Escolha uma nova senha para sua conta.",
+      "new_password": "Nova senha",
+      "confirm_password": "Confirmar nova senha",
+      "submit": "Redefinir senha",
+      "processing": "Redefinindo…",
+      "missing_token": "Link inválido. Solicite um novo a partir da tela de login.",
+      "invalid_token": "Link inválido ou expirado. Solicite um novo.",
+      "failed": "Não foi possível redefinir a senha. Tente novamente."
     }
   },
   "profile": {
@@ -365,7 +386,14 @@
     "kanban_max_stages": "Limite de 15 etapas atingido",
     "kanban_reset": "Restaurar padrão",
     "kanban_hidden_stages": "Etapas ocultas",
-    "kanban_no_hidden": "Todas visíveis"
+    "kanban_no_hidden": "Todas visíveis",
+    "archive": "Arquivar",
+    "unarchive": "Desarquivar",
+    "archive_failed": "Falha ao arquivar candidatura.",
+    "archived_badge": "Arquivada",
+    "filter_active": "Ativas",
+    "filter_archived": "Arquivadas",
+    "archived_empty": "Nenhuma candidatura arquivada."
   },
   "resumes": {
     "title": "Currículos",
