@@ -63,7 +63,18 @@
   },
   "dashboard": {
     "funnel_empty": "Submit your first application to track the stages funnel.",
-    "channels_empty": "Submit your first application to compare channel effectiveness."
+    "channels_empty": "Submit your first application to compare channel effectiveness.",
+    "month_calendar_title": "Applications this month",
+    "month_calendar_empty": "No applications this month",
+    "applications_this_month": "Applications this month",
+    "response_rate_this_month": "Response rate this month",
+    "responses_count": "{n} responses",
+    "months": {
+      "1": "January", "2": "February", "3": "March", "4": "April",
+      "5": "May", "6": "June", "7": "July", "8": "August",
+      "9": "September", "10": "October", "11": "November", "12": "December"
+    },
+    "weekday_short": { "0": "S", "1": "M", "2": "T", "3": "W", "4": "T", "5": "F", "6": "S" }
   },
   "landing": {
     "nav_pricing": "Pricing",
@@ -387,6 +398,7 @@
     "kanban_reset": "Reset defaults",
     "kanban_hidden_stages": "Hidden stages",
     "kanban_no_hidden": "All visible",
+    "kanban_no_apps_in_stage": "No applications in this stage",
     "archive": "Archive",
     "unarchive": "Unarchive",
     "archive_failed": "Failed to archive application.",

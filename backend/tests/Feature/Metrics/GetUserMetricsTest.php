@@ -240,3 +240,55 @@ it('excludes archived applications from kpis, channels, funnel and heatmap', fun
     $heatmapTotal = collect($response->json('heatmap'))->sum('count');
     expect($heatmapTotal)->toBe(5);
 });
+
+it('returns monthly calendar of current month and KPIs', function (): void {
+    $user = User::factory()->create();
+
+    // 3 candidaturas em 2 dias do mês atual (abril/2026)
+    Application::factory()->for($user)->create(['applied_at' => '2026-04-15 10:00:00']);
+    Application::factory()->for($user)->create(['applied_at' => '2026-04-15 14:00:00']);
+    $other = Application::factory()->for($user)->create(['applied_at' => '2026-04-17 09:00:00']);
+
+    // 1 candidatura em mês anterior (não conta)
+    Application::factory()->for($user)->create(['applied_at' => '2026-03-20 10:00:00']);
+
+    // Resposta na app de 17/04
+    $other->events()->create([
+        'event_type' => 'status_changed',
+        'payload' => ['from' => 'applied', 'to' => 'screening'],
+        'occurred_at' => '2026-04-18 11:00:00',
+    ]);
+
+    $response = $this->actingAs($user)->getJson('/api/metrics?tz=UTC');
+
+    $response->assertOk()
+        ->assertJsonPath('monthly.year', 2026)
+        ->assertJsonPath('monthly.month', 4)
+        ->assertJsonPath('monthly.days_in_month', 30)
+        ->assertJsonPath('monthly.total_applications', 3)
+        ->assertJsonPath('monthly.total_responses', 1);
+
+    $days = collect($response->json('monthly.days'));
+    expect($days)->toHaveCount(2);
+    expect($days->firstWhere('day', 15)['count'])->toBe(2);
+    expect($days->firstWhere('day', 17)['count'])->toBe(1);
+    expect($response->json('monthly.response_rate'))->toEqualWithDelta(0.3333, 0.001);
+});
+
+it('monthly excludes archived applications and applications from other months', function (): void {
+    $user = User::factory()->create();
+
+    Application::factory()->for($user)->create(['applied_at' => '2026-04-10 12:00:00']);
+    Application::factory()->for($user)->create([
+        'applied_at' => '2026-04-12 12:00:00',
+        'archived_at' => '2026-04-13 09:00:00',
+    ]);
+
+    $response = $this->actingAs($user)->getJson('/api/metrics?tz=UTC');
+
+    $response->assertOk()
+        ->assertJsonPath('monthly.total_applications', 1);
+    $days = collect($response->json('monthly.days'));
+    expect($days)->toHaveCount(1);
+    expect($days->firstWhere('day', 10)['count'])->toBe(1);
+});

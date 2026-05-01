@@ -81,7 +81,7 @@
 - **`useSaveResume`** — POST/PUT, payload `{ title, language, sections: [{type, order, content}] }`
 - **`useDeleteResume`** — DELETE
 - **`useUploadResumePdf`** — POST `/api/resumes/pdf` (FormData)
-- **`useResumePdfExport`** — **imports dinâmicos** de `html2canvas` e `jspdf` (chunk separado, fora do bundle inicial). `html2canvas(el, { scale: 2, backgroundColor: '#fff' })` → `jsPDF('p', 'mm', 'a4')`. **Multi-página automática** (loop em `heightLeft`). Filename com timestamp.
+- **`useResumePdfExport`** — **import dinâmico** de `jspdf` (chunk separado, fora do bundle inicial). Recebe `{ resume, template, userName, filename }` (não recebe DOM). Renderiza **PDF vetorial** desenhando primitivas (`pdf.text`, `pdf.line`, `pdf.rect`, `splitTextToSize`) — texto selecionável, leve (~30-80kb), qualidade infinita no zoom. Dois renderers: `renderClassic` (single column) e `renderModern` (sidebar verde + main column, sidebar redesenhada em cada página adicional). Multi-página com `ensureSpace(needed)` que cria nova página antes de elementos que não cabem.
 
 ## Efeitos colaterais
 
@@ -99,9 +99,10 @@
 
 - **`UpdateResume` apaga e reinsere sections.** Se isso causar perda de IDs estáveis em algum cliente, trocar por diff. Por ora, simplifica reordenação.
 - **`temporaryUrl` exige driver S3-compatible.** MinIO funciona; `Storage::fake()` não. O fallback no `download` é especificamente para teste — não usar em produção.
-- **html2canvas + jsPDF inflam o bundle** (~500kb). Por isso o `useResumePdfExport` faz `await import(...)` dinâmico. Não mover esse import para o topo.
-- **html2canvas tem problemas com fontes carregadas via CSS @font-face** se ainda não estiverem prontas. O export espera `document.fonts.ready` antes de renderizar (verificar — caso contrário, fontes vêm como fallback do sistema).
-- **Multi-página:** o loop em `heightLeft` corta no meio de elementos se o conteúdo for muito alto sem quebras. Se reportarem texto cortado, considerar `pagebreak-inside: avoid` em headings.
+- **jsPDF infla o bundle** (~200kb). `useResumePdfExport` faz `await import('jspdf')` dinâmico — não mover esse import para o topo.
+- **Encoding WinAnsi (CP1252) das fontes built-in do jsPDF** cobre acentos pt-BR/es (`ã ç é í ó ú ñ`), en-dash (`–`) e middle dot (`·`). Caracteres fora do encoding (emoji, CJK, seta `→`) viram `?`. Por isso `localDateRange` no composable usa `–` em vez de `→` (que aparece no preview Vue).
+- **Templates Vue (Classic/Modern) são apenas preview na tela.** O export NÃO usa o DOM — desenha do zero a partir do `Resume`. Mudanças visuais nos templates Vue não refletem no PDF; mexer no PDF exige editar `renderClassic`/`renderModern` no `useResumePdfExport`.
+- **Multi-página automática:** `ensureSpace(needed, pageBottom, ...)` quebra antes de cada item se o conteúdo não cabe. No template Modern, a sidebar verde é repintada em cada nova página via callback `paintModernSidebar`.
 - **Tradução de níveis no PDF** depende de `navigator.language`. Se o navegador estiver em idioma não mapeado (fora de pt/en/es), cai em fallback inglês. Para adicionar idiomas, editar `LEVEL_LABELS` e `CURRENT_LABELS` em `helpers.ts`.
 - **Template chooser** só aparece em currículos novos (`mode === 'new'`). Se o user recarregar a página antes de escolher, o chooser reaparece. Após escolher, a flag `templateChosen` impede re-exibição.
 - **Tamanho máximo de upload (5MB)** está no Form Request E no `php.ini` do container (`upload_max_filesize`). Se mudar, ajustar nos dois.

@@ -31,6 +31,15 @@ const payload = {
   ],
   rangeFrom: '2026-01-18',
   rangeTo: '2026-04-18',
+  monthly: {
+    year: 2026,
+    month: 4,
+    days_in_month: 30,
+    days: [{ day: 15, count: 4 }, { day: 16, count: 2 }],
+    total_applications: 6,
+    total_responses: 1,
+    response_rate: 0.1667,
+  },
 };
 
 describe('useMetrics', () => {

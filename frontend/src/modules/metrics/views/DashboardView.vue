@@ -55,6 +55,47 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
   if (severity === 'success') return '✅';
   return '💡';
 }
+
+interface CalendarCell {
+  day: number | null;
+  count: number;
+}
+
+const monthlyByDay = computed<Record<number, number>>(() => {
+  const acc: Record<number, number> = {};
+  if (!data.value) return acc;
+  for (const d of data.value.monthly.days) acc[d.day] = d.count;
+  return acc;
+});
+
+const monthlyMaxCount = computed(() => {
+  const map = monthlyByDay.value;
+  let max = 0;
+  for (const k in map) if (map[k] > max) max = map[k];
+  return max;
+});
+
+const monthlyCalendar = computed<CalendarCell[][]>(() => {
+  if (!data.value) return [];
+  const { year, month, days_in_month } = data.value.monthly;
+  const firstWeekday = new Date(year, month - 1, 1).getDay();
+  const cells: CalendarCell[] = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push({ day: null, count: 0 });
+  for (let d = 1; d <= days_in_month; d++) {
+    cells.push({ day: d, count: monthlyByDay.value[d] ?? 0 });
+  }
+  while (cells.length % 7 !== 0) cells.push({ day: null, count: 0 });
+  const rows: CalendarCell[][] = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+  return rows;
+});
+
+function monthlyCellColor(count: number): string {
+  if (count === 0 || monthlyMaxCount.value === 0) return 'rgb(241 245 249)';
+  const intensity = Math.min(1, count / monthlyMaxCount.value);
+  const alpha = 0.2 + intensity * 0.7;
+  return `rgba(5, 150, 105, ${alpha.toFixed(2)})`;
+}
 </script>
 
 <template>
@@ -300,48 +341,131 @@ function severityIcon(severity: 'info' | 'warning' | 'success'): string {
         </section>
       </div>
 
-      <!-- Heatmap -->
-      <section
-        class="card p-4 lg:p-3"
-        data-testid="metrics-heatmap"
-      >
-        <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
-          Dias & horários que você mais aplica
-        </h2>
-        <div class="overflow-x-auto">
-          <table class="border-collapse text-[10px]">
+      <!-- Heatmap + Calendar + Monthly KPIs -->
+      <div class="grid gap-3 lg:grid-cols-4">
+        <section
+          class="card p-4 lg:col-span-2 lg:p-3"
+          data-testid="metrics-heatmap"
+        >
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">
+            Dias & horários que você mais aplica
+          </h2>
+          <div class="overflow-x-auto">
+            <table class="border-collapse text-[10px]">
+              <thead>
+                <tr>
+                  <th class="p-0.5" />
+                  <th
+                    v-for="h in 24"
+                    :key="h"
+                    class="p-0.5 font-normal text-ink-400"
+                  >
+                    {{ h - 1 }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, wd) in heatmapGrid"
+                  :key="wd"
+                >
+                  <th class="pr-1.5 text-left font-medium text-ink-500">
+                    {{ weekdayLabels[wd] }}
+                  </th>
+                  <td
+                    v-for="(count, hour) in row"
+                    :key="hour"
+                    class="h-4 w-4 rounded-sm border border-white"
+                    :style="{ backgroundColor: heatmapColor(count) }"
+                    :title="`${weekdayLabels[wd]} ${hour}h: ${count} candidatura(s)`"
+                  />
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section
+          class="card p-4 lg:p-3"
+          data-testid="metrics-month-calendar"
+        >
+          <div class="mb-2 flex items-baseline justify-between gap-2">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-500">
+              {{ t('dashboard.month_calendar_title') }}
+            </h2>
+            <span class="text-[10px] font-medium text-ink-400">
+              {{ t(`dashboard.months.${data.monthly.month}`) }}/{{ data.monthly.year }}
+            </span>
+          </div>
+          <table class="w-full border-collapse text-[10px]">
             <thead>
               <tr>
-                <th class="p-0.5" />
                 <th
-                  v-for="h in 24"
-                  :key="h"
+                  v-for="wd in 7"
+                  :key="wd"
                   class="p-0.5 font-normal text-ink-400"
                 >
-                  {{ h - 1 }}
+                  {{ t(`dashboard.weekday_short.${wd - 1}`) }}
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="(row, wd) in heatmapGrid"
-                :key="wd"
+                v-for="(row, ri) in monthlyCalendar"
+                :key="ri"
               >
-                <th class="pr-1.5 text-left font-medium text-ink-500">
-                  {{ weekdayLabels[wd] }}
-                </th>
                 <td
-                  v-for="(count, hour) in row"
-                  :key="hour"
-                  class="h-4 w-4 rounded-sm border border-white"
-                  :style="{ backgroundColor: heatmapColor(count) }"
-                  :title="`${weekdayLabels[wd]} ${hour}h: ${count} candidatura(s)`"
-                />
+                  v-for="(cell, ci) in row"
+                  :key="ci"
+                  class="p-0.5 align-top"
+                >
+                  <div
+                    v-if="cell.day !== null"
+                    class="grid aspect-square w-full place-items-center rounded-sm border border-white text-[9px] font-medium leading-none"
+                    :style="{ backgroundColor: monthlyCellColor(cell.count), color: cell.count > 0 ? '#064e3b' : 'rgb(148 163 184)' }"
+                    :title="cell.count === 0
+                      ? `${cell.day}: ${t('dashboard.month_calendar_empty')}`
+                      : `${cell.day}: ${cell.count}`"
+                  >
+                    {{ cell.day }}
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
+        </section>
+
+        <div
+          class="flex flex-col gap-3 lg:gap-2"
+          data-testid="metrics-monthly-kpis"
+        >
+          <div class="card flex-1 p-4 lg:p-3">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-medium text-ink-500">
+                {{ t('dashboard.applications_this_month') }}
+              </p>
+              <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">mês</span>
+            </div>
+            <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+              {{ data.monthly.total_applications }}
+            </p>
+          </div>
+          <div class="card flex-1 p-4 lg:p-3">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-medium text-ink-500">
+                {{ t('dashboard.response_rate_this_month') }}
+              </p>
+              <span class="chip-brand !px-1.5 !py-0.5 !text-[10px]">%</span>
+            </div>
+            <p class="mt-1 text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
+              {{ percent(data.monthly.response_rate) }}
+            </p>
+            <p class="text-[10px] text-ink-500">
+              {{ t('dashboard.responses_count', { n: data.monthly.total_responses }) }}
+            </p>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   </div>
 </template>

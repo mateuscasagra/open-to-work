@@ -279,6 +279,23 @@ export const MetricsInsightSchema = z.object({
 });
 export type MetricsInsight = z.infer<typeof MetricsInsightSchema>;
 
+export const MetricsMonthlyDaySchema = z.object({
+  day: z.number().int().min(1).max(31),
+  count: z.number().int().min(0),
+});
+export type MetricsMonthlyDay = z.infer<typeof MetricsMonthlyDaySchema>;
+
+export const MetricsMonthlySchema = z.object({
+  year: z.number().int(),
+  month: z.number().int().min(1).max(12),
+  days_in_month: z.number().int().min(28).max(31),
+  days: z.array(MetricsMonthlyDaySchema),
+  total_applications: z.number().int().min(0),
+  total_responses: z.number().int().min(0),
+  response_rate: z.number(),
+});
+export type MetricsMonthly = z.infer<typeof MetricsMonthlySchema>;
+
 export const MetricsSummarySchema = z.object({
   kpis: MetricsKpisSchema,
   channels: z.array(MetricsChannelSchema),
@@ -288,6 +305,7 @@ export const MetricsSummarySchema = z.object({
   insights: z.array(MetricsInsightSchema),
   rangeFrom: z.string(),
   rangeTo: z.string(),
+  monthly: MetricsMonthlySchema,
 });
 export type MetricsSummary = z.infer<typeof MetricsSummarySchema>;
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Job\Aggregator\Drivers\ArbeitnowDriver;
-use App\Domain\Job\Aggregator\Drivers\GupyDriver;
+use App\Domain\Job\Aggregator\Drivers\GitHubVagasDriver;
 use App\Domain\Job\Aggregator\Drivers\RemoteOkDriver;
 use App\Domain\Job\Aggregator\Drivers\RemotiveDriver;
 use App\Domain\Job\Aggregator\Drivers\WeWorkRemotelyDriver;
@@ -22,7 +22,7 @@ return [
     'enabled_sources' => array_values(array_filter(
         explode(',', (string) env(
             'AGGREGATOR_SOURCES',
-            'remote_ok,arbeitnow,remotive,we_work_remotely,gupy'
+            'remote_ok,arbeitnow,remotive,we_work_remotely,github_vagas'
         ))
     )),
 
@@ -41,6 +41,23 @@ return [
         'arbeitnow' => ArbeitnowDriver::class,
         'remotive' => RemotiveDriver::class,
         'we_work_remotely' => WeWorkRemotelyDriver::class,
-        'gupy' => GupyDriver::class,
+        'github_vagas' => GitHubVagasDriver::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Repositórios GitHub para o GitHubVagasDriver
+    |--------------------------------------------------------------------------
+    |
+    | Lista de comunidades GitHub que publicam vagas como Issues. Cada issue
+    | aberta = 1 vaga. O driver pagina até 5 páginas (500 issues) por repo.
+    */
+    'github_repos' => [
+        ['owner' => 'frontendbr', 'repo' => 'vagas'],
+        ['owner' => 'backend-br', 'repo' => 'vagas'],
+        ['owner' => 'react-brasil', 'repo' => 'vagas'],
+        ['owner' => 'androiddevbr', 'repo' => 'vagas'],
+        ['owner' => 'CocoaHeadsBrasil', 'repo' => 'vagas'],
+        ['owner' => 'vuejs-brasil', 'repo' => 'vagas'],
     ],
 ];

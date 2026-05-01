@@ -7,7 +7,7 @@ namespace App\Domain\Job\Aggregator\Contracts;
 use App\Domain\Job\Aggregator\DTOs\JobDTO;
 
 /**
- * Strategy contract: cada fonte de vagas (RemoteOK, Arbeitnow, Gupy, etc.)
+ * Strategy contract: cada fonte de vagas (RemoteOK, Arbeitnow, GitHub Vagas, etc.)
  * implementa esta interface e é registrada no container.
  */
 interface JobSourceDriver

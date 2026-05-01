@@ -19,6 +19,15 @@ const base = {
   insights: [],
   rangeFrom: '2026-01-01',
   rangeTo: '2026-04-18',
+  monthly: {
+    year: 2026,
+    month: 4,
+    days_in_month: 30,
+    days: [],
+    total_applications: 0,
+    total_responses: 0,
+    response_rate: 0,
+  },
 };
 
 describe('MetricsSummarySchema', () => {

@@ -63,7 +63,18 @@
   },
   "dashboard": {
     "funnel_empty": "Faça sua primeira candidatura para acompanhar o funil de etapas.",
-    "channels_empty": "Faça sua primeira candidatura para comparar a efetividade dos canais."
+    "channels_empty": "Faça sua primeira candidatura para comparar a efetividade dos canais.",
+    "month_calendar_title": "Candidaturas no mês",
+    "month_calendar_empty": "Sem candidaturas neste mês",
+    "applications_this_month": "Candidaturas no mês",
+    "response_rate_this_month": "Taxa de resposta no mês",
+    "responses_count": "{n} respostas",
+    "months": {
+      "1": "Janeiro", "2": "Fevereiro", "3": "Março", "4": "Abril",
+      "5": "Maio", "6": "Junho", "7": "Julho", "8": "Agosto",
+      "9": "Setembro", "10": "Outubro", "11": "Novembro", "12": "Dezembro"
+    },
+    "weekday_short": { "0": "D", "1": "S", "2": "T", "3": "Q", "4": "Q", "5": "S", "6": "S" }
   },
   "landing": {
     "nav_pricing": "Preço",
@@ -387,6 +398,7 @@
     "kanban_reset": "Restaurar padrão",
     "kanban_hidden_stages": "Etapas ocultas",
     "kanban_no_hidden": "Todas visíveis",
+    "kanban_no_apps_in_stage": "Nenhuma candidatura nesta etapa",
     "archive": "Arquivar",
     "unarchive": "Desarquivar",
     "archive_failed": "Falha ao arquivar candidatura.",

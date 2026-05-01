@@ -273,7 +273,7 @@ function canMoveRight(status: string): boolean {
 </script>
 
 <template>
-  <div class="lg:flex lg:h-full lg:flex-col">
+  <div class="lg:flex lg:h-[calc(100vh-7rem)] lg:flex-col lg:overflow-hidden">
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3 lg:mb-3">
       <div>
@@ -371,7 +371,7 @@ function canMoveRight(status: string): boolean {
         <div
           v-for="col in visibleColumns()"
           :key="col.status"
-          class="flex flex-col rounded-xl border transition lg:min-w-[280px] lg:flex-1"
+          class="flex flex-col rounded-xl border transition lg:min-w-[280px] lg:flex-1 lg:min-h-0"
           :class="[
             dragOverStatus === col.status
               ? 'border-brand-400 bg-brand-50 ring-2 ring-brand-300 shadow-card'
@@ -405,7 +405,7 @@ function canMoveRight(status: string): boolean {
           </div>
 
           <!-- Cards area -->
-          <div class="flex-1 space-y-1.5 p-2 lg:overflow-y-auto">
+          <div class="flex flex-1 flex-col gap-1.5 p-2 lg:overflow-y-auto">
             <div
               v-for="app in grouped[col.status]"
               :key="app.id"
@@ -452,9 +452,22 @@ function canMoveRight(status: string): boolean {
 
             <div
               v-if="(grouped[col.status]?.length ?? 0) === 0"
-              class="flex items-center justify-center rounded-lg border border-dashed border-ink-300 px-3 py-6 text-xs text-ink-400"
+              class="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-ink-300 px-3 py-8 text-center text-xs text-ink-400"
             >
-              —
+              <svg
+                class="h-6 w-6 text-ink-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              <span class="leading-snug">{{ t('applications.kanban_no_apps_in_stage') }}</span>
             </div>
           </div>
         </div>

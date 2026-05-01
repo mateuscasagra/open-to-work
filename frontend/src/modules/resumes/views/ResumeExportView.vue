@@ -20,12 +20,15 @@ const detail = useResumeDetail(resumeId);
 const { exportToPdf, exporting, error } = useResumePdfExport();
 
 const selectedTemplate = ref<TemplateKey>('classic');
-const pageEl = ref<HTMLElement | null>(null);
 
 async function onDownload(): Promise<void> {
-  if (!pageEl.value || !detail.data.value) return;
-  const filename = `${detail.data.value.title || 'resume'}`.replace(/\s+/g, '_');
-  await exportToPdf(pageEl.value, filename);
+  if (!detail.data.value) return;
+  await exportToPdf({
+    resume: detail.data.value,
+    template: selectedTemplate.value,
+    userName: auth.user?.name,
+    filename: detail.data.value.title || 'resume',
+  });
 }
 
 function onBack(): void {
@@ -91,10 +94,7 @@ function onBack(): void {
       v-else-if="detail.data.value"
       class="flex justify-center overflow-auto rounded-xl border border-ink-200 bg-ink-100 p-6"
     >
-      <div
-        ref="pageEl"
-        class="shadow-card"
-      >
+      <div class="shadow-card">
         <ClassicTemplate
           v-if="selectedTemplate === 'classic'"
           :resume="detail.data.value"

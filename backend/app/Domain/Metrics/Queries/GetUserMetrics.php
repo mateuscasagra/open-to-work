@@ -58,6 +58,7 @@ final class GetUserMetrics
         $funnel = $this->funnel($user, $from, $to);
         $heatmap = $this->heatmap($user, $from, $to, $timezone);
         $avgDays = $this->avgDaysBetweenStages($user, $from, $to);
+        $monthly = $this->monthly($user, $timezone);
 
         $insights = $this->insights->execute($kpis, $channels, $funnel);
 
@@ -70,6 +71,7 @@ final class GetUserMetrics
             insights: $insights,
             rangeFrom: $from->toDateString(),
             rangeTo: $to->toDateString(),
+            monthly: $monthly,
         );
     }
 
@@ -336,5 +338,76 @@ final class GetUserMetrics
         }
 
         return round($numerator / $denominator, 4);
+    }
+
+    /**
+     * Visão do mês corrente (TZ do user) — calendário diário + KPIs do mês.
+     *
+     * @return array{year: int, month: int, days_in_month: int, days: list<array{day: int, count: int}>, total_applications: int, total_responses: int, response_rate: float}
+     */
+    private function monthly(User $user, string $timezone): array
+    {
+        $now = CarbonImmutable::now($timezone);
+        $monthStart = $now->startOfMonth();
+        $monthEnd = $now->endOfMonth();
+
+        $monthStartUtc = $monthStart->setTimezone('UTC');
+        $monthEndUtc = $monthEnd->setTimezone('UTC');
+
+        $apps = Application::query()
+            ->where('user_id', $user->id)
+            ->whereNull('archived_at')
+            ->whereBetween('applied_at', [$monthStartUtc, $monthEndUtc])
+            ->get(['id', 'applied_at']);
+
+        /** @var array<int, int> $byDay */
+        $byDay = [];
+        foreach ($apps as $app) {
+            $local = Carbon::parse((string) $app->applied_at)->setTimezone($timezone);
+            if ($local->month !== $monthStart->month || $local->year !== $monthStart->year) {
+                continue;
+            }
+            $day = (int) $local->day;
+            $byDay[$day] = ($byDay[$day] ?? 0) + 1;
+        }
+
+        ksort($byDay);
+        /** @var list<array{day: int, count: int}> $days */
+        $days = [];
+        foreach ($byDay as $day => $count) {
+            $days[] = ['day' => $day, 'count' => $count];
+        }
+
+        $totalApps = $apps->count();
+
+        $totalResponses = 0;
+        if ($totalApps > 0) {
+            $responsesByApp = DB::table('application_events')
+                ->whereIn('application_id', $apps->pluck('id'))
+                ->where('event_type', 'status_changed')
+                ->get(['application_id', 'payload']);
+
+            /** @var array<int, bool> $appHasResponse */
+            $appHasResponse = [];
+            foreach ($responsesByApp as $row) {
+                $payload = is_string($row->payload) ? json_decode($row->payload, true) : (array) $row->payload;
+                $toStatus = is_array($payload) ? ($payload['to'] ?? null) : null;
+                $fromStatus = is_array($payload) ? ($payload['from'] ?? null) : null;
+                if ($fromStatus === ApplicationStatus::Applied->value && is_string($toStatus) && in_array($toStatus, self::RESPONSE_STATUSES, true)) {
+                    $appHasResponse[(int) $row->application_id] = true;
+                }
+            }
+            $totalResponses = count($appHasResponse);
+        }
+
+        return [
+            'year' => (int) $monthStart->year,
+            'month' => (int) $monthStart->month,
+            'days_in_month' => (int) $monthStart->daysInMonth,
+            'days' => $days,
+            'total_applications' => $totalApps,
+            'total_responses' => $totalResponses,
+            'response_rate' => $this->rate($totalResponses, $totalApps),
+        ];
     }
 }

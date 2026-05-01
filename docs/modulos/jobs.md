@@ -19,7 +19,7 @@
 **Domínio:** `app/Domain/Job/`
 - **Contract:** `Aggregator/Contracts/JobSourceDriver.php` — `name(): string`, `fetch(): iterable<JobDTO>`
 - **DTO:** `Aggregator/DTOs/JobDTO.php` (spatie/laravel-data) — schema canônico
-- **Drivers:** `Aggregator/Drivers/` — `RemoteOkDriver`, `ArbeitnowDriver`, `RemotiveDriver`, `WeWorkRemotelyDriver`, `GupyDriver`
+- **Drivers:** `Aggregator/Drivers/` — `RemoteOkDriver`, `ArbeitnowDriver`, `RemotiveDriver`, `WeWorkRemotelyDriver`, `GitHubVagasDriver` (lê issues abertas em comunidades BR — `frontendbr/vagas`, `backend-br/vagas`, etc., configurável em `aggregator.github_repos`)
 - **Pipeline:** `Aggregator/Pipeline/` — `NormalizeJob`, `DeduplicateJob`, `PersistJob`
 - **Action:** `Aggregator/Actions/SyncJobsFromSource.php`
 - **Query:** `Queries/ListMatchingJobs.php`
@@ -88,18 +88,20 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 - Escritas: `jobs` (inclui `contact_email`), `companies`, `job_sources`
 - Migration: `2026_04_21_000200_add_contact_email_to_jobs`
 - Sincronização via Scout `database` driver (escreve direto na tabela, sem queue/serviço externo)
-- HTTP outbound para APIs/RSS/Gupy
+- HTTP outbound para APIs/RSS dos drivers internacionais e GitHub REST API (api.github.com)
 
 ## Testes
 
-- `backend/tests/Feature/Aggregator/` — `RemoteOkDriver`, `Arbeitnow`, `Remotive`, `WeWorkRemotely`, `Gupy`, `Deduplicate`, `Persist`, `SyncJobs`, `Command`
+- `backend/tests/Feature/Aggregator/` — `RemoteOkDriver`, `Arbeitnow`, `Remotive`, `WeWorkRemotely`, `GitHubVagas`, `Deduplicate`, `Persist`, `SyncJobs`, `Command`
 - `backend/tests/Feature/Jobs/` — `ListJobsTest`, `MatchingJobsTest`, `Search`
 - `frontend/tests/useJobFilters.test.ts`
 - `frontend/tests/useApplyToJob.test.ts`
 
 ## Pontos de atenção
 
-- **Driver quebra quando ATS muda HTML** (Gupy especialmente). Cada driver tem teste isolado com fixture HTML/JSON — atualize a fixture quando reproduzir o bug, depois ajuste o parser.
+- **Driver quebra quando ATS muda HTML/JSON.** Cada driver tem teste isolado com fixture — atualize a fixture quando reproduzir o bug, depois ajuste o parser.
+- **`GitHubVagasDriver` rate-limit**: sem `GITHUB_TOKEN` no .env são 60 req/h (suficiente pra ~6 repos paginados). Em prod usar Personal Access Token (5000 req/h). 404 num repo é tratado com `Log::warning` e segue.
+- **Parser de título do GitHub Vagas** depende de padrão `[tags] Empresa - Cargo`. Issues que fogem do padrão caem em `companyName='Comunidade GitHub'` (mantém a vaga, perde a empresa). Se observar muitas vagas com esse fallback, ajustar `splitTitle`/`splitCompanyAndRole`.
 - **Normalização de hash é case-sensitive na lógica.** Se mudar o `NormalizeJob`, todas as duplicatas históricas precisam ser re-hashadas. Nunca mexa sem migration de re-hash.
 - **`config/aggregator.php` é cacheado** em prod (`config:cache`). Mudanças em env de `AGGREGATOR_SOURCES` exigem `php artisan config:clear` + reinício.
 - **Matching retorna vazio?** Verificar:
@@ -112,4 +114,4 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 - **`active=false` em vagas expiradas:** rotina sáb/dom. Vaga pode ainda aparecer no feed entre a expiração e a varredura — filtrar `WHERE active=true` na query do `index`.
 - **`contact_email` extraído por regex** em `NormalizeJob::extractContactEmail()`. Pode gerar falsos positivos (e-mails de suporte, não de RH). Se reportarem envio para e-mail errado, revisar os padrões de regex.
 - **Email-apply depende do perfil configurado** (`email_apply_enabled=true`). Se o botão de aplicar não mostra opção de e-mail, verificar perfil do user.
-- **`jobs.language` deve estar no enum canônico (`pt_BR | en | es`).** Drivers devem emitir essas strings (não `pt` cru) — o `LocaleEnum` Zod do front faz throw em valores fora do enum, e a tela de vagas trava com erro mesmo que o backend retorne 200. O `JobFactory` e o `GupyDriver` agora usam `pt_BR`. Se adicionar driver novo, conferir que ele emite valores válidos. Migration `2026_04_30_000200_normalize_jobs_language` já normalizou dados antigos.
+- **`jobs.language` deve estar no enum canônico (`pt_BR | en | es`).** Drivers devem emitir essas strings (não `pt` cru) — o `LocaleEnum` Zod do front faz throw em valores fora do enum, e a tela de vagas trava com erro mesmo que o backend retorne 200. O `JobFactory` e o `GitHubVagasDriver` usam `pt_BR`. Se adicionar driver novo, conferir que ele emite valores válidos. Migration `2026_04_30_000200_normalize_jobs_language` já normalizou dados antigos.

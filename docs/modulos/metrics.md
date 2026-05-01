@@ -44,6 +44,7 @@ Scheduler: **03:00 UTC** diário.
 - **Funnel:** `reached_count` por `ApplicationStatus` (inclui aplicações que **passaram** pela etapa, não só as que estão lá agora)
 - **Heatmap:** matriz `weekday × hour` baseada em `applied_at`
 - **avgDaysBetweenStages:** tempo médio do `applied_at` até o **1º** `status_changed` (em dias)
+- **monthly:** `{ year, month, days_in_month, days: [{day, count}], total_applications, total_responses, response_rate }` — calendário do **mês corrente** no TZ do user. `total_responses` conta candidaturas do mês que receberam alguma resposta (mesmo se a resposta veio depois). Independente de `from`/`to`.
 - Range default: 90 dias atrás → hoje
 
 ### Insights heurísticos
@@ -68,7 +69,9 @@ Scheduler: **03:00 UTC** diário.
   - **Insights** coloridos por `severity`
   - **Funnel** com barras (largura proporcional ao maior estágio) — sempre visível; mostra empty state com CTA quando não há candidaturas
   - **Channels table** (source, applications, responses, response_rate %) — sempre visível; mostra empty state com CTA quando não há candidaturas
+  - **Linha "atividade"** em grid `lg:grid-cols-4`: heatmap (col-span-2) + calendário do mês (col-span-1) + 2 KPIs do mês stacked (col-span-1)
   - **Heatmap 7×24** (weekday × hour) pintado por intensidade indigo
+  - **Calendário do mês** com 7 colunas (dias da semana) — célula colorida em verde proporcional a `monthly.days[*].count`. Computeds `monthlyByDay`, `monthlyMaxCount`, `monthlyCalendar` montam a grid a partir de `data.monthly`
   - Loading skeleton + error message
 
 ## Efeitos colaterais
@@ -78,7 +81,7 @@ Scheduler: **03:00 UTC** diário.
 
 ## Testes
 
-- `backend/tests/Feature/Metrics/` — `ModelTest`, `RollupDailyTest` (4 casos), `GetUserMetricsTest` (6 casos)
+- `backend/tests/Feature/Metrics/` — `ModelTest`, `RollupDailyTest` (4 casos), `GetUserMetricsTest` (11 casos, incluindo 2 do `monthly`)
 - `frontend/tests/metricsSchemas.test.ts`
 - `frontend/tests/useMetrics.test.ts`
 
