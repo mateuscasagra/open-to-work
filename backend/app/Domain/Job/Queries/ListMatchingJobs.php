@@ -34,7 +34,7 @@ final class ListMatchingJobs
         $profileLanguages = $profile?->languages ?? [];
 
         $query = Job::query()
-            ->with(['company', 'sources:id,job_id,external_url'])
+            ->with(['company', 'sources:id,job_id,source,external_url'])
             ->where('active', true);
 
         if ($profileLanguages !== []) {

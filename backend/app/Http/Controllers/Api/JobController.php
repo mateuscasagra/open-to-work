@@ -16,7 +16,7 @@ final class JobController extends Controller
     {
         $query = Job::query()
             ->where('active', true)
-            ->with(['company', 'sources:id,job_id,external_url'])
+            ->with(['company', 'sources:id,job_id,source,external_url'])
             ->latest('posted_at');
 
         if ($search = $request->string('q')->toString()) {

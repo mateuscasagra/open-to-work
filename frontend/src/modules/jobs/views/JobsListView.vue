@@ -90,7 +90,7 @@ async function onApply(job: Job): Promise<void> {
   try {
     await applyMutation.mutateAsync({
       jobId: job.id,
-      source: 'feed',
+      source: job.sources?.[0]?.source ?? 'feed',
       resumeId: selectedResumeId.value ?? undefined,
     });
     appliedJobIds.value.add(job.id);

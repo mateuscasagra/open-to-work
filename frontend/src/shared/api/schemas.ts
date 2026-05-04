@@ -145,6 +145,7 @@ export type Profile = z.infer<typeof ProfileSchema>;
 
 export const JobSourceSchema = z.object({
   id: z.number(),
+  source: z.string(),
   external_url: z.string().url().nullable(),
 });
 export type JobSource = z.infer<typeof JobSourceSchema>;
