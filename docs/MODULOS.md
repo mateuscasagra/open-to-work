@@ -25,7 +25,6 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 
 | Sintoma | Abra primeiro |
 |---|---|
-| E-mail de candidatura não enviado | `applications.md` (SendApplicationEmail) + `profile.md` (email_apply settings) + `jobs.md` (contact_email) |
 | `401` em rota `/api/*` autenticada | `auth.md` + `cross-cutting.md` (CSRF/Sanctum) |
 | `419` (Page Expired / token mismatch) | `cross-cutting.md` (CSRF) → `shared-frontend.md` (client.ts) |
 | `429` Too Many Requests | `cross-cutting.md` (RateLimiters) |
@@ -60,6 +59,8 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | Tela de admin não aparece no menu | `admin.md` (frontend lê `auth.user.is_admin` do `/api/me`) |
 | Rota nova retorna 404 | `routes/api.php` + `shared-frontend.md` (router guard) |
 | Tradução faltando | `shared-frontend.md` (i18n) + `lang/{pt_BR,en,es}/` no backend |
+| Usuário preso em `/profile` mesmo com localização salva | `profile.md` (Gating de localização) — `ProfileView.onSubmit` chamou `refreshLocationStatus()`? Conferir Pinia state `auth.locationComplete` |
+| Abas do menu com cadeado / não consigo navegar | `profile.md` — esperado para usuário novo sem `country_code/state_name/city` preenchidos. Preencher e salvar destrava |
 | Mensagem de validação do backend vindo em inglês mesmo com navegador em pt/es | `auth.md` (i18n das mensagens de validação) — checar se `lang/{pt_BR,es}/validation.php` existe e se `SetLocale` está no pipeline |
 | 429 ao criar sugestão / "Você atingiu o limite de 5 sugestões por semana" | `suggestions.md` (quota rolling 7d em `CreateSuggestion`) — checar `next_slot_at` no payload da resposta |
 | Não consigo votar na minha própria sugestão (botões disabled / 403) | `suggestions.md` — comportamento esperado (`CannotVoteOwnSuggestionException`); front desabilita botões via `auth.user.id === s.user.id` |

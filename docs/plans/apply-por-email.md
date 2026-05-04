@@ -1,5 +1,9 @@
 # Apply por e-mail
 
+> **STATUS: DESCONTINUADO (2026-05-03).** A feature foi implementada (frontend + backend), entrou em produção, e foi removida da UI. O backend (`SendApplicationEmail`, `ApplicationEmail` mailable, colunas `profiles.email_apply_*` / `jobs.contact_email` / `applications.sent_via_email_at`, `EmailApplyMode` enum, validações no `UpdateProfileRequest` / `StoreApplicationRequest`) ainda existe mas é dead code do ponto de vista do usuário (a UI nunca permite mais setar `email_apply_enabled=true`). Limpeza pendente: drop das colunas + arquivos backend + regras de validação.
+>
+> Este documento permanece como histórico do design original.
+
 ## Context
 
 Hoje o botão "Apply" em `JobsListView.vue` só registra a candidatura local e redireciona pro ATS externo (WeWorkRemotely, RemoteOK, etc.). Vagas agregadas não têm API de submit, então não dá pra "aplicar de verdade" via plataforma — mas **quando o job traz um e-mail no description**, é possível enviar currículo + mensagem por email pelo próprio OpenToWork.

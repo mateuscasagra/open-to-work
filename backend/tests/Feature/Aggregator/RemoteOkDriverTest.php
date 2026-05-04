@@ -55,11 +55,45 @@ it('retries on transient failure then succeeds', function (): void {
             ->push('server error', 500)
             ->push([
                 ['legal' => 'meta'],
-                ['id' => 1, 'position' => 'Dev', 'company' => 'X', 'tags' => []],
+                ['id' => 1, 'position' => 'Backend Developer', 'company' => 'X', 'tags' => ['python']],
             ]),
     ]);
 
     $results = iterator_to_array((new RemoteOkDriver)->fetch());
 
     expect($results)->toHaveCount(1);
+});
+
+it('descarta vagas que não são de programação', function (): void {
+    Http::fake([
+        'remoteok.com/api' => Http::response([
+            ['legal' => 'meta'],
+            [
+                'id' => 'tech-1',
+                'position' => 'Senior PHP Developer',
+                'company' => 'Acme',
+                'tags' => ['php', 'laravel'],
+                'url' => 'https://remoteok.com/remote-jobs/tech-1',
+            ],
+            [
+                'id' => 'mkt-1',
+                'position' => 'Senior Marketing Manager',
+                'company' => 'GrowthCo',
+                'tags' => ['seo', 'content'],
+                'url' => 'https://remoteok.com/remote-jobs/mkt-1',
+            ],
+            [
+                'id' => 'design-1',
+                'position' => 'Product Designer',
+                'company' => 'PixelCo',
+                'tags' => ['figma', 'ux'],
+                'url' => 'https://remoteok.com/remote-jobs/design-1',
+            ],
+        ]),
+    ]);
+
+    $results = iterator_to_array((new RemoteOkDriver)->fetch());
+
+    expect($results)->toHaveCount(1)
+        ->and($results[0]->externalId)->toBe('tech-1');
 });

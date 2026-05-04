@@ -6,8 +6,8 @@ namespace App\Domain\Job\Aggregator\Drivers;
 
 use App\Domain\Job\Aggregator\Contracts\JobSourceDriver;
 use App\Domain\Job\Aggregator\DTOs\JobDTO;
+use App\Domain\Job\Aggregator\Filters\ProgrammingJobFilter;
 use App\Enums\Modality;
-use App\Enums\Seniority;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Http;
 
@@ -15,11 +15,20 @@ use Illuminate\Support\Facades\Http;
  * Remotive — API JSON pública em https://remotive.com/api/remote-jobs
  *
  * Payload: {jobs: [...]}. Todas as vagas são remotas por definição.
- * Parseia senioridade do título e salário do formato "USD 100k - 150k".
+ * Stack vem de `tags` da API; seniority não é fornecida pelo payload.
+ * Parseia salário do formato "USD 100k - 150k".
+ *
+ * A request usa `?category=software-dev` (filtro nativo da API), e ainda assim
+ * aplicamos `ProgrammingJobFilter` como defesa em profundidade caso a categoria
+ * mude ou venha vaga híbrida no payload.
  */
 final class RemotiveDriver implements JobSourceDriver
 {
     private const ENDPOINT = 'https://remotive.com/api/remote-jobs';
+
+    private const CATEGORY = 'software-dev';
+
+    public function __construct(private readonly ProgrammingJobFilter $filter = new ProgrammingJobFilter) {}
 
     public function name(): string
     {
@@ -32,7 +41,7 @@ final class RemotiveDriver implements JobSourceDriver
             ->withUserAgent('open-to-work/1.0 (https://opentowork.app.br)')
             ->timeout(30)
             ->retry(2, 1000)
-            ->get(self::ENDPOINT);
+            ->get(self::ENDPOINT, ['category' => self::CATEGORY]);
 
         $response->throw();
 
@@ -42,6 +51,12 @@ final class RemotiveDriver implements JobSourceDriver
 
         foreach ($items as $item) {
             if (! isset($item['id'])) {
+                continue;
+            }
+
+            $title = (string) ($item['title'] ?? '');
+            $tags = is_array($item['tags'] ?? null) ? array_values(array_filter($item['tags'])) : [];
+            if (! $this->filter->isProgrammingJob($title, $tags)) {
                 continue;
             }
 
@@ -66,7 +81,7 @@ final class RemotiveDriver implements JobSourceDriver
             descriptionHtml: (string) ($item['description'] ?? ''),
             location: $item['candidate_required_location'] ?? 'Remote',
             modality: Modality::Remote,
-            seniority: $this->guessSeniority((string) ($item['title'] ?? '')),
+            seniority: null,
             stack: is_array($item['tags'] ?? null) ? array_values(array_filter($item['tags'])) : [],
             salaryMin: $min,
             salaryMax: $max,
@@ -75,21 +90,6 @@ final class RemotiveDriver implements JobSourceDriver
             expiresAt: null,
             language: 'en',
         );
-    }
-
-    private function guessSeniority(string $title): ?Seniority
-    {
-        $t = mb_strtolower($title);
-
-        return match (true) {
-            str_contains($t, 'intern') => Seniority::Intern,
-            str_contains($t, 'junior') || str_contains($t, 'jr.') => Seniority::Junior,
-            str_contains($t, 'principal') => Seniority::Principal,
-            str_contains($t, 'staff') => Seniority::Staff,
-            str_contains($t, 'senior') || str_contains($t, 'sr.') || str_contains($t, 'lead') => Seniority::Senior,
-            str_contains($t, 'mid') || str_contains($t, 'pleno') => Seniority::Mid,
-            default => null,
-        };
     }
 
     /**

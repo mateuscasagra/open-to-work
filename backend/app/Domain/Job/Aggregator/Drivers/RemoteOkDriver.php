@@ -6,6 +6,7 @@ namespace App\Domain\Job\Aggregator\Drivers;
 
 use App\Domain\Job\Aggregator\Contracts\JobSourceDriver;
 use App\Domain\Job\Aggregator\DTOs\JobDTO;
+use App\Domain\Job\Aggregator\Filters\ProgrammingJobFilter;
 use App\Enums\Modality;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Http;
@@ -14,10 +15,14 @@ use Illuminate\Support\Facades\Http;
  * RemoteOK — API JSON pública em https://remoteok.com/api
  *
  * Vagas majoritariamente remotas internacionais. Rate limit generoso, sem autenticação.
+ * Listagem mistura categorias (design, marketing, sales, ...); aplicamos
+ * `ProgrammingJobFilter` em cima do título + tags pra ficar só com tech.
  */
 final class RemoteOkDriver implements JobSourceDriver
 {
     private const ENDPOINT = 'https://remoteok.com/api';
+
+    public function __construct(private readonly ProgrammingJobFilter $filter = new ProgrammingJobFilter) {}
 
     public function name(): string
     {
@@ -40,6 +45,12 @@ final class RemoteOkDriver implements JobSourceDriver
         foreach ($items as $item) {
             // primeiro item é meta; pular
             if (! isset($item['id'])) {
+                continue;
+            }
+
+            $title = (string) ($item['position'] ?? '');
+            $tags = is_array($item['tags'] ?? null) ? array_values(array_filter($item['tags'])) : [];
+            if (! $this->filter->isProgrammingJob($title, $tags)) {
                 continue;
             }
 

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useProfile, searchSkills } from '../composables/useProfile';
 import { useSupportedCountries } from '../composables/useLocationLookup';
 import LocationFields from '../components/LocationFields.vue';
-import { useResumes } from '@/modules/resumes/composables/useResumes';
+import { useAuthStore } from '@/modules/auth/stores/auth';
 import type { Skill, Seniority, Modality, Locale } from '@/shared/api/schemas';
 
 const MAX_SKILLS = 8;
@@ -12,8 +12,8 @@ const HIGHLIGHT_INDEX_NONE = -1;
 
 const { t } = useI18n();
 const { profile, loading, fetch, save } = useProfile();
-const resumes = useResumes();
 const countriesQuery = useSupportedCountries();
+const auth = useAuthStore();
 
 const form = ref({
   desired_role: '',
@@ -29,11 +29,6 @@ const form = ref({
   city: '',
   languages: [] as Locale[],
   bio: '',
-  email_apply_enabled: false,
-  email_apply_message_mode: null as 'fixed' | 'variable' | null,
-  email_apply_message_template: '',
-  email_apply_resume_mode: null as 'fixed' | 'variable' | null,
-  email_apply_resume_id: null as number | null,
 });
 
 const locationModel = computed({
@@ -82,11 +77,6 @@ onMounted(async () => {
       city: profile.value.city ?? '',
       languages: profile.value.languages ?? [],
       bio: profile.value.bio ?? '',
-      email_apply_enabled: profile.value.email_apply_enabled ?? false,
-      email_apply_message_mode: profile.value.email_apply_message_mode ?? null,
-      email_apply_message_template: profile.value.email_apply_message_template ?? '',
-      email_apply_resume_mode: profile.value.email_apply_resume_mode ?? null,
-      email_apply_resume_id: profile.value.email_apply_resume_id ?? null,
     };
     selectedSkills.value = [...profile.value.skills];
   }
@@ -173,12 +163,8 @@ async function onSubmit(): Promise<void> {
       languages: form.value.languages,
       bio: form.value.bio || null,
       skills: selectedSkills.value.map((s) => s.id),
-      email_apply_enabled: form.value.email_apply_enabled,
-      email_apply_message_mode: form.value.email_apply_message_mode,
-      email_apply_message_template: form.value.email_apply_message_template || null,
-      email_apply_resume_mode: form.value.email_apply_resume_mode,
-      email_apply_resume_id: form.value.email_apply_resume_id,
     });
+    await auth.refreshLocationStatus();
     savedFlash.value = true;
     setTimeout(() => (savedFlash.value = false), 3000);
   } catch (e) {
@@ -202,6 +188,34 @@ async function onSubmit(): Promise<void> {
         {{ t('profile.subtitle') }}
       </p>
     </header>
+
+    <div
+      v-if="!auth.locationComplete"
+      class="mb-4 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+      role="alert"
+    >
+      <svg
+        class="mt-0.5 h-5 w-5 flex-none text-amber-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.75"
+          d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+        />
+      </svg>
+      <div class="flex-1">
+        <p class="font-semibold">
+          {{ t('profile.locked_banner_title') }}
+        </p>
+        <p class="mt-0.5 text-xs text-amber-700">
+          {{ t('profile.locked_banner_body') }}
+        </p>
+      </div>
+    </div>
 
     <form
       class="card space-y-4 p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:space-y-3 lg:p-4"
@@ -379,113 +393,6 @@ async function onSubmit(): Promise<void> {
           class="input mt-1.5"
         />
       </label>
-
-      <!-- Email Apply Section -->
-      <div class="border-t border-ink-200 pt-5">
-        <h3 class="text-sm font-semibold text-ink-900">
-          {{ t('profile.email_apply') }}
-        </h3>
-        <p class="mt-0.5 text-xs text-ink-500">
-          {{ t('profile.email_apply_desc') }}
-        </p>
-
-        <label class="mt-3 inline-flex cursor-pointer items-center gap-2">
-          <input
-            v-model="form.email_apply_enabled"
-            type="checkbox"
-            class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500"
-          >
-          <span class="text-sm text-ink-700">{{ t('profile.email_apply_enabled') }}</span>
-        </label>
-
-        <div
-          v-if="form.email_apply_enabled"
-          class="mt-4 space-y-4 rounded-lg border border-ink-200 bg-ink-50 p-4"
-        >
-          <!-- Message mode -->
-          <div>
-            <span class="label">{{ t('profile.email_apply_message_mode') }}</span>
-            <div class="mt-2 flex gap-4">
-              <label class="inline-flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="form.email_apply_message_mode"
-                  type="radio"
-                  value="fixed"
-                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
-                >
-                <span class="text-sm text-ink-700">{{ t('profile.email_apply_message_fixed') }}</span>
-              </label>
-              <label class="inline-flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="form.email_apply_message_mode"
-                  type="radio"
-                  value="variable"
-                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
-                >
-                <span class="text-sm text-ink-700">{{ t('profile.email_apply_message_variable') }}</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Message template (fixed mode) -->
-          <div v-if="form.email_apply_message_mode === 'fixed'">
-            <label class="label">{{ t('profile.email_apply_template') }}</label>
-            <textarea
-              v-model="form.email_apply_message_template"
-              rows="4"
-              class="input mt-1.5"
-            />
-            <p class="mt-1 text-[10px] text-ink-400">
-              {{ t('profile.email_apply_template_hint') }}
-            </p>
-          </div>
-
-          <!-- Resume mode -->
-          <div>
-            <span class="label">{{ t('profile.email_apply_resume_mode') }}</span>
-            <div class="mt-2 flex gap-4">
-              <label class="inline-flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="form.email_apply_resume_mode"
-                  type="radio"
-                  value="fixed"
-                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
-                >
-                <span class="text-sm text-ink-700">{{ t('profile.email_apply_resume_fixed') }}</span>
-              </label>
-              <label class="inline-flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="form.email_apply_resume_mode"
-                  type="radio"
-                  value="variable"
-                  class="h-4 w-4 border-ink-300 text-brand-600 focus:ring-brand-500"
-                >
-                <span class="text-sm text-ink-700">{{ t('profile.email_apply_resume_variable') }}</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Resume select (fixed mode) -->
-          <div v-if="form.email_apply_resume_mode === 'fixed'">
-            <label class="label">{{ t('profile.email_apply_resume_select') }}</label>
-            <select
-              v-model="form.email_apply_resume_id"
-              class="input mt-1.5"
-            >
-              <option :value="null">
-                —
-              </option>
-              <option
-                v-for="resume in resumes.data.value?.data ?? []"
-                :key="resume.id"
-                :value="resume.id"
-              >
-                {{ resume.title }}{{ resume.is_pdf_upload ? ' (PDF)' : '' }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <div class="flex items-center justify-between border-t border-ink-200 pt-5">
         <div>

@@ -140,11 +140,6 @@ export const ProfileSchema = z.object({
   languages: z.array(LocaleEnum).nullable(),
   bio: z.string().nullable(),
   skills: z.array(SkillSchema).default([]),
-  email_apply_enabled: z.boolean().default(false),
-  email_apply_message_mode: z.enum(['fixed', 'variable']).nullable(),
-  email_apply_message_template: z.string().nullable(),
-  email_apply_resume_mode: z.enum(['fixed', 'variable']).nullable(),
-  email_apply_resume_id: z.number().nullable(),
 });
 export type Profile = z.infer<typeof ProfileSchema>;
 
@@ -157,6 +152,7 @@ export type JobSource = z.infer<typeof JobSourceSchema>;
 export const JobSchema = z.object({
   id: z.number(),
   title: z.string(),
+  description_html: z.string().nullable().optional().default(null),
   location: z.string().nullable(),
   modality: z.enum(['remote', 'hybrid', 'onsite']).nullable(),
   seniority: z.enum(['intern', 'junior', 'mid', 'senior', 'staff', 'principal']).nullable(),

@@ -6,6 +6,7 @@ namespace App\Domain\Job\Aggregator\Drivers;
 
 use App\Domain\Job\Aggregator\Contracts\JobSourceDriver;
 use App\Domain\Job\Aggregator\DTOs\JobDTO;
+use App\Domain\Job\Aggregator\Filters\ProgrammingJobFilter;
 use App\Enums\Modality;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Http;
@@ -14,10 +15,14 @@ use Illuminate\Support\Facades\Http;
  * Arbeitnow — API JSON pública em https://www.arbeitnow.com/api/job-board-api
  *
  * Vagas europeias (BE/DE em peso). Payload: {data: [{slug, title, company_name, remote, tags, created_at (unix)}]}.
+ * A API mistura todas as áreas; aplicamos `ProgrammingJobFilter` em cima do
+ * título + tags pra ficar só com vagas de tech.
  */
 final class ArbeitnowDriver implements JobSourceDriver
 {
     private const ENDPOINT = 'https://www.arbeitnow.com/api/job-board-api';
+
+    public function __construct(private readonly ProgrammingJobFilter $filter = new ProgrammingJobFilter) {}
 
     public function name(): string
     {
@@ -40,6 +45,12 @@ final class ArbeitnowDriver implements JobSourceDriver
 
         foreach ($items as $item) {
             if (! isset($item['slug'])) {
+                continue;
+            }
+
+            $title = (string) ($item['title'] ?? '');
+            $tags = is_array($item['tags'] ?? null) ? array_values(array_filter($item['tags'])) : [];
+            if (! $this->filter->isProgrammingJob($title, $tags)) {
                 continue;
             }
 

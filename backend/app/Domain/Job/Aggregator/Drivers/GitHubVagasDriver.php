@@ -7,7 +7,6 @@ namespace App\Domain\Job\Aggregator\Drivers;
 use App\Domain\Job\Aggregator\Contracts\JobSourceDriver;
 use App\Domain\Job\Aggregator\DTOs\JobDTO;
 use App\Enums\Modality;
-use App\Enums\Seniority;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +17,11 @@ use Throwable;
  * GitHub (`frontendbr/vagas`, `backend-br/vagas`, etc.).
  *
  * Padrão de título nos issues: `[Local/Modalidade] Empresa - Cargo`. O body
- * (markdown) vai como description e NormalizeJob extrai contact_email/stack.
+ * (markdown) vai como description. Modality/location vêm dos `[brackets]` do
+ * título; `stack` vem das `labels` do issue (filtrando categóricas como
+ * senioridade/modalidade/contrato/locais BR comuns). `backend-br/vagas` taggeia
+ * stack tecnológico nas labels; `frontendbr/vagas` não — vagas desse repo
+ * costumam vir com `stack: []`, conforme esperado.
  *
  * Sem token: 60 req/h. Com `GITHUB_TOKEN` no .env: 5000 req/h.
  */
@@ -30,13 +33,30 @@ final class GitHubVagasDriver implements JobSourceDriver
 
     private const MAX_PAGES = 5;
 
-    private const STACK_KEYWORDS = [
-        'php', 'laravel', 'symfony', 'ruby', 'rails', 'python', 'django', 'flask',
-        'javascript', 'typescript', 'node', 'nodejs', 'react', 'vue', 'angular',
-        'nextjs', 'nuxt', 'svelte', 'go', 'golang', 'rust', 'java', 'kotlin',
-        'swift', 'c#', 'dotnet', '.net', 'elixir', 'phoenix', 'scala', 'clojure',
-        'postgresql', 'postgres', 'mysql', 'mongodb', 'redis', 'aws', 'gcp',
-        'azure', 'docker', 'kubernetes', 'terraform', 'devops', 'flutter',
+    /**
+     * Labels que são categóricas (senioridade/modalidade/contrato/local) e não
+     * representam stack tecnológico. Comparadas case-insensitive depois de trim.
+     */
+    private const NON_STACK_LABELS = [
+        // Senioridade
+        'estágio', 'estagio', 'intern', 'internship',
+        'júnior', 'junior', 'jr', 'jr.',
+        'pleno', 'mid',
+        'sênior', 'senior', 'sr', 'sr.',
+        'especialista', 'lead', 'tech lead',
+        'staff', 'principal',
+        // Modalidade
+        'remoto', 'remote',
+        'híbrido', 'hibrido', 'hybrid',
+        'presencial', 'onsite', 'on-site', 'on site', 'home office',
+        // Contrato
+        'clt', 'pj', 'pjs', 'freelance', 'freela', 'temporário', 'temporario',
+        // Localização (estados/capitais BR mais usados como label)
+        'são paulo', 'sao paulo', 'rio de janeiro', 'minas gerais',
+        'brasília', 'brasilia', 'curitiba', 'porto alegre', 'salvador',
+        'fortaleza', 'recife', 'belo horizonte', 'florianópolis', 'florianopolis',
+        'campinas', 'goiânia', 'goiania', 'manaus', 'natal',
+        'exterior', 'brasil', 'brazil',
     ];
 
     public function name(): string
@@ -131,7 +151,9 @@ final class GitHubVagasDriver implements JobSourceDriver
 
         $modality = $this->modalityFromTags($tags);
         $location = $this->locationFromTags($tags);
-        $haystack = $title . ' ' . $body;
+        /** @var list<array<string, mixed>> $rawLabels */
+        $rawLabels = is_array($item['labels'] ?? null) ? $item['labels'] : [];
+        $stack = $this->stackFromLabels($rawLabels);
 
         return new JobDTO(
             source: $this->name(),
@@ -143,8 +165,8 @@ final class GitHubVagasDriver implements JobSourceDriver
             descriptionHtml: $body,
             location: $location,
             modality: $modality,
-            seniority: $this->guessSeniority($title),
-            stack: $this->guessStack($haystack),
+            seniority: null,
+            stack: $stack,
             salaryMin: null,
             salaryMax: null,
             salaryCurrency: null,
@@ -152,6 +174,30 @@ final class GitHubVagasDriver implements JobSourceDriver
             expiresAt: null,
             language: 'pt_BR',
         );
+    }
+
+    /**
+     * Extrai stack das labels do issue, descartando as categóricas.
+     *
+     * @param  list<array<string, mixed>>  $labels
+     * @return list<string>
+     */
+    private function stackFromLabels(array $labels): array
+    {
+        $stack = [];
+        foreach ($labels as $label) {
+            $name = trim((string) ($label['name'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            $low = mb_strtolower($name);
+            if (in_array($low, self::NON_STACK_LABELS, true)) {
+                continue;
+            }
+            $stack[] = $low;
+        }
+
+        return array_values(array_unique($stack));
     }
 
     /**
@@ -238,37 +284,6 @@ final class GitHubVagasDriver implements JobSourceDriver
         }
 
         return null;
-    }
-
-    private function guessSeniority(string $title): ?Seniority
-    {
-        $t = mb_strtolower($title);
-
-        return match (true) {
-            str_contains($t, 'estagi') || str_contains($t, 'estági') || str_contains($t, 'intern') => Seniority::Intern,
-            str_contains($t, 'junior') || str_contains($t, 'júnior') || str_contains($t, 'jr.') || str_contains($t, 'jr ') => Seniority::Junior,
-            str_contains($t, 'principal') => Seniority::Principal,
-            str_contains($t, 'staff') => Seniority::Staff,
-            str_contains($t, 'senior') || str_contains($t, 'sênior') || str_contains($t, 'sr.') || str_contains($t, 'sr ') || str_contains($t, 'lead') => Seniority::Senior,
-            str_contains($t, 'pleno') || str_contains($t, 'mid') => Seniority::Mid,
-            default => null,
-        };
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function guessStack(string $text): array
-    {
-        $lower = mb_strtolower($text);
-        $found = [];
-        foreach (self::STACK_KEYWORDS as $kw) {
-            if (str_contains($lower, $kw)) {
-                $found[] = $kw;
-            }
-        }
-
-        return array_values(array_unique($found));
     }
 
     private function parseDate(string $raw): ?DateTimeImmutable

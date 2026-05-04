@@ -26,10 +26,10 @@
 - `app/Http/Controllers/Api/ApplicationAttachmentController.php`
 
 **Domínio:** `app/Domain/Application/`
-- **Actions:** `CreateApplication`, `ChangeApplicationStatus`, `SendApplicationEmail`
-- **DTO:** `ApplicationData` (inclui `emailMessageOverride`, `emailResumeIdOverride` opcionais)
-- **Enum:** `app/Enums/EmailApplyMode.php` — `Fixed | Variable` (backed string enum)
-- **Mailable:** `app/Mail/ApplicationEmail.php` — mensagem com replyTo do user, anexa PDF do currículo via S3
+- **Actions:** `CreateApplication`, `ChangeApplicationStatus`, `SendApplicationEmail` (legado — descontinuado na UI)
+- **DTO:** `ApplicationData` (inclui `emailMessageOverride`, `emailResumeIdOverride` opcionais — legado, frontend não envia mais)
+- **Enum:** `app/Enums/EmailApplyMode.php` — `Fixed | Variable` (legado)
+- **Mailable:** `app/Mail/ApplicationEmail.php` — legado
 - **Blade:** `resources/views/mail/application.blade.php`
 - **Exception:** `DuplicateApplicationException` (controller mapeia para `409`)
 
@@ -63,24 +63,9 @@ Accepted | Rejected | Withdrawn  (terminais — sem transições)
 
 `CreateApplication` checa `unique(user_id, job_id)`. Se existir, lança `DuplicateApplicationException` → controller responde `409`.
 
-### Candidatura por e-mail
+### Candidatura por e-mail (legado)
 
-Quando o user aplica a uma vaga com `contact_email` e tem `email_apply_enabled=true` no perfil:
-
-1. `CreateApplication` cria a candidatura normalmente
-2. Injeta `SendApplicationEmail` e dispara o envio
-3. **`SendApplicationEmail`** resolve mensagem e currículo:
-   - `message_mode=fixed` → usa `profile.email_apply_message_template`
-   - `message_mode=variable` → usa `emailMessageOverride` do DTO
-   - `resume_mode=fixed` → usa `profile.email_apply_resume_id`
-   - `resume_mode=variable` → usa `emailResumeIdOverride` do DTO
-4. Envia `ApplicationEmail` Mailable via queue com `replyTo(user.email)`
-5. Se currículo é PDF upload, anexa via S3 `temporaryUrl`
-6. Seta `application.sent_via_email_at = now()`
-
-**StoreApplicationRequest** valida os campos opcionais:
-- `email_message_override: string|nullable|max:5000`
-- `email_resume_id_override: integer|nullable|exists:resumes,id` (ownership check)
+A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`SendApplicationEmail` action + `ApplicationEmail` mailable + colunas `profiles.email_apply_*` + `jobs.contact_email` + `applications.sent_via_email_at`) ainda existe e o `CreateApplication` continua chamando `SendApplicationEmail` quando o perfil tem `email_apply_enabled=true`. Como o frontend não permite mais ligar essa flag (a `ProfileView` removeu a seção e o `ProfileSchema` Zod não tem os campos), na prática **nenhum email é enviado em produção**. Limpeza completa (drop do action + mailable + colunas + validações + chamada no `CreateApplication`) está pendente.
 
 ### Anexos
 
@@ -161,7 +146,7 @@ Quando o user aplica a uma vaga com `contact_email` e tem `email_apply_enabled=t
 - **Kanban config é client-side only.** Colunas, cores e ordem ficam em `localStorage('kanban-config')`. Etapas customizadas (prefixo `custom_`) são visuais — o backend não conhece esses status, então drag-drop para elas é bloqueado no frontend. Limite de 15 colunas.
 - **Vinculação ↔ vaga:** quando uma vaga é desativada (`active=false`), candidaturas existentes mantêm `job_id`. UI deve renderizar com fallback para vaga removida.
 - **`ApplicationCreated` listener** pode disparar lógica adicional (ex.: contadores). Se virar gargalo no fluxo de aplicar, mover para queue.
-- **`SendApplicationEmail` depende do perfil** (`email_apply_enabled`, modes, template, resume). Se o perfil estiver incompleto (ex.: `message_mode=fixed` sem template), a action não envia. Verificar configuração do perfil antes de debugar "e-mail não enviado".
+- **`SendApplicationEmail` é dead code do ponto de vista do usuário** — a UI de configuração foi removida, então `email_apply_enabled` nunca é true em perfis novos. A action ainda é injetada em `CreateApplication` mas o `if (!$profile->email_apply_enabled) return` curto-circuita. Limpar quando fizermos o drop das colunas.
 - **`CreateApplication` injeta `SendApplicationEmail` via container.** O teste unitário usa `app(CreateApplication::class)` para resolver a dependência — nunca instanciar diretamente com `new`.
 - **Arquivamento é ortogonal ao status.** `archived_at` não interfere na state machine — uma candidatura `accepted` ou `applied` pode ser arquivada do mesmo jeito. O follow-up automático **não** considera `archived_at` (ainda manda follow-up pra arquivada se ela bater os critérios). Se isso for indesejado, adicionar `whereNull('archived_at')` no `SendApplicationFollowUpsCommand`.
 - **Query key do Kanban mudou para `['applications', 'active' | 'archived']`.** Quem fizer optimistic update em mutation deve usar a key específica (`['applications', 'active']`), senão `setQueryData` vira no-op silencioso. `useChangeApplicationStatus` já está ajustado.

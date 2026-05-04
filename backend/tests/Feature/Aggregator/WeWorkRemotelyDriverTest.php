@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Job\Aggregator\Drivers\WeWorkRemotelyDriver;
 use App\Enums\Modality;
-use App\Enums\Seniority;
 use Illuminate\Support\Facades\Http;
 
 it('fetches and transforms WeWorkRemotely RSS into JobDTOs', function (): void {
@@ -47,16 +46,16 @@ it('fetches and transforms WeWorkRemotely RSS into JobDTOs', function (): void {
         ->and($a->companyName)->toBe('Acme Corp')
         ->and($a->title)->toBe('Senior Ruby on Rails Engineer')
         ->and($a->modality)->toBe(Modality::Remote)
-        ->and($a->seniority)->toBe(Seniority::Senior)
+        ->and($a->seniority)->toBeNull()
         ->and($a->location)->toBe('Anywhere in the World')
-        ->and($a->stack)->toContain('ruby', 'rails', 'postgres');
+        ->and($a->stack)->toBe([]);
 
     expect($b->companyName)->toBe('Widget Inc')
         ->and($b->title)->toBe('Junior Frontend Developer (React)')
-        ->and($b->seniority)->toBe(Seniority::Junior)
+        ->and($b->seniority)->toBeNull()
         ->and($b->location)->toBe('USA')
         ->and($b->externalId)->toBe('wwr-2')
-        ->and($b->stack)->toContain('react', 'typescript');
+        ->and($b->stack)->toBe([]);
 });
 
 it('skips items without link or title', function (): void {
@@ -113,4 +112,39 @@ it('gracefully handles malformed XML', function (): void {
     $results = iterator_to_array((new WeWorkRemotelyDriver)->fetch());
 
     expect($results)->toBeEmpty();
+});
+
+it('descarta vagas não-programação que vazem para o feed', function (): void {
+    $rss = <<<'XML'
+    <?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0">
+      <channel>
+        <item>
+          <title>Acme Corp: Senior Backend Engineer</title>
+          <link>https://weworkremotely.com/remote-jobs/acme-corp-senior-backend-engineer</link>
+          <guid>wwr-tech</guid>
+          <description><![CDATA[<p>Build APIs</p>]]></description>
+          <pubDate>Wed, 10 Apr 2026 12:00:00 +0000</pubDate>
+          <region>Anywhere</region>
+        </item>
+        <item>
+          <title>Marketing Co: Senior Marketing Manager</title>
+          <link>https://weworkremotely.com/remote-jobs/marketing-co-senior-marketing-manager</link>
+          <guid>wwr-mkt</guid>
+          <description><![CDATA[<p>Run campaigns</p>]]></description>
+          <pubDate>Tue, 09 Apr 2026 10:00:00 +0000</pubDate>
+          <region>USA</region>
+        </item>
+      </channel>
+    </rss>
+    XML;
+
+    Http::fake([
+        'weworkremotely.com/*' => Http::response($rss, 200, ['Content-Type' => 'application/rss+xml']),
+    ]);
+
+    $results = iterator_to_array((new WeWorkRemotelyDriver)->fetch());
+
+    expect($results)->toHaveCount(1)
+        ->and($results[0]->title)->toBe('Senior Backend Engineer');
 });

@@ -42,8 +42,8 @@ Validadores tipados usados em **todas** as respostas:
 |---|---|
 | `UserSchema`, `LocaleEnum` | auth, profile, account |
 | `SeniorityEnum`, `ModalityEnum` | profile, jobs |
-| `SkillSchema`, `ProfileSchema` (inclui `email_apply_*`) | profile |
-| `JobSchema` (inclui `contact_email`), `JobSourceSchema`, `JobsPage` | jobs |
+| `SkillSchema`, `ProfileSchema` | profile |
+| `JobSchema` (inclui `description_html`, `contact_email`), `JobSourceSchema`, `JobsPage` | jobs |
 | `ApplicationStatusSchema`, `ApplicationSchema`, `ApplicationEventSchema`, `AttachmentSchema` | applications |
 | `ResumeSchema`, `ResumeSectionSchema`, `ResumesPageSchema` | resumes |
 | `MetricsSummarySchema` | metrics |
@@ -56,30 +56,58 @@ Validadores tipados usados em **todas** as respostas:
 
 ## Layout (`src/shared/layouts/AppLayout.vue`)
 
-Layout autenticado: top navbar + user dropdown + logout. 5 itens de navegação: `dashboard`, `jobs`, `applications`, `resumes`, `profile`. Usa `exact-active-class` (não `active-class`) para highlight — garante que apenas a rota exata é destacada (corrige bug onde Dashboard ficava destacado em todas as páginas `/app/*`). Slot `<router-view />`. Responsivo (mobile com hamburger menu).
+Layout autenticado: top navbar + user dropdown + logout. 5 itens na navegação principal: `dashboard`, `jobs`, `applications`, `resumes`, `suggestions` (+ `admin` quando `auth.user.is_admin`). **`profile` não fica no nav principal** — é acessado pelo **dropdown do user** (entre o e-mail e o "Sair") e na seção do user no menu mobile. Usa `exact-active-class` (não `active-class`) para highlight — garante que apenas a rota exata é destacada (corrige bug onde Dashboard ficava destacado em todas as páginas `/app/*`). Slot `<router-view />`. Responsivo (mobile com hamburger menu).
+
+### Gating de localização
+
+Quando `auth.locationComplete === false`, os itens do nav principal (desktop **e** mobile) viram `<button>` desabilitado em vez de `<RouterLink>`:
+- `cursor-not-allowed`, `opacity-70`, ícone de cadeado dourado ao lado do label
+- `title=t('nav.locked_tooltip')` para tooltip nativo
+- Click chama `goToProfile()` que faz `router.push({ name: 'profile' })`
+
+No menu mobile aparece também um banner amarelo no topo da lista repetindo o mesmo aviso (tooltip nativo não funciona bem em mobile).
+
+O dropdown do user (desktop) e a seção do user (mobile) **continuam acessíveis** mesmo com gating ligado — o user precisa conseguir abrir o profile e fazer logout.
 
 ## Router (`src/router/index.ts`)
 
 **Estrutura:**
-- Rotas públicas: `landing`, `login`, `register`, `auth.callback`
-- Rotas protegidas sob `/app` (layout `AppLayout`): `dashboard`, `jobs`, `applications`, `applications/:id`, `resumes`, `resumes/new`, `resumes/:id/edit`, `resumes/:id/export`, `profile`, `account` (account existe como rota mas não aparece na nav)
+- Rotas públicas: `landing`, `login`, `register`, `verify-email`, `forgot-password`, `reset-password`, `auth.callback`
+- Rotas protegidas sob `/app` (layout `AppLayout`): `dashboard`, `jobs`, `applications`, `applications/:id`, `resumes`, `resumes/new`, `resumes/:id/edit`, `resumes/:id/export`, `profile`, `suggestions`, `admin` (com `meta.adminOnly`), `account` (account existe como rota mas não aparece na nav)
 
 **`beforeEach` guard:**
 ```ts
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
   if (!auth.initialized) await auth.fetchMe();
-  if (to.meta.guestOnly && auth.user) return { name: 'dashboard' };
+
+  if (to.meta.guestOnly && auth.user) {
+    return auth.locationComplete
+      ? { name: 'dashboard' }
+      : { name: 'profile' };
+  }
+
   if (!to.meta.public && !auth.user) {
     return { name: 'login', query: { redirect: to.fullPath } };
   }
+
+  if (auth.user && !auth.locationComplete && !to.meta.public && to.name !== 'profile') {
+    return { name: 'profile' };
+  }
+
+  if (to.meta.adminOnly && !auth.user?.is_admin) {
+    return { name: 'dashboard' };
+  }
+
   return true;
 });
 ```
 
-- **`auth.initialized`** garante que `fetchMe()` roda **uma vez** antes do primeiro render — evita flash de "deslogado" para users autenticados.
-- **`meta.guestOnly: true`** redireciona usuários autenticados (login, register, callback).
+- **`auth.initialized`** garante que `fetchMe()` roda **uma vez** antes do primeiro render — evita flash de "deslogado" para users autenticados. O próprio `fetchMe()` já chama `refreshLocationStatus()` (ver `auth.md`), então `locationComplete` está populado quando o guard roda.
+- **`meta.guestOnly: true`** redireciona usuários autenticados (login, register, callback) para `dashboard` se completos, `profile` se incompletos.
 - **`meta.public: true`** permite acesso sem auth (landing, login, register, callback). Rotas sem `meta.public` exigem auth.
+- **Gating de localização**: usuário autenticado com `locationComplete: false` é redirecionado para `profile` em qualquer rota não-pública não-`profile`. Sai do gating quando preenche `country_code`, `state_name` e `city` no profile e o save dispara `auth.refreshLocationStatus()`.
+- **`meta.adminOnly`** roda **depois** do gating de localização — admin que não preencheu localização ainda fica preso em profile.
 
 **`scrollBehavior`:** restaura saved → âncora suave em hash → topo.
 
@@ -115,6 +143,8 @@ Página estática pública. Hero + 6 features + 3 passos + CTA + footer. Lê `au
 - **Mudou um schema Zod sem mudar o backend (ou vice-versa) → parse falha em produção.** Sempre rodar testes de schema (`tests/*Schemas.test.ts`) E testes de feature do backend juntos.
 - **`ensureCsrf()` cacheia em variável de módulo.** Em testes que mockam o axios, talvez precise resetar — exportar uma função `_resetCsrf()` para testes (não existe ainda).
 - **Router guard chama `fetchMe` no primeiro acesso.** Se `/api/me` retornar erro de rede, o guard ainda assim seta `initialized=true` (catch). Resultado: user vai para login. Em conexão instável, considerar retry.
+- **Gating de localização preso mesmo após preencher** — significa que `auth.refreshLocationStatus()` não rodou após o save. Conferir se `ProfileView.onSubmit` chama o método (via `useAuthStore().refreshLocationStatus()`). Sem isso, o state do Pinia continua com `locationComplete: false` até refresh manual da página.
+- **Adicionar uma rota nova abaixo de `/app`** ela já é coberta pelo gating de localização automaticamente. Se for uma rota que **deve** ser acessível mesmo sem localização (ex.: tela de "complete seu perfil" alternativa), use `meta.public: true` ou ajuste o guard.
 - **`meta.public` ausente = rota protegida.** Se esquecer de marcar uma rota nova como pública, ela exige auth. Cuidado em rotas tipo `/reset-password`.
 - **Composition API mode no i18n** — `useI18n()` retorna `{ t, locale, ... }`. Não usar `$t` em template (modo legacy).
 - **`VITE_API_URL`** precisa estar setada no build de prod, senão o front bate em `localhost:8000`. Conferir `.env.production` antes de buildar.

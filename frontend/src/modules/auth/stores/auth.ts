@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null;
   initialized: boolean;
   pendingVerificationEmail: string | null;
+  locationComplete: boolean;
 }
 
 const PENDING_EMAIL_KEY = 'auth.pending_verification_email';
@@ -35,6 +36,7 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     initialized: false,
     pendingVerificationEmail: loadPendingEmail(),
+    locationComplete: false,
   }),
 
   actions: {
@@ -42,10 +44,27 @@ export const useAuthStore = defineStore('auth', {
       try {
         const { data } = await api.get('/api/me');
         this.user = UserSchema.parse(data.user);
+        await this.refreshLocationStatus();
       } catch {
         this.user = null;
+        this.locationComplete = false;
       } finally {
         this.initialized = true;
+      }
+    },
+
+    async refreshLocationStatus() {
+      if (!this.user) {
+        this.locationComplete = false;
+        return;
+      }
+      try {
+        const { data } = await api.get('/api/profile');
+        this.locationComplete = Boolean(
+          data?.country_code && data?.state_name && data?.city,
+        );
+      } catch {
+        this.locationComplete = false;
       }
     },
 
@@ -53,6 +72,7 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.post('/api/auth/login', { email, password, remember });
       this.user = UserSchema.parse(data.user);
       this.setPendingVerificationEmail(null);
+      await this.refreshLocationStatus();
     },
 
     async register(payload: { name: string; email: string; password: string; password_confirmation: string }) {
@@ -63,6 +83,7 @@ export const useAuthStore = defineStore('auth', {
       if (data?.user) {
         this.user = UserSchema.parse(data.user);
         this.setPendingVerificationEmail(null);
+        await this.refreshLocationStatus();
         return null;
       }
 
@@ -75,6 +96,7 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.post('/api/auth/verify-email', { email, code });
       this.user = UserSchema.parse(data.user);
       this.setPendingVerificationEmail(null);
+      await this.refreshLocationStatus();
     },
 
     async resendVerificationCode(email: string) {
@@ -89,6 +111,7 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.post('/api/auth/reset-password', payload);
       this.user = UserSchema.parse(data.user);
       this.setPendingVerificationEmail(null);
+      await this.refreshLocationStatus();
     },
 
     setPendingVerificationEmail(email: string | null) {
@@ -99,6 +122,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       await api.post('/api/auth/logout');
       this.user = null;
+      this.locationComplete = false;
       this.setPendingVerificationEmail(null);
     },
 

@@ -46,11 +46,6 @@ const navItems = computed<NavItem[]>(() => {
       label: t('nav.suggestions'),
       icon: 'M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18',
     },
-    {
-      name: 'profile',
-      label: t('nav.profile'),
-      icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-    },
   ];
 
   if (auth.user?.is_admin) {
@@ -65,6 +60,13 @@ const navItems = computed<NavItem[]>(() => {
 });
 
 const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
+const navLocked = computed(() => !auth.locationComplete);
+const LOCK_ICON = 'M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z';
+
+function goToProfile() {
+  router.push({ name: 'profile' });
+  mobileOpen.value = false;
+}
 </script>
 
 <template>
@@ -93,6 +95,7 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
                 :key="item.name"
               >
                 <RouterLink
+                  v-if="!navLocked"
                   :to="{ name: item.name }"
                   class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition hover:bg-ink-100 hover:text-ink-900"
                   exact-active-class="!bg-brand-50 !text-brand-700"
@@ -112,6 +115,41 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
                   </svg>
                   <span>{{ item.label }}</span>
                 </RouterLink>
+                <button
+                  v-else
+                  type="button"
+                  :title="t('nav.locked_tooltip')"
+                  class="flex cursor-not-allowed items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-400 opacity-70 transition hover:bg-amber-50 hover:text-amber-700"
+                  @click="goToProfile"
+                >
+                  <svg
+                    class="h-4 w-4 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.75"
+                      :d="item.icon"
+                    />
+                  </svg>
+                  <span>{{ item.label }}</span>
+                  <svg
+                    class="h-3 w-3 shrink-0 text-amber-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      :d="LOCK_ICON"
+                    />
+                  </svg>
+                </button>
               </li>
             </ul>
           </nav>
@@ -157,6 +195,27 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
               <p class="truncate px-3 py-1.5 text-xs text-ink-400">
                 {{ auth.user?.email ?? '' }}
               </p>
+              <hr class="my-1 border-ink-100">
+              <RouterLink
+                :to="{ name: 'profile' }"
+                class="flex items-center gap-2 px-3 py-2 text-sm text-ink-700 transition hover:bg-ink-50"
+                @click="userMenuOpen = false"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.75"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                {{ t('nav.profile') }}
+              </RouterLink>
               <hr class="my-1 border-ink-100">
               <button
                 type="button"
@@ -210,12 +269,32 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
         v-if="mobileOpen"
         class="border-t border-ink-200 bg-white px-4 py-3 lg:hidden"
       >
+        <p
+          v-if="navLocked"
+          class="mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
+        >
+          <svg
+            class="mt-0.5 h-3.5 w-3.5 flex-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              :d="LOCK_ICON"
+            />
+          </svg>
+          {{ t('nav.locked_tooltip') }}
+        </p>
         <ul class="space-y-1">
           <li
             v-for="item in navItems"
             :key="item.name"
           >
             <RouterLink
+              v-if="!navLocked"
               :to="{ name: item.name }"
               class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-600 transition hover:bg-ink-100 hover:text-ink-900"
               exact-active-class="!bg-brand-50 !text-brand-700"
@@ -236,6 +315,41 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
               </svg>
               <span>{{ item.label }}</span>
             </RouterLink>
+            <button
+              v-else
+              type="button"
+              :title="t('nav.locked_tooltip')"
+              class="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-400 opacity-70 transition hover:bg-amber-50 hover:text-amber-700"
+              @click="goToProfile"
+            >
+              <svg
+                class="h-5 w-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  :d="item.icon"
+                />
+              </svg>
+              <span class="flex-1 text-left">{{ item.label }}</span>
+              <svg
+                class="h-3.5 w-3.5 shrink-0 text-amber-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  :d="LOCK_ICON"
+                />
+              </svg>
+            </button>
           </li>
         </ul>
         <hr class="my-2 border-ink-100">
@@ -252,6 +366,27 @@ const userInitial = computed(() => (auth.user?.name?.[0] ?? 'U').toUpperCase());
             </p>
           </div>
         </div>
+        <RouterLink
+          :to="{ name: 'profile' }"
+          class="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-600 transition hover:bg-ink-100"
+          exact-active-class="!bg-brand-50 !text-brand-700"
+          @click="mobileOpen = false"
+        >
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+          {{ t('nav.profile') }}
+        </RouterLink>
         <button
           type="button"
           class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-600 transition hover:bg-ink-100"

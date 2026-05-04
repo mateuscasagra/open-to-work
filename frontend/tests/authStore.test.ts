@@ -19,15 +19,20 @@ describe('authStore', () => {
   });
 
   it('fetchMe sets user on success', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce({
-      data: { user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' } },
-    });
+    vi.mocked(api.get)
+      .mockResolvedValueOnce({
+        data: { user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' } },
+      })
+      .mockResolvedValueOnce({
+        data: { country_code: 'BR', state_name: 'SP', city: 'São Paulo' },
+      });
 
     const auth = useAuthStore();
     await auth.fetchMe();
 
     expect(auth.user?.name).toBe('Diego');
     expect(auth.initialized).toBe(true);
+    expect(auth.locationComplete).toBe(true);
   });
 
   it('fetchMe leaves user null on failure', async () => {
@@ -38,33 +43,88 @@ describe('authStore', () => {
 
     expect(auth.user).toBeNull();
     expect(auth.initialized).toBe(true);
+    expect(auth.locationComplete).toBe(false);
   });
 
-  it('login stores the authenticated user', async () => {
+  it('fetchMe leaves locationComplete=false when profile lacks city', async () => {
+    vi.mocked(api.get)
+      .mockResolvedValueOnce({
+        data: { user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' } },
+      })
+      .mockResolvedValueOnce({
+        data: { country_code: 'BR', state_name: 'SP', city: null },
+      });
+
+    const auth = useAuthStore();
+    await auth.fetchMe();
+
+    expect(auth.locationComplete).toBe(false);
+  });
+
+  it('login stores the authenticated user and refreshes location status', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: { user: { id: 2, name: 'Ana', email: 'a@e.com', locale: 'en' } },
+    });
+    vi.mocked(api.get).mockResolvedValueOnce({
+      data: { country_code: 'US', state_name: 'CA', city: 'San Francisco' },
     });
 
     const auth = useAuthStore();
     await auth.login('a@e.com', 'secret');
 
     expect(auth.user?.id).toBe(2);
+    expect(auth.locationComplete).toBe(true);
     expect(api.post).toHaveBeenCalledWith('/api/auth/login', {
       email: 'a@e.com',
       password: 'secret',
       remember: false,
     });
+    expect(api.get).toHaveBeenCalledWith('/api/profile');
   });
 
-  it('logout clears user state', async () => {
+  it('logout clears user and locationComplete', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({ data: { ok: true } });
 
     const auth = useAuthStore();
-    auth.user = { id: 1, name: 'X', email: 'x@x.com', locale: null };
+    auth.user = { id: 1, name: 'X', email: 'x@x.com', locale: null, is_admin: false };
+    auth.locationComplete = true;
 
     await auth.logout();
 
     expect(auth.user).toBeNull();
+    expect(auth.locationComplete).toBe(false);
+  });
+
+  it('refreshLocationStatus sets false when no user is loaded', async () => {
+    const auth = useAuthStore();
+    await auth.refreshLocationStatus();
+
+    expect(auth.locationComplete).toBe(false);
+    expect(api.get).not.toHaveBeenCalled();
+  });
+
+  it('refreshLocationStatus sets false when /api/profile fails', async () => {
+    vi.mocked(api.get).mockRejectedValueOnce(new Error('500'));
+
+    const auth = useAuthStore();
+    auth.user = { id: 1, name: 'X', email: 'x@x.com', locale: null, is_admin: false };
+
+    await auth.refreshLocationStatus();
+
+    expect(auth.locationComplete).toBe(false);
+  });
+
+  it('refreshLocationStatus sets true when all required fields present', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({
+      data: { country_code: 'BR', state_name: 'RJ', city: 'Rio de Janeiro' },
+    });
+
+    const auth = useAuthStore();
+    auth.user = { id: 1, name: 'X', email: 'x@x.com', locale: null, is_admin: false };
+
+    await auth.refreshLocationStatus();
+
+    expect(auth.locationComplete).toBe(true);
   });
 
   it('oauthUrl builds provider redirect URL', () => {
@@ -97,6 +157,9 @@ describe('authStore', () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: { user: { id: 7, name: 'Verified', email: 'v@e.com', locale: 'pt_BR' } },
     });
+    vi.mocked(api.get).mockResolvedValueOnce({
+      data: { country_code: null, state_name: null, city: null },
+    });
 
     const auth = useAuthStore();
     auth.setPendingVerificationEmail('v@e.com');
@@ -106,6 +169,7 @@ describe('authStore', () => {
     expect(auth.user?.id).toBe(7);
     expect(auth.pendingVerificationEmail).toBeNull();
     expect(localStorage.getItem('auth.pending_verification_email')).toBeNull();
+    expect(auth.locationComplete).toBe(false);
     expect(api.post).toHaveBeenCalledWith('/api/auth/verify-email', {
       email: 'v@e.com',
       code: '123456',
@@ -124,6 +188,9 @@ describe('authStore', () => {
   it('login clears any pending verification email', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: { user: { id: 3, name: 'OK', email: 'ok@e.com', locale: 'pt_BR' } },
+    });
+    vi.mocked(api.get).mockResolvedValueOnce({
+      data: { country_code: 'BR', state_name: 'SP', city: 'Campinas' },
     });
 
     const auth = useAuthStore();
@@ -148,6 +215,9 @@ describe('authStore', () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: { user: { id: 9, name: 'Reset', email: 'r@e.com', locale: 'pt_BR' } },
     });
+    vi.mocked(api.get).mockResolvedValueOnce({
+      data: { country_code: 'BR', state_name: 'SP', city: 'São Paulo' },
+    });
 
     const auth = useAuthStore();
     await auth.resetPassword({
@@ -164,5 +234,6 @@ describe('authStore', () => {
       password_confirmation: 'NewPass1',
     });
     expect(auth.user?.id).toBe(9);
+    expect(auth.locationComplete).toBe(true);
   });
 });

@@ -126,11 +126,17 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.guestOnly && auth.user) {
-    return { name: 'dashboard' };
+    return auth.locationComplete
+      ? { name: 'dashboard' }
+      : { name: 'profile' };
   }
 
   if (!to.meta.public && !auth.user) {
     return { name: 'login', query: { redirect: to.fullPath } };
+  }
+
+  if (auth.user && !auth.locationComplete && !to.meta.public && to.name !== 'profile') {
+    return { name: 'profile' };
   }
 
   if (to.meta.adminOnly && !auth.user?.is_admin) {

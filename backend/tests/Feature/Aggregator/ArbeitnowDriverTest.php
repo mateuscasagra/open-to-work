@@ -61,7 +61,7 @@ it('skips items without slug', function (): void {
         'www.arbeitnow.com/api/job-board-api' => Http::response([
             'data' => [
                 ['title' => 'No slug here'],
-                ['slug' => 'ok-1', 'title' => 'Dev', 'company_name' => 'X', 'url' => 'u', 'tags' => [], 'remote' => true, 'created_at' => 1733961600],
+                ['slug' => 'ok-1', 'title' => 'Backend Developer', 'company_name' => 'X', 'url' => 'u', 'tags' => ['python'], 'remote' => true, 'created_at' => 1733961600],
             ],
         ]),
     ]);
@@ -79,4 +79,48 @@ it('handles empty data array', function (): void {
     $results = iterator_to_array((new ArbeitnowDriver)->fetch());
 
     expect($results)->toBeEmpty();
+});
+
+it('descarta vagas que não são de programação', function (): void {
+    Http::fake([
+        'www.arbeitnow.com/api/job-board-api' => Http::response([
+            'data' => [
+                [
+                    'slug' => 'tech-1',
+                    'title' => 'Senior PHP Engineer',
+                    'company_name' => 'Acme',
+                    'description' => 'job',
+                    'remote' => true,
+                    'url' => 'u',
+                    'tags' => ['PHP', 'Laravel'],
+                    'created_at' => 1733961600,
+                ],
+                [
+                    'slug' => 'sales-1',
+                    'title' => 'Account Executive',
+                    'company_name' => 'GrowthCo',
+                    'description' => 'sell',
+                    'remote' => true,
+                    'url' => 'u',
+                    'tags' => ['sales', 'crm'],
+                    'created_at' => 1733961600,
+                ],
+                [
+                    'slug' => 'design-1',
+                    'title' => 'UX Researcher',
+                    'company_name' => 'PixelCo',
+                    'description' => 'research',
+                    'remote' => true,
+                    'url' => 'u',
+                    'tags' => ['figma'],
+                    'created_at' => 1733961600,
+                ],
+            ],
+        ]),
+    ]);
+
+    $results = iterator_to_array((new ArbeitnowDriver)->fetch());
+
+    expect($results)->toHaveCount(1)
+        ->and($results[0]->externalId)->toBe('tech-1');
 });

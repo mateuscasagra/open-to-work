@@ -86,6 +86,41 @@ describe('JobSchema', () => {
       }),
     ).not.toThrow();
   });
+
+  it('parses description_html when provided', () => {
+    const job = JobSchema.parse({
+      id: 1,
+      title: 'Dev',
+      description_html: '<p>Hello <strong>world</strong></p>',
+      location: null,
+      modality: null,
+      seniority: null,
+      stack: [],
+      salary_min: null,
+      salary_max: null,
+      salary_currency: null,
+      posted_at: null,
+      company: null,
+    });
+    expect(job.description_html).toBe('<p>Hello <strong>world</strong></p>');
+  });
+
+  it('defaults description_html to null when omitted', () => {
+    const job = JobSchema.parse({
+      id: 1,
+      title: 'Dev',
+      location: null,
+      modality: null,
+      seniority: null,
+      stack: [],
+      salary_min: null,
+      salary_max: null,
+      salary_currency: null,
+      posted_at: null,
+      company: null,
+    });
+    expect(job.description_html).toBeNull();
+  });
 });
 
 describe('ApplicationSchema', () => {

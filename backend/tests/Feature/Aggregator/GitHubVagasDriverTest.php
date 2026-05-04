@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Job\Aggregator\Drivers\GitHubVagasDriver;
 use App\Enums\Modality;
-use App\Enums\Seniority;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function (): void {
@@ -23,6 +22,14 @@ it('fetches issues from GitHub repos and maps to JobDTO', function (): void {
                     'body' => "## Sobre a vaga\n\nTrabalhe com Node.js, PostgreSQL e AWS.\n\nContato: rh@acme.com",
                     'html_url' => 'https://github.com/frontendbr/vagas/issues/4321',
                     'created_at' => '2026-04-10T12:00:00Z',
+                    'labels' => [
+                        ['name' => 'CLT'],
+                        ['name' => 'Sênior'],
+                        ['name' => 'Node.js'],
+                        ['name' => 'PostgreSQL'],
+                        ['name' => 'Docker'],
+                        ['name' => 'São Paulo'],
+                    ],
                 ],
                 [
                     'number' => 4322,
@@ -30,6 +37,11 @@ it('fetches issues from GitHub repos and maps to JobDTO', function (): void {
                     'body' => '## Vaga\n\nSwift, Kotlin opcional.',
                     'html_url' => 'https://github.com/frontendbr/vagas/issues/4322',
                     'created_at' => '2026-04-09T08:00:00Z',
+                    'labels' => [
+                        ['name' => 'Estágio'],
+                        ['name' => 'Remoto'],
+                        ['name' => 'PJ'],
+                    ],
                 ],
                 [
                     // Pull request — deve ser ignorado.
@@ -56,17 +68,17 @@ it('fetches issues from GitHub repos and maps to JobDTO', function (): void {
         ->and($a->companyName)->toBe('Acme Tech')
         ->and($a->title)->toBe('Pessoa Desenvolvedora Backend Sênior (Node.js)')
         ->and($a->modality)->toBe(Modality::Hybrid)
-        ->and($a->seniority)->toBe(Seniority::Senior)
+        ->and($a->seniority)->toBeNull()
         ->and($a->location)->toBe('São Paulo / SP')
         ->and($a->language)->toBe('pt_BR')
-        ->and($a->stack)->toContain('node', 'postgresql', 'aws');
+        ->and($a->stack)->toBe(['node.js', 'postgresql', 'docker']);
 
     expect($b->modality)->toBe(Modality::Remote)
-        ->and($b->seniority)->toBe(Seniority::Intern)
+        ->and($b->seniority)->toBeNull()
         ->and($b->companyName)->toBe('CocoaCo')
         ->and($b->title)->toBe('Estágio iOS')
         ->and($b->location)->toBeNull()
-        ->and($b->stack)->toContain('swift', 'kotlin');
+        ->and($b->stack)->toBe([]);
 });
 
 it('skips issues without number/title/html_url', function (): void {

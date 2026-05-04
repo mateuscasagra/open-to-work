@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Job\Aggregator\Drivers\RemotiveDriver;
 use App\Enums\Modality;
-use App\Enums\Seniority;
 use Illuminate\Support\Facades\Http;
 
 it('fetches and transforms Remotive payload into JobDTOs', function (): void {
@@ -26,18 +25,18 @@ it('fetches and transforms Remotive payload into JobDTOs', function (): void {
                     'tags' => ['python', 'django', 'postgresql'],
                 ],
                 [
-                    'id' => 1358,
-                    'url' => 'https://remotive.com/remote-jobs/design/junior-designer-1358',
-                    'title' => 'Junior Product Designer',
-                    'company_name' => 'DesignCo',
+                    'id' => 1359,
+                    'url' => 'https://remotive.com/remote-jobs/software-dev/junior-frontend-1359',
+                    'title' => 'Junior Frontend Developer',
+                    'company_name' => 'WebShop',
                     'company_logo' => null,
-                    'category' => 'Design',
+                    'category' => 'Software Development',
                     'job_type' => 'contract',
                     'candidate_required_location' => 'Europe',
                     'salary' => '',
-                    'description' => '<p>Design UIs</p>',
+                    'description' => '<p>Build UIs in React</p>',
                     'publication_date' => '2026-04-09T12:00:00',
-                    'tags' => ['figma'],
+                    'tags' => ['react', 'typescript'],
                 ],
             ],
         ]),
@@ -54,15 +53,57 @@ it('fetches and transforms Remotive payload into JobDTOs', function (): void {
         ->and($a->title)->toBe('Senior Backend Engineer')
         ->and($a->companyName)->toBe('TechCorp')
         ->and($a->modality)->toBe(Modality::Remote)
-        ->and($a->seniority)->toBe(Seniority::Senior)
+        ->and($a->seniority)->toBeNull()
         ->and($a->stack)->toBe(['python', 'django', 'postgresql'])
         ->and($a->salaryMin)->toBe(100000)
         ->and($a->salaryMax)->toBe(150000)
         ->and($a->salaryCurrency)->toBe('USD');
 
-    expect($b->seniority)->toBe(Seniority::Junior)
+    expect($b->seniority)->toBeNull()
         ->and($b->salaryMin)->toBeNull()
         ->and($b->salaryMax)->toBeNull();
+});
+
+it('envia category=software-dev na request', function (): void {
+    Http::fake([
+        'remotive.com/api/remote-jobs*' => Http::response(['jobs' => []]),
+    ]);
+
+    iterator_to_array((new RemotiveDriver)->fetch());
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'category=software-dev'));
+});
+
+it('descarta vagas que escaparem fora da categoria software-dev', function (): void {
+    Http::fake([
+        'remotive.com/api/remote-jobs*' => Http::response([
+            'jobs' => [
+                [
+                    'id' => 1,
+                    'url' => 'u',
+                    'title' => 'Backend Engineer',
+                    'company_name' => 'TechCo',
+                    'tags' => ['go'],
+                    'description' => '<p>Build APIs</p>',
+                    'publication_date' => '2026-04-10T00:00:00',
+                ],
+                [
+                    'id' => 2,
+                    'url' => 'u',
+                    'title' => 'Junior Product Designer',
+                    'company_name' => 'DesignCo',
+                    'tags' => ['figma'],
+                    'description' => '<p>Design UIs</p>',
+                    'publication_date' => '2026-04-09T00:00:00',
+                ],
+            ],
+        ]),
+    ]);
+
+    $results = iterator_to_array((new RemotiveDriver)->fetch());
+
+    expect($results)->toHaveCount(1)
+        ->and($results[0]->title)->toBe('Backend Engineer');
 });
 
 it('skips items without id', function (): void {
@@ -70,7 +111,7 @@ it('skips items without id', function (): void {
         'remotive.com/api/remote-jobs*' => Http::response([
             'jobs' => [
                 ['title' => 'No id'],
-                ['id' => 1, 'url' => 'u', 'title' => 'Dev', 'company_name' => 'X', 'tags' => []],
+                ['id' => 1, 'url' => 'u', 'title' => 'Backend Developer', 'company_name' => 'X', 'tags' => ['python']],
             ],
         ]),
     ]);

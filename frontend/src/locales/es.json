@@ -16,7 +16,8 @@
     "home": "Inicio",
     "features": "Funciones",
     "how_it_works": "Cómo funciona",
-    "open_app": "Abrir app"
+    "open_app": "Abrir app",
+    "locked_tooltip": "Completa tu ubicación en el perfil para desbloquear esta área"
   },
   "admin": {
     "title": "Panel administrativo",
@@ -121,7 +122,7 @@
       "jobs_desc": "Tanto si quieres trabajar en tu ciudad, en otro país o 100% remoto — agregamos vacantes de múltiples fuentes para que no se te escape nada.",
       "jobs_b1": "Filtros por modalidad (remoto, híbrido, presencial), seniority e idioma",
       "jobs_b2": "Vacantes actualizadas en cada release, sin registros en sitios diferentes",
-      "jobs_b3": "Aplica directamente desde el panel o por correo, sin salir de la plataforma",
+      "jobs_b3": "Aplica directamente desde el panel, sin salir de la plataforma",
       "metrics_eyebrow": "Métricas inteligentes",
       "metrics_title": "Conoce tus fortalezas y debilidades",
       "metrics_desc": "Deja de adivinar dónde está el cuello de botella. Mira en qué etapas avanzas, qué canales traen respuesta y dónde se traba tu búsqueda — y ajústalo con datos reales.",
@@ -283,18 +284,8 @@
     "save": "Guardar",
     "saved": "¡Perfil guardado!",
     "saveFailed": "Error al guardar el perfil",
-    "email_apply": "Candidatura por email",
-    "email_apply_desc": "Envía tu currículum y un mensaje directamente a vacantes que aceptan candidatura por email.",
-    "email_apply_enabled": "Enviar currículum por email automáticamente",
-    "email_apply_message_mode": "Mensaje",
-    "email_apply_message_fixed": "Mensaje fijo",
-    "email_apply_message_variable": "Personalizar por vacante",
-    "email_apply_template": "Plantilla del mensaje",
-    "email_apply_template_hint": "Usa {empresa} y {cargo} como placeholders",
-    "email_apply_resume_mode": "Currículum",
-    "email_apply_resume_fixed": "Currículum fijo",
-    "email_apply_resume_variable": "Elegir por vacante",
-    "email_apply_resume_select": "Selecciona un currículum"
+    "locked_banner_title": "Completa tu ubicación para desbloquear la app",
+    "locked_banner_body": "Mientras país, estado y ciudad no estén completos, las demás secciones (Panel, Vacantes, Candidaturas, CVs, Sugerencias) quedan bloqueadas."
   },
   "jobs": {
     "loading": "Cargando vacantes…",
@@ -306,6 +297,7 @@
     "applying": "Aplicando…",
     "applied": "✓ Aplicada",
     "already_applied": "Ya aplicada",
+    "view": "Ver",
     "filters": {
       "matchOnly": "Solo compatibles con mi perfil",
       "search_placeholder": "Buscar (ej.: Backend Kotlin, SRE)",
@@ -316,12 +308,18 @@
     },
     "use_resume": "Usar currículum:",
     "no_resume": "Ninguno",
-    "email_tag": "E-mail",
-    "apply_modal_title": "Candidatura por email",
-    "apply_modal_message": "Mensaje",
-    "apply_modal_resume": "Currículum",
-    "apply_modal_send": "Enviar candidatura",
-    "apply_modal_sending": "Enviando..."
+    "pagination": {
+      "next": "Siguiente"
+    },
+    "detail": {
+      "close": "Cerrar",
+      "location": "Ubicación",
+      "salary": "Salario",
+      "up_to": "Hasta",
+      "posted_at": "Publicada el",
+      "description": "Descripción",
+      "no_description": "Sin descripción disponible."
+    }
   },
   "seniority": {
     "intern": "Becario",

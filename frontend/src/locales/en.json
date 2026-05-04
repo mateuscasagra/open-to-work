@@ -16,7 +16,8 @@
     "home": "Home",
     "features": "Features",
     "how_it_works": "How it works",
-    "open_app": "Open app"
+    "open_app": "Open app",
+    "locked_tooltip": "Fill in your location in profile to unlock this area"
   },
   "admin": {
     "title": "Admin panel",
@@ -121,7 +122,7 @@
       "jobs_desc": "Whether you want to work in your city, abroad or 100% remote — we aggregate jobs from multiple sources so nothing slips through the cracks.",
       "jobs_b1": "Filters by modality (remote, hybrid, onsite), seniority and language",
       "jobs_b2": "Jobs refreshed every release, no need to sign up on multiple sites",
-      "jobs_b3": "Apply directly from the dashboard or by email, without leaving the platform",
+      "jobs_b3": "Apply directly from the dashboard, without leaving the platform",
       "metrics_eyebrow": "Smart metrics",
       "metrics_title": "Know your strengths and weaknesses",
       "metrics_desc": "Stop guessing where the bottleneck is. See which stages you advance through, which channels deliver replies and where your search stalls — and fix it with real data.",
@@ -283,18 +284,8 @@
     "save": "Save",
     "saved": "Profile saved!",
     "saveFailed": "Failed to save profile",
-    "email_apply": "Apply by email",
-    "email_apply_desc": "Send your resume and a message directly for jobs that accept email applications.",
-    "email_apply_enabled": "Send resume by email automatically",
-    "email_apply_message_mode": "Message",
-    "email_apply_message_fixed": "Fixed message",
-    "email_apply_message_variable": "Customize per job",
-    "email_apply_template": "Message template",
-    "email_apply_template_hint": "Use {empresa} and {cargo} as placeholders",
-    "email_apply_resume_mode": "Resume",
-    "email_apply_resume_fixed": "Fixed resume",
-    "email_apply_resume_variable": "Choose per job",
-    "email_apply_resume_select": "Select a resume"
+    "locked_banner_title": "Complete your location to unlock the app",
+    "locked_banner_body": "Until country, state and city are filled in, the other sections (Dashboard, Jobs, Applications, Resumes, Suggestions) stay locked."
   },
   "jobs": {
     "loading": "Loading jobs…",
@@ -306,6 +297,7 @@
     "applying": "Applying…",
     "applied": "✓ Applied",
     "already_applied": "Already applied",
+    "view": "View",
     "filters": {
       "matchOnly": "Only matches for my profile",
       "search_placeholder": "Search (e.g., Backend Kotlin, SRE)",
@@ -316,12 +308,18 @@
     },
     "use_resume": "Use resume:",
     "no_resume": "None",
-    "email_tag": "E-mail",
-    "apply_modal_title": "Apply by email",
-    "apply_modal_message": "Message",
-    "apply_modal_resume": "Resume",
-    "apply_modal_send": "Send application",
-    "apply_modal_sending": "Sending..."
+    "pagination": {
+      "next": "Next"
+    },
+    "detail": {
+      "close": "Close",
+      "location": "Location",
+      "salary": "Salary",
+      "up_to": "Up to",
+      "posted_at": "Posted on",
+      "description": "Description",
+      "no_description": "No description available."
+    }
   },
   "seniority": {
     "intern": "Intern",
