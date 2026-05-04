@@ -1131,7 +1131,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
-			count: 9
+			count: 11
 			path: tests/Feature/Metrics/GetUserMetricsTest.php
 
 		-
@@ -1149,13 +1149,13 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 10
+			count: 12
 			path: tests/Feature/Metrics/GetUserMetricsTest.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 10
+			count: 12
 			path: tests/Feature/Metrics/GetUserMetricsTest.php
 
 		-

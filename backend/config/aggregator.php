@@ -46,6 +46,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | GitHub API token (opcional)
+    |--------------------------------------------------------------------------
+    |
+    | Sem token: 60 req/h. Com token: 5000 req/h. Lido aqui (não em runtime
+    | via env()) para sobreviver ao config:cache.
+    */
+    'github_token' => env('GITHUB_TOKEN', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Repositórios GitHub para o GitHubVagasDriver
     |--------------------------------------------------------------------------
     |

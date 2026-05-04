@@ -70,8 +70,8 @@ final class GitHubVagasDriver implements JobSourceDriver
         $repos = config('aggregator.github_repos', []);
 
         foreach ($repos as $entry) {
-            $owner = (string) ($entry['owner'] ?? '');
-            $repo = (string) ($entry['repo'] ?? '');
+            $owner = $entry['owner'];
+            $repo = $entry['repo'];
             if ($owner === '' || $repo === '') {
                 continue;
             }
@@ -102,7 +102,7 @@ final class GitHubVagasDriver implements JobSourceDriver
                 ->timeout(30)
                 ->retry(2, 1000);
 
-            $token = (string) env('GITHUB_TOKEN', '');
+            $token = (string) config('aggregator.github_token', '');
             if ($token !== '') {
                 $request = $request->withToken($token);
             }
