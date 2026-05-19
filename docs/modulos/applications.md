@@ -55,6 +55,14 @@ Qualquer status pode ir pra qualquer status — incluindo pular fases ou voltar 
 
 `CreateApplication` checa `unique(user_id, job_id)`. Se existir, lança `DuplicateApplicationException` → controller responde `409`.
 
+### Auto-fill ao aplicar via feed
+
+Quando `jobId` é passado e `notes`/`jobUrl` vêm `null` no DTO (cenário típico de "Aplicar" na lista de vagas), o `CreateApplication` carrega o Job (com `sources`) e preenche:
+- `notes` ← `extractTextFromHtml($job->description_html)` (strip de tags, preservando `<br>` e `</p>` como quebras, decode de entidades, cap em 5000 chars com `…`)
+- `job_url` ← `$job->sources->first()?->external_url`
+
+Valores explícitos no DTO **sempre vencem** (operador `??`). Manual application (sem `jobId`) não tenta carregar nada.
+
 ### Candidatura por e-mail (legado)
 
 A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`SendApplicationEmail` action + `ApplicationEmail` mailable + colunas `profiles.email_apply_*` + `jobs.contact_email` + `applications.sent_via_email_at`) ainda existe e o `CreateApplication` continua chamando `SendApplicationEmail` quando o perfil tem `email_apply_enabled=true`. Como o frontend não permite mais ligar essa flag (a `ProfileView` removeu a seção e o `ProfileSchema` Zod não tem os campos), na prática **nenhum email é enviado em produção**. Limpeza completa (drop do action + mailable + colunas + validações + chamada no `CreateApplication`) está pendente.
@@ -87,7 +95,7 @@ A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`Send
 **Arquivos:** `frontend/src/modules/applications/`
 
 - **`ApplicationsKanbanView`** (`views/`) — Kanban com colunas por status. Drag-and-drop **HTML5 nativo, só desktop** (≥ lg = 1024px via `window.matchMedia('(min-width: 1024px)')`). Mobile: cards stack em coluna única (responsive `flex-col lg:flex-row`), drag desabilitado, troca de status só pela `ApplicationDetailView`. **Botão "Arquivadas" no header** (mesmo estilo do "Arquivar" no detail) alterna entre `?archived=0` e `?archived=1` — em modo arquivada o label muda para "Ativas". Em modo arquivada: drag-drop também desabilitado e botão "Nova candidatura" desabilitado. Query key inclui o modo: `['applications', 'active' | 'archived']`. `dragEnabled = isDesktop && !viewArchived` é a condição única — testada nos handlers e no atributo `:draggable`. Inclui:
-  - **Modal "Nova candidatura"** — título, empresa, descrição da vaga, canal (select: LinkedIn/Indeed/Catho/Glassdoor/Gupy/InfoJobs/etc.), currículo enviado (select dos resumes do user). Envia `manualTitle`, `manualCompany`, `notes`, `source`, `resumeId`.
+  - **Modal "Nova candidatura"** — título, empresa, link da vaga, descrição da vaga, canal (select: LinkedIn/Indeed/Catho/Glassdoor/Gupy/InfoJobs/etc.), currículo enviado (select dos resumes do user). Envia `manualTitle`, `manualCompany`, `jobUrl`, `notes`, `source`, `resumeId`. Campo `jobUrl` aceita `null` ou URL válida (validação `url` no backend, max 500 chars).
   - **Modal "Configurar etapas"** — modal centralizado com etapas em row horizontal. Cada etapa mostra bolinha de cor (click abre `<input type="color">` nativo), nome (click para editar inline), setas esquerda/direita para reordenar, lixeira para excluir. Etapas `applied`, `accepted` e `rejected` são travadas (sem editar nome/cor/posição/excluir). Botão "Adicionar etapa" cria etapas customizadas (limite de 15). "Restaurar padrão" reseta tudo.
   - **Scroll fade** — `mask-image` CSS nas bordas do kanban quando há colunas fora da viewport.
   - **Altura da view fixada em desktop** (`lg:h-[calc(100vh-7rem)] lg:overflow-hidden`) — `7rem` = header (4rem) + paddings do AppLayout (3rem). Colunas ocupam altura cheia disponível e a área de cards usa `lg:overflow-y-auto` interno, então a página não cresce mais quando há muitos cards (scroll é dentro da coluna).
@@ -95,11 +103,11 @@ A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`Send
 - **`ApplicationDetailView`** (`views/`) — rota `/app/applications/:id`. Integra `useKanbanConfig` para usar labels, cores e visibilidade das etapas configuradas pelo user no Kanban. Layout com `border-l-4 border-brand-500` em todos os cards. **Botão Arquivar/Desarquivar** no header (lado direito do voltar) — vira "Desarquivar" se `archived_at != null`. Mostra badge "Arquivada" no header da candidatura quando arquivada. Inclui:
   - **Header** — título, empresa, data, badge de status com cor da etapa do Kanban + **progress stepper** horizontal mostrando as etapas visíveis do Kanban com dots coloridos
   - **Avançar status** — botões filtrados pelas etapas visíveis do Kanban, com dot de cor da etapa. Labels respeitam renomeações feitas no Kanban
-  - **Notes, salário & currículo** — seção unificada com textarea, salário esperado e dropdown de currículo lado a lado (`sm:grid-cols-2`). **Um único botão Salvar** envia `notes`, `expected_salary` e `resume_id` juntos via `updateNotes.mutateAsync()`
+  - **Descrição da vaga, link, salário & currículo** — seção unificada (título `applications.job_description`, antes era "Anotações"). Contém input "Título da vaga" (`manual_title`, max 255), input "Link da vaga" (`job_url`) com botão de abrir em nova aba quando preenchido, textarea da descrição (persistida em `notes`, max **5000 chars**), salário esperado e dropdown de currículo lado a lado (`sm:grid-cols-2`). **Um único botão Salvar** envia `notes`, `job_url`, `manual_title`, `expected_salary` e `resume_id` juntos via `updateNotes.mutateAsync()`. A coluna `notes` continua sendo o campo de descrição (não foi renomeada no DB — só o label da seção). **Display do título no header e nos cards do Kanban prioriza `manual_title` sobre `job.title`** (override do usuário vence — antes era o inverso) — isso permite editar o título mesmo em candidaturas vindas do feed
   - **Attachments** — upload/list/delete via `useAttachments`
   - **Timeline** — `application_events` ordenados desc, labels de status via `statusLabel()` (consistente com Kanban)
 - **Composables:**
-  - `useApplicationDetail` — query + `updateNotes(notes, expectedSalary, resumeId)` (otimista)
+  - `useApplicationDetail` — query + `updateNotes({ notes?, expectedSalary?, resumeId?, jobUrl?, manualTitle? })` (otimista, envia ao endpoint só os campos definidos — `body.job_url` / `body.manual_title` em snake_case)
   - `useChangeApplicationStatus` — mutation otimista com rollback em 422. **Optimistic write em `['applications', 'active']`** (não em `['applications']` cru, porque a query do Kanban inclui modo no key)
   - `useApplyToJob` — POST `/api/applications`, classifica erro em `'duplicate' | 'validation' | 'unknown'`
   - `useArchiveApplication` — POST `/{id}/archive` ou `/{id}/unarchive` baseado em flag. Invalida `['applications']` (prefix match) + `['application', id]`
@@ -110,7 +118,7 @@ A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`Send
 ## Efeitos colaterais
 
 - Escritas: `applications` (inclui `sent_via_email_at`, `archived_at`), `application_events`, `media`
-- Migration: `2026_04_21_000300_add_sent_via_email_at_to_applications`, `2026_04_30_000100_add_archived_at_to_applications`
+- Migration: `2026_04_21_000300_add_sent_via_email_at_to_applications`, `2026_04_30_000100_add_archived_at_to_applications`, `2026_05_19_000000_add_job_url_to_applications` (varchar 500 nullable)
 - Eventos: `ApplicationCreated`, `ApplicationStatusChanged`
 - E-mails via Resend (queue `mail`) — follow-ups + candidatura por e-mail (`ApplicationEmail`)
 - Objetos em S3 (anexos)
@@ -122,7 +130,7 @@ A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`Send
 - `frontend/tests/useChangeApplicationStatus.test.ts`
 - `frontend/tests/useArchiveApplication.test.ts`
 - `frontend/tests/applicationsKanbanView.test.ts` — botão de filtro arquivadas (label dinâmico, query param, drag-drop desabilitado em arquivada, botão "Nova" desabilitado)
-- `frontend/tests/useApplicationDetailResumeLink.test.ts` — 4 testes: só resumeId, clear resumeId, só notes, e envio unificado (notes + salary + resumeId)
+- `frontend/tests/useApplicationDetailResumeLink.test.ts` — 4 testes: só resumeId, clear resumeId, só notes, e envio unificado (notes + salary + resumeId + jobUrl)
 - `frontend/tests/applicationStatusMachine.test.ts`
 - `frontend/tests/useKanbanConfig.test.ts` — 25 testes cobrindo: defaults, isLocked/isCustom, rename, setColor, moveColumn (incluindo bloqueio por locked), addColumn (com limite 15), removeColumn (locked/default/custom), resetDefaults, styleFor (hex→rgba), singleton state
 

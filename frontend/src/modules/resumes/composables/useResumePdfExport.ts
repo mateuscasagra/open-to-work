@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import type { jsPDF } from 'jspdf';
 import type { Resume, ResumeSection, ResumeSectionType } from '@/shared/api/schemas';
-import { levelLabel, sectionLabel, str } from '../templates/helpers';
+import { levelLabel, orderedGroups, sectionLabel, str } from '../templates/helpers';
 
 type PdfDoc = jsPDF;
 
@@ -195,9 +195,8 @@ function renderClassic(pdf: PdfDoc, resume: Resume, userName?: string): void {
 
   const BODY: ResumeSectionType[] = ['summary', 'experience', 'education', 'skill', 'language', 'project'];
 
-  for (const type of BODY) {
-    const items = sortedSections(resume, type);
-    if (items.length === 0) continue;
+  for (const group of orderedGroups(resume.sections, BODY)) {
+    const { type, sections: items } = group;
 
     y = ensureSpace(pdf, y, 14, PAGE_BOTTOM, TOP);
 
@@ -401,9 +400,8 @@ function renderModern(pdf: PdfDoc, resume: Resume, userName?: string): void {
   sy += 4;
 
   const SIDEBAR_TYPES: ResumeSectionType[] = ['contact', 'skill', 'language'];
-  for (const type of SIDEBAR_TYPES) {
-    const items = sortedSections(resume, type);
-    if (items.length === 0) continue;
+  for (const group of orderedGroups(resume.sections, SIDEBAR_TYPES)) {
+    const { type, sections: items } = group;
 
     sy = writeText(pdf, sectionLabel(type).toUpperCase(), SIDEBAR_X, sy, {
       fontSize: 8.5,
@@ -465,9 +463,8 @@ function renderModern(pdf: PdfDoc, resume: Resume, userName?: string): void {
 
   const MAIN_TYPES: ResumeSectionType[] = ['summary', 'experience', 'education', 'project'];
 
-  for (const type of MAIN_TYPES) {
-    const items = sortedSections(resume, type);
-    if (items.length === 0) continue;
+  for (const group of orderedGroups(resume.sections, MAIN_TYPES)) {
+    const { type, sections: items } = group;
 
     y = ensureSpace(pdf, y, 16, MAIN_PAGE_BOTTOM, MODERN_TOP, () => paintModernSidebar(pdf));
 

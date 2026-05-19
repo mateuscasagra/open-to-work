@@ -72,7 +72,7 @@ describe('useApplicationDetail.updateNotes with resumeId', () => {
     expect('resume_id' in body).toBe(false);
   });
 
-  it('sends notes, expected_salary, resume_id and job_url together', async () => {
+  it('sends notes, expected_salary, resume_id, job_url and manual_title together', async () => {
     vi.mocked(api.put).mockResolvedValueOnce({
       data: {
         ...baseApp,
@@ -80,6 +80,7 @@ describe('useApplicationDetail.updateNotes with resumeId', () => {
         expected_salary: 8000,
         resume_id: 3,
         job_url: 'https://empresa.com/vaga',
+        manual_title: 'Backend Sênior',
       },
     });
 
@@ -89,6 +90,7 @@ describe('useApplicationDetail.updateNotes with resumeId', () => {
       expectedSalary: 8000,
       resumeId: 3,
       jobUrl: 'https://empresa.com/vaga',
+      manualTitle: 'Backend Sênior',
     });
 
     const [url, body] = vi.mocked(api.put).mock.calls[0] as [string, Record<string, unknown>];
@@ -98,6 +100,7 @@ describe('useApplicationDetail.updateNotes with resumeId', () => {
       expected_salary: 8000,
       resume_id: 3,
       job_url: 'https://empresa.com/vaga',
+      manual_title: 'Backend Sênior',
     });
   });
 });

@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from 'axios';
+import axios, { AxiosError, type AxiosInstance } from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URL ?? '';
 
@@ -28,3 +28,25 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+// Extrai mensagens de validação Laravel (422 -> errors{field:[msg]}) ou
+// a mensagem do backend (409, etc.). Retorna `fallback` se não conseguir extrair.
+// Mensagens vêm com newline entre si — renderize com `whitespace-pre-line`.
+export function extractApiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof AxiosError && error.response) {
+    const { status, data } = error.response;
+
+    if (status === 422 && data?.errors && typeof data.errors === 'object') {
+      const messages = Object.values(data.errors as Record<string, string[]>)
+        .flat()
+        .filter((m): m is string => typeof m === 'string');
+      if (messages.length > 0) return messages.join('\n');
+    }
+
+    if (typeof data?.message === 'string' && data.message.length > 0) {
+      return data.message;
+    }
+  }
+
+  return fallback;
+}

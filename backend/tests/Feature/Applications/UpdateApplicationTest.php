@@ -12,6 +12,7 @@ it('updates notes and expected salary on my application', function (): void {
         'notes' => null,
         'expected_salary' => null,
         'job_url' => null,
+        'manual_title' => null,
     ]);
 
     $response = $this->actingAs($user)
@@ -19,16 +20,19 @@ it('updates notes and expected salary on my application', function (): void {
             'notes' => 'Entrevistador: João. Próxima etapa em 3 dias.',
             'expected_salary' => 14000,
             'job_url' => 'https://empresa.com/vagas/42',
+            'manual_title' => 'Backend Sênior PHP/Laravel',
         ]);
 
     $response->assertOk()
         ->assertJsonPath('notes', 'Entrevistador: João. Próxima etapa em 3 dias.')
         ->assertJsonPath('expected_salary', 14000)
-        ->assertJsonPath('job_url', 'https://empresa.com/vagas/42');
+        ->assertJsonPath('job_url', 'https://empresa.com/vagas/42')
+        ->assertJsonPath('manual_title', 'Backend Sênior PHP/Laravel');
 
     $fresh = $application->fresh();
     expect($fresh->notes)->toBe('Entrevistador: João. Próxima etapa em 3 dias.');
     expect($fresh->job_url)->toBe('https://empresa.com/vagas/42');
+    expect($fresh->manual_title)->toBe('Backend Sênior PHP/Laravel');
 });
 
 it('ignores unauthorized fields', function (): void {

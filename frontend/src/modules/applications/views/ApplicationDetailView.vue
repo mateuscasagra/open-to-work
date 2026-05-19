@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import type { ApplicationStatus } from '@/shared/api/schemas';
 import { useApplicationDetail } from '@/modules/applications/composables/useApplicationDetail';
+import { extractApiErrorMessage } from '@/shared/api/client';
 import { useChangeApplicationStatus } from '@/modules/applications/composables/useChangeApplicationStatus';
 import { useAttachments } from '@/modules/applications/composables/useAttachments';
 import { useArchiveApplication } from '@/modules/applications/composables/useArchiveApplication';
@@ -64,6 +65,7 @@ function formatBytes(bytes: number): string {
 
 const notesInput = ref('');
 const jobUrlInput = ref('');
+const titleInput = ref('');
 const expectedSalaryInput = ref<number | null>(null);
 const resumeIdInput = ref<number | null>(null);
 const saveMessage = ref<string | null>(null);
@@ -101,6 +103,7 @@ watch(
     if (app) {
       notesInput.value = app.notes ?? '';
       jobUrlInput.value = app.job_url ?? '';
+      titleInput.value = app.manual_title ?? app.job?.title ?? '';
       expectedSalaryInput.value = app.expected_salary;
       resumeIdInput.value = app.resume_id ?? null;
     }
@@ -143,18 +146,22 @@ async function onChangeStatus(to: ApplicationStatus): Promise<void> {
   }
 }
 
+const saveError = ref<string | null>(null);
+
 async function onSave(): Promise<void> {
   saveMessage.value = null;
+  saveError.value = null;
   try {
     await updateNotes.mutateAsync({
       notes: notesInput.value,
       jobUrl: jobUrlInput.value.trim() || null,
+      manualTitle: titleInput.value.trim() || null,
       expectedSalary: expectedSalaryInput.value ?? undefined,
       resumeId: resumeIdInput.value,
     });
     saveMessage.value = t('applications.notes_saved');
-  } catch {
-    saveMessage.value = t('applications.notes_save_failed');
+  } catch (e) {
+    saveError.value = extractApiErrorMessage(e, t('applications.notes_save_failed'));
   }
 }
 
@@ -244,7 +251,7 @@ function goBack(): void {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <h1 class="text-xl font-bold tracking-tight text-ink-900">
-                {{ detail.data.value.job?.title ?? detail.data.value.manual_title ?? '—' }}
+                {{ detail.data.value.manual_title ?? detail.data.value.job?.title ?? '—' }}
               </h1>
               <p class="mt-1 text-sm text-ink-600">
                 {{ detail.data.value.job?.company?.name ?? detail.data.value.manual_company ?? '—' }}
@@ -355,7 +362,16 @@ function goBack(): void {
           {{ t('applications.job_description') }}
         </h2>
 
-        <label class="label">{{ t('applications.job_url') }}</label>
+        <label class="label">{{ t('applications.manual_title') }}</label>
+        <input
+          v-model="titleInput"
+          type="text"
+          class="input mt-1.5"
+          maxlength="255"
+          :placeholder="t('applications.manual_title')"
+        >
+
+        <label class="label mt-4">{{ t('applications.job_url') }}</label>
         <div class="mt-1.5 flex items-center gap-2">
           <input
             v-model="jobUrlInput"
@@ -446,6 +462,13 @@ function goBack(): void {
             class="text-xs text-brand-600"
           >{{ saveMessage }}</span>
         </div>
+        <p
+          v-if="saveError"
+          class="mt-3 whitespace-pre-line rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          role="alert"
+        >
+          {{ saveError }}
+        </p>
       </section>
 
       <!-- Attachments -->

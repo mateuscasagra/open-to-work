@@ -226,8 +226,9 @@ job_sources (job_id, source, external_id, external_url, fetched_at)
 
 applications (
   id, user_id, job_id, resume_id,
+  manual_title, manual_company, job_url,
   status, applied_at, source, notes,
-  expected_salary
+  expected_salary, sent_via_email_at, archived_at
 )
 application_events (application_id, event_type, payload_json, occurred_at)
 

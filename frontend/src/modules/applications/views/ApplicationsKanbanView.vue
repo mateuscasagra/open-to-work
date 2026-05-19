@@ -3,7 +3,7 @@ import { computed, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { api } from '@/shared/api/client';
+import { api, extractApiErrorMessage } from '@/shared/api/client';
 import { ApplicationSchema, type Application, type ApplicationStatus } from '@/shared/api/schemas';
 import { z } from 'zod';
 import { useChangeApplicationStatus } from '@/modules/applications/composables/useChangeApplicationStatus';
@@ -113,7 +113,7 @@ function openDetail(applicationId: number): void {
 }
 
 function appTitle(app: Application): string {
-  return app.job?.title ?? app.manual_title ?? '—';
+  return app.manual_title ?? app.job?.title ?? '—';
 }
 
 function appCompany(app: Application): string {
@@ -170,8 +170,8 @@ const manualMutation = useMutation({
     manualForm.resumeId = null;
     manualError.value = '';
   },
-  onError: () => {
-    manualError.value = t('applications.manual_error');
+  onError: (error: unknown) => {
+    manualError.value = extractApiErrorMessage(error, t('applications.manual_error'));
   },
 });
 
@@ -575,7 +575,8 @@ function canMoveRight(status: string): boolean {
 
             <p
               v-if="manualError"
-              class="text-sm text-red-600"
+              class="whitespace-pre-line rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+              role="alert"
             >
               {{ manualError }}
             </p>
