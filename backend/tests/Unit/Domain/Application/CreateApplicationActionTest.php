@@ -21,7 +21,9 @@ it('creates application with Applied status and auto-fills url/description from 
     JobSource::create([
         'job_id' => $job->id,
         'source' => 'linkedin',
+        'external_id' => 'linkedin-9876',
         'external_url' => 'https://linkedin.com/jobs/9876',
+        'fetched_at' => now(),
     ]);
 
     $application = app(CreateApplication::class)->execute(
