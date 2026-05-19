@@ -27,16 +27,33 @@ it('advances status through allowed transition', function (): void {
     Event::assertDispatched(ApplicationStatusChanged::class);
 });
 
-it('rejects invalid transitions', function (): void {
+it('allows arbitrary transitions including skipping stages', function (): void {
+    Event::fake([ApplicationStatusChanged::class]);
+
     $user = User::factory()->create();
     $app = Application::factory()->inStatus(ApplicationStatus::Applied)->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->patchJson("/api/applications/{$app->id}/status", ['status' => 'accepted'])
-        ->assertUnprocessable()
-        ->assertJsonPath('message', fn ($m) => str_contains($m, 'Transição inválida'));
+        ->patchJson("/api/applications/{$app->id}/status", ['status' => 'offer'])
+        ->assertOk()
+        ->assertJsonPath('status', 'offer');
 
-    expect($app->fresh()->status)->toBe(ApplicationStatus::Applied);
+    expect($app->fresh()->status)->toBe(ApplicationStatus::Offer);
+    Event::assertDispatched(ApplicationStatusChanged::class);
+});
+
+it('is a no-op when target equals current status', function (): void {
+    Event::fake([ApplicationStatusChanged::class]);
+
+    $user = User::factory()->create();
+    $app = Application::factory()->inStatus(ApplicationStatus::Screening)->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->patchJson("/api/applications/{$app->id}/status", ['status' => 'screening'])
+        ->assertOk();
+
+    expect(ApplicationEvent::where('application_id', $app->id)->where('event_type', 'status_changed')->count())->toBe(0);
+    Event::assertNotDispatched(ApplicationStatusChanged::class);
 });
 
 it('rejects unknown status value', function (): void {

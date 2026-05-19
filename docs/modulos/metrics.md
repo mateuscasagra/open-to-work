@@ -41,7 +41,7 @@ Scheduler: **03:00 UTC** diário.
 `GetUserMetrics` consulta `applications` + `application_events` **em tempo real** (sem depender de `metrics_daily`), **excluindo arquivadas** via `whereNull('archived_at')`. Devolve:
 - **KPIs:** total/responses/interviews/offers/rejections + taxas (real-time via query direto nas tabelas fonte)
 - **Channels:** por `source` com `applications`, `responses`, `response_rate`
-- **Funnel:** `reached_count` por `ApplicationStatus` (inclui aplicações que **passaram** pela etapa, não só as que estão lá agora)
+- **Funnel:** `reached_count` por `ApplicationStatus`. Conta candidaturas que tiveram evento `status_changed` explícito chegando naquela etapa (`Applied` é contada para todas, pois é o estado inicial). **Pular fases não infla o funil** — cada empresa pode ter um processo diferente.
 - **Heatmap:** matriz `weekday × hour` baseada em `applied_at`
 - **avgDaysBetweenStages:** tempo médio do `applied_at` até o **1º** `status_changed` (em dias)
 - **monthly:** `{ year, month, days_in_month, days: [{day, count}], total_applications, total_responses, response_rate }` — calendário do **mês corrente** no TZ do user. `total_responses` conta candidaturas do mês que receberam alguma resposta (mesmo se a resposta veio depois). Independente de `from`/`to`.
@@ -93,7 +93,7 @@ Scheduler: **03:00 UTC** diário.
   3. Funil e canais mostram empty state informativo quando não há candidaturas — isso é comportamento esperado.
 - **Rollup é idempotente, mas dependente de `application_events` corretos.** Se um event for inserido com `event_type` errado, a contagem (responses/interviews/offers/rejections) sai errada. Confirme tipos via state machine antes de inserir eventos manualmente.
 - **`MetricsDaily` sem cast de `date`** — comparar como string `Y-m-d`. Se adicionar `'date' => 'date'` no `casts()`, alguns testes em SQLite quebram (driver retorna formato diferente).
-- **Funil "passou pela etapa":** olha `application_events` de `status_changed`. Aplicação que pulou direto de `applied → rejected` **não** aparece em `screening`/`assessment`. Comportamento correto, mas pode confundir.
+- **Funil só conta etapa visitada via evento.** `Applied` conta para toda candidatura. As demais etapas só contam se houver `application_event` com `event_type=status_changed` e `payload.to=<etapa>`. Pular fases (ex.: `applied → offer`) deixa as etapas intermediárias zeradas — comportamento intencional desde que removemos o gate da state machine.
 - **Heatmap respeita timezone do navegador.** Frontend envia `?tz=America/Sao_Paulo` (de `Intl.DateTimeFormat().resolvedOptions().timeZone`); backend valida contra `DateTimeZone::listIdentifiers()` (TZ inválido cai pra UTC) e aplica em `setTimezone()` antes de extrair `weekday`/`hour`. Sem `?tz`, fallback é UTC. **KPIs/funnel/channels não dependem de TZ** (operam só sobre janela de datas com `whereBetween`).
 - **Insights são heurísticas, não estatísticas.** Thresholds (`<10%`, `≥30%`, etc.) estão hardcoded em `GenerateInsights` — se quiser tunar por user, mover para config.
 - **Backfill em massa:** `--from=2026-01-01 --to=2026-04-19` itera dia a dia em loop. Para >365 dias, considerar batch ou queue.

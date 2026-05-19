@@ -106,24 +106,12 @@ watch(
   { immediate: true }
 );
 
-const ALLOWED_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus[]> = {
-  applied: ['screening', 'rejected', 'withdrawn'],
-  screening: ['assessment', 'interview_hr', 'rejected', 'withdrawn'],
-  assessment: ['interview_hr', 'interview_tech', 'rejected', 'withdrawn'],
-  interview_hr: ['interview_tech', 'offer', 'rejected', 'withdrawn'],
-  interview_tech: ['offer', 'rejected', 'withdrawn'],
-  offer: ['accepted', 'rejected', 'withdrawn'],
-  accepted: [],
-  rejected: [],
-  withdrawn: [],
-};
-
 const nextStatuses = computed<ApplicationStatus[]>(() => {
   const current = detail.data.value?.status;
   if (!current) return [];
-  const allowed = ALLOWED_TRANSITIONS[current] ?? [];
-  const visible = new Set(visibleColumns().map(c => c.status));
-  return allowed.filter(s => visible.has(s));
+  return visibleColumns()
+    .map(c => c.status)
+    .filter((s): s is ApplicationStatus => !isCustom(s) && s !== current);
 });
 
 const progressStages = computed(() => {

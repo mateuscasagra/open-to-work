@@ -7,7 +7,6 @@ namespace App\Domain\Application\Actions;
 use App\Enums\ApplicationStatus;
 use App\Events\ApplicationStatusChanged;
 use App\Models\Application;
-use DomainException;
 use Illuminate\Support\Facades\DB;
 
 final class ChangeApplicationStatus
@@ -16,10 +15,8 @@ final class ChangeApplicationStatus
     {
         $current = $application->status;
 
-        if (! $current->canTransitionTo($target)) {
-            throw new DomainException(
-                "Transição inválida: {$current->value} → {$target->value}"
-            );
+        if ($current === $target) {
+            return $application;
         }
 
         return DB::transaction(function () use ($application, $current, $target, $note): Application {

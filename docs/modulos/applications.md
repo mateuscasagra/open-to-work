@@ -33,7 +33,7 @@
 - **Blade:** `resources/views/mail/application.blade.php`
 - **Exception:** `DuplicateApplicationException` (controller mapeia para `409`)
 
-**Enums:** `app/Enums/ApplicationStatus.php` — state machine via `canTransitionTo(ApplicationStatus $next): bool`
+**Enums:** `app/Enums/ApplicationStatus.php` — apenas labels e `isFinal()`. Sem state machine: qualquer status pode ir pra qualquer status (cada empresa tem seu próprio processo).
 
 **Policy:** `app/Policies/ApplicationPolicy.php` — `view/update/delete` apenas se `user_id` bate
 
@@ -45,19 +45,11 @@
 - `app/Models/Application.php` — usa `HasMedia` + `InteractsWithMedia` (Spatie MediaLibrary)
 - `app/Models/ApplicationEvent.php`
 
-### State machine de status
+### Mudança de status (sem state machine)
 
-```
-Applied      → Screening | Assessment | Rejected | Withdrawn
-Screening    → Assessment | InterviewHR | Rejected | Withdrawn
-Assessment   → InterviewHR | InterviewTech | Rejected | Withdrawn
-InterviewHR  → InterviewTech | Offer | Rejected | Withdrawn
-InterviewTech→ Offer | Rejected | Withdrawn
-Offer        → Accepted | Rejected | Withdrawn
-Accepted | Rejected | Withdrawn  (terminais — sem transições)
-```
+Qualquer status pode ir pra qualquer status — incluindo pular fases ou voltar de um terminal (`accepted/rejected/withdrawn → applied`). `ChangeApplicationStatus` faz no-op se `current === target` (não cria evento). Sucesso → dispara `ApplicationStatusChanged`, registra `ApplicationEvent` com `event_type='status_changed'` e `payload={from, to, note?}`.
 
-`changeStatus` valida via `ApplicationStatus::canTransitionTo(...)`. Transição inválida → `422`. Sucesso → dispara `ApplicationStatusChanged`, registra `ApplicationEvent` com `event_type='status_changed'`.
+**Funil de métricas:** conta uma candidatura em uma etapa **só se houve evento explícito** chegando lá. Pular `applied → offer` direto não conta `screening/assessment/interview_*` no funil — cada empresa tem seu próprio processo seletivo (ver `metrics.md`).
 
 ### Duplicidade
 
@@ -136,7 +128,7 @@ A feature de apply-por-email foi **descontinuada na UI**. O fluxo backend (`Send
 
 ## Pontos de atenção
 
-- **State machine duplicada (back + front XState).** Se mudar transições no `ApplicationStatus` PHP, **obrigatoriamente** atualize `applicationStatusMachine.ts` e `ALLOWED_TRANSITIONS` no `ApplicationDetailView`. Existem 3 fontes da verdade — risco real de drift.
+- **Sem state machine — qualquer transição é aceita.** O frontend mostra todas as colunas visíveis do Kanban como destino possível em `ApplicationDetailView.nextStatuses` (filtra a atual). XState e `ALLOWED_TRANSITIONS` foram removidos. Se voltar a precisar de gating, restaurar nas 3 fontes (enum PHP + frontend view + cliente).
 - **Detail view depende de `useKanbanConfig`.** Labels, cores e visibilidade das etapas no detalhe da candidatura vêm do Kanban config do user (localStorage). Se o user nunca configurou, usa os defaults. Etapas ocultas no Kanban ficam ocultas também nos botões de avançar status.
 - **Drag-drop otimista:** se a API retornar 422, o `onError` precisa restaurar o snapshot do cache. Confira que o `onMutate` salvou o snapshot antes de mutar.
 - **MediaLibrary requer disk `s3` configurado.** Em dev sem MinIO subido, upload falha com erro confuso de stream. Verifique `docker compose ps` antes.

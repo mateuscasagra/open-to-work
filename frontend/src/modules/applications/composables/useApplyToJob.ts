@@ -35,6 +35,7 @@ export function useApplyToJob() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['applications'] });
+      qc.invalidateQueries({ queryKey: ['jobs'] });
     },
   });
 }

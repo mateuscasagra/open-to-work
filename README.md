@@ -13,12 +13,15 @@ Ver [`ARQUITETURA.md`](./ARQUITETURA.md) para detalhes completos.
 
 ```
 open-to-work/
-├── backend/        # Laravel 11 API
-├── frontend/       # Vue 3 SPA
-├── infra/          # Docker compose, Nginx, scripts
+├── backend/        # Laravel 12 API (PHP 8.3 / FrankenPHP)
+├── frontend/       # Vue 3 SPA (TS + Vite)
+├── infra/          # Docker compose, scripts
 ├── .github/        # Pipelines CI/CD
-└── docs/adr/       # Architecture Decision Records
+└── docs/           # ARQUITETURA, módulos, ADRs
 ```
+
+**Storage:** Currículos e anexos em **Cloudflare R2** (prod) / MinIO (dev — mesma API S3).
+**Busca de vagas:** Postgres full-text via Scout `database` driver (Meilisearch foi removido).
 
 ## Requisitos locais
 

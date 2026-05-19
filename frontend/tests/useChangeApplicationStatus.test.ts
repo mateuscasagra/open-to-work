@@ -71,8 +71,8 @@ describe('useChangeApplicationStatus', () => {
     expect(updated.status).toBe('screening');
   });
 
-  it('rolls back optimistic update on invalid transition', async () => {
-    vi.mocked(api.patch).mockRejectedValueOnce(axiosErr(422, 'Invalid transition'));
+  it('rolls back optimistic update on 422 from server', async () => {
+    vi.mocked(api.patch).mockRejectedValueOnce(axiosErr(422, 'Validation failed'));
 
     const { result, queryClient } = mountWithClient(() => useChangeApplicationStatus());
     const initial = [buildApp(1, 'applied')];

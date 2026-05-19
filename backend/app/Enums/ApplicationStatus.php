@@ -35,27 +35,4 @@ enum ApplicationStatus: string
     {
         return in_array($this, [self::Accepted, self::Rejected, self::Withdrawn], true);
     }
-
-    /**
-     * Transições válidas a partir deste estado.
-     *
-     * @return list<self>
-     */
-    public function allowedTransitions(): array
-    {
-        return match ($this) {
-            self::Applied => [self::Screening, self::Rejected, self::Withdrawn],
-            self::Screening => [self::Assessment, self::InterviewHR, self::Rejected, self::Withdrawn],
-            self::Assessment => [self::InterviewHR, self::InterviewTech, self::Rejected, self::Withdrawn],
-            self::InterviewHR => [self::InterviewTech, self::Offer, self::Rejected, self::Withdrawn],
-            self::InterviewTech => [self::Offer, self::Rejected, self::Withdrawn],
-            self::Offer => [self::Accepted, self::Rejected, self::Withdrawn],
-            self::Accepted, self::Rejected, self::Withdrawn => [],
-        };
-    }
-
-    public function canTransitionTo(self $target): bool
-    {
-        return in_array($target, $this->allowedTransitions(), true);
-    }
 }

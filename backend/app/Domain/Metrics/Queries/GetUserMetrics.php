@@ -190,7 +190,8 @@ final class GetUserMetrics
     }
 
     /**
-     * Quantas candidaturas já alcançaram cada etapa (status atual é ≥ etapa na ordem).
+     * Quantas candidaturas alcançaram cada etapa via mudança de status explícita.
+     * Etapas puladas não contam — cada empresa tem seu próprio processo seletivo.
      *
      * @return list<array{status: string, label: string, reached: int}>
      */
@@ -200,17 +201,10 @@ final class GetUserMetrics
             ->where('user_id', $user->id)
             ->whereNull('archived_at')
             ->whereBetween('applied_at', [$from->startOfDay(), $to->endOfDay()])
-            ->get(['id', 'status']);
+            ->get(['id']);
 
         if ($applications->isEmpty()) {
             return [];
-        }
-
-        /** @var array<int, string> $currentStatus */
-        $currentStatus = [];
-        foreach ($applications as $application) {
-            // getRawOriginal bypassa o cast pro enum e devolve o valor cru da coluna (string).
-            $currentStatus[(int) $application->id] = (string) $application->getRawOriginal('status');
         }
 
         $reachedMap = DB::table('application_events')
@@ -232,17 +226,10 @@ final class GetUserMetrics
         }
 
         $out = [];
-        foreach (self::FUNNEL_ORDER as $index => $stage) {
+        foreach (self::FUNNEL_ORDER as $stage) {
             $count = 0;
-            foreach ($reachedByApp as $appId => $reached) {
+            foreach ($reachedByApp as $reached) {
                 if (isset($reached[$stage->value])) {
-                    $count++;
-
-                    continue;
-                }
-                // Aplicou e status atual já é posterior => considerado como alcançado.
-                $currentIndex = $this->funnelIndex($currentStatus[$appId] ?? '');
-                if ($currentIndex !== null && $currentIndex >= $index) {
                     $count++;
                 }
             }
@@ -255,17 +242,6 @@ final class GetUserMetrics
         }
 
         return $out;
-    }
-
-    private function funnelIndex(string $status): ?int
-    {
-        foreach (self::FUNNEL_ORDER as $i => $s) {
-            if ($s->value === $status) {
-                return $i;
-            }
-        }
-
-        return null;
     }
 
     /**

@@ -164,6 +164,7 @@ export const JobSchema = z.object({
   posted_at: z.string().nullable(),
   match_score: z.number().optional(),
   matched_stack: z.array(z.string()).optional(),
+  has_applied: z.boolean().optional().default(false),
   language: LocaleEnum.nullable().optional(),
   contact_email: z.string().nullable().optional().default(null),
   company: z

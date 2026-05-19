@@ -92,26 +92,21 @@ it('builds channels breakdown with response rate from events', function (): void
     expect($channels['gupy']['responses'])->toBe(0);
 });
 
-it('counts funnel reach including applications already past a stage', function (): void {
+it('counts funnel only via explicit status_changed events, skipped stages do not count', function (): void {
     $user = User::factory()->create();
 
-    // Candidatura que já foi até interview_hr
+    // Pulou screening e assessment: applied → interview_hr direto.
     $app = Application::factory()->for($user)->create([
         'applied_at' => '2026-04-17 10:00:00',
         'status' => ApplicationStatus::InterviewHR->value,
     ]);
     $app->events()->create([
         'event_type' => 'status_changed',
-        'payload' => ['from' => 'applied', 'to' => 'screening'],
+        'payload' => ['from' => 'applied', 'to' => 'interview_hr'],
         'occurred_at' => '2026-04-17 11:00:00',
     ]);
-    $app->events()->create([
-        'event_type' => 'status_changed',
-        'payload' => ['from' => 'screening', 'to' => 'interview_hr'],
-        'occurred_at' => '2026-04-17 15:00:00',
-    ]);
 
-    // Candidatura rejeitada direto — só "applied" alcançado
+    // Rejeitada direto — só "applied" alcançado.
     Application::factory()->for($user)->create([
         'applied_at' => '2026-04-17 12:00:00',
         'status' => ApplicationStatus::Rejected->value,
@@ -122,8 +117,10 @@ it('counts funnel reach including applications already past a stage', function (
     $response->assertOk();
     $funnel = collect($response->json('funnel'))->keyBy('status');
     expect($funnel['applied']['reached'])->toBe(2);
-    expect($funnel['screening']['reached'])->toBe(1);
+    expect($funnel['screening']['reached'])->toBe(0);
+    expect($funnel['assessment']['reached'])->toBe(0);
     expect($funnel['interview_hr']['reached'])->toBe(1);
+    expect($funnel['interview_tech']['reached'])->toBe(0);
     expect($funnel['offer']['reached'])->toBe(0);
 });
 

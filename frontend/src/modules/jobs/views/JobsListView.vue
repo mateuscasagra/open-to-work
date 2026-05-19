@@ -106,10 +106,19 @@ async function onApply(job: Job): Promise<void> {
   }
 }
 
+function isAlreadyApplied(jobId: number): boolean {
+  if (alreadyAppliedJobIds.value.has(jobId)) return true;
+  return data.value?.data.some((j) => j.id === jobId && j.has_applied) ?? false;
+}
+
+function isApplied(jobId: number): boolean {
+  return appliedJobIds.value.has(jobId) || isAlreadyApplied(jobId);
+}
+
 function applyLabel(jobId: number): string {
   if (applyingJobId.value === jobId) return t('jobs.applying');
   if (appliedJobIds.value.has(jobId)) return t('jobs.applied');
-  if (alreadyAppliedJobIds.value.has(jobId)) return t('jobs.already_applied');
+  if (isAlreadyApplied(jobId)) return t('jobs.already_applied');
   return t('jobs.apply');
 }
 </script>
@@ -363,11 +372,11 @@ function applyLabel(jobId: number): string {
                   type="button"
                   class="btn !px-2.5 !py-0.5 text-xs"
                   :class="
-                    appliedJobIds.has(job.id) || alreadyAppliedJobIds.has(job.id)
+                    isApplied(job.id)
                       ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200'
                       : 'bg-brand-600 text-white hover:bg-brand-700 shadow-soft'
                   "
-                  :disabled="applyingJobId === job.id || appliedJobIds.has(job.id)"
+                  :disabled="applyingJobId === job.id || isApplied(job.id)"
                   @click="onApply(job)"
                 >
                   {{ applyLabel(job.id) }}
@@ -558,11 +567,11 @@ function applyLabel(jobId: number): string {
               type="button"
               class="btn !px-4 !py-1.5 text-sm"
               :class="
-                appliedJobIds.has(selectedJob.id) || alreadyAppliedJobIds.has(selectedJob.id)
+                isApplied(selectedJob.id)
                   ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200'
                   : 'bg-brand-600 text-white hover:bg-brand-700 shadow-soft'
               "
-              :disabled="applyingJobId === selectedJob.id || appliedJobIds.has(selectedJob.id)"
+              :disabled="applyingJobId === selectedJob.id || isApplied(selectedJob.id)"
               @click="onApply(selectedJob)"
             >
               {{ applyLabel(selectedJob.id) }}

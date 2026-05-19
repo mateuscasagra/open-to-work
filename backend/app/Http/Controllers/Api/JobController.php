@@ -14,14 +14,23 @@ final class JobController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $userId = $request->user()?->id;
+
         $query = Job::query()
             ->where('active', true)
             ->with(['company', 'sources:id,job_id,source,external_url'])
+            ->when($userId !== null, fn ($q) => $q->withExists([
+                'applications as has_applied' => fn ($a) => $a->where('user_id', $userId),
+            ]))
             ->latest('posted_at');
 
         if ($search = $request->string('q')->toString()) {
             $ids = Job::search($search)->keys()->all();
-            $query->whereIn('id', $ids !== [] ? $ids : [0]);
+            $needle = '%'.mb_strtolower($search).'%';
+            $query->where(function ($q) use ($ids, $needle) {
+                $q->whereIn('id', $ids !== [] ? $ids : [0])
+                    ->orWhereHas('company', fn ($c) => $c->whereRaw('LOWER(name) LIKE ?', [$needle]));
+            });
         }
 
         if ($modality = $request->string('modality')->toString()) {

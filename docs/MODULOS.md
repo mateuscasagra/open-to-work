@@ -83,5 +83,4 @@ Cada `modulos/*.md` segue o mesmo template:
 ## Documentos relacionados
 
 - [`ARQUITETURA.md`](../ARQUITETURA.md) — visão de alto nível, decisões arquiteturais
-- [`PROGRESSO.md`](../PROGRESSO.md) — status das sprints, o que está feito
 - [`adr/`](./adr/) — ADRs de decisões não óbvias

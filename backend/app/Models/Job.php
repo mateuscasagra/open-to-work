@@ -74,7 +74,6 @@ class Job extends Model
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'company' => $this->company?->name,
             'location' => $this->location,
             'modality' => $this->modality?->value,
             'seniority' => $this->seniority?->value,

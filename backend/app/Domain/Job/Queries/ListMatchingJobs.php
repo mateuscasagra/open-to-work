@@ -35,6 +35,9 @@ final class ListMatchingJobs
 
         $query = Job::query()
             ->with(['company', 'sources:id,job_id,source,external_url'])
+            ->withExists([
+                'applications as has_applied' => fn (Builder $a) => $a->where('user_id', $user->id),
+            ])
             ->where('active', true);
 
         if ($profileLanguages !== []) {

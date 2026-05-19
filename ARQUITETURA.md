@@ -1,9 +1,9 @@
 # Open to Work — Arquitetura do Sistema
 
-**Versão:** 1.1 (decisões consolidadas)
-**Data:** 2026-04-17
-**Stack principal:** Laravel 11 (API) + Vue 3 (SPA) + PostgreSQL + Redis
-**Hospedagem:** Hetzner VPS (self-hosted) + Cloudflare (CDN/WAF)
+**Versão:** 1.2
+**Data:** 2026-05-04
+**Stack principal:** Laravel 12 (API) + Vue 3 (SPA) + PostgreSQL + Redis
+**Hospedagem:** Hostinger VPS (self-hosted) + Cloudflare (CDN/WAF)
 **Modelo de negócio:** 100% gratuito no MVP
 
 ---
@@ -20,7 +20,7 @@
 
 | Princípio | Decisão |
 |---|---|
-| Custo baixo | Hetzner VPS self-hosted + Cloudflare free tier (CDN/WAF/DNS) |
+| Custo baixo | Hostinger VPS self-hosted + Cloudflare free tier (CDN/WAF/DNS) |
 | Escalabilidade | API stateless + fila assíncrona Redis + cache agressivo |
 | Segurança | Laravel Sanctum, TLS, criptografia de PDFs, LGPD/GDPR |
 | i18n | `laravel-lang` (backend) + `vue-i18n` (frontend) — PT-BR, EN, ES |
@@ -35,7 +35,7 @@
 | **Captura de vagas** | Agregação automática de APIs públicas e ATS BR |
 | **OAuth** | Google + LinkedIn + GitHub (via Laravel Socialite) |
 | **Repositório** | Monorepo único |
-| **Hospedagem** | Hetzner Cloud VPS (self-hosted com Docker) |
+| **Hospedagem** | Hostinger VPS (self-hosted com Docker) |
 | **Sync de vagas** | Laravel Scheduler rodando a cada 6h |
 
 ---
@@ -48,22 +48,22 @@
 │          (CDN + WAF + DNS + Cache estático + TLS)            │
 └──────────────────────────┬──────────────────────────────────┘
                            │
-                    ┌──────▼───────┐
-                    │ Hetzner VPS  │   (Docker Compose / Swarm)
+                    ┌──────────────┐
+                    │ Hostinger VPS│   (Docker Compose)
                     └──────┬───────┘
                            │
       ┌────────────────────┼────────────────────────┐
       │                    │                        │
 ┌─────▼──────┐      ┌──────▼──────┐         ┌───────▼──────┐
-│ Nginx +    │      │ Laravel API │         │  Vue SPA     │
-│ PHP-FPM    │◄────►│  (Sanctum)  │         │ (build est.) │
+│ FrankenPHP │      │ Laravel API │         │  Vue SPA     │
+│ (Caddy+PHP)│◄────►│  (Sanctum)  │         │ (build est.) │
 └─────┬──────┘      └──────┬──────┘         └──────────────┘
       │                    │
       │              ┌─────┴─────┐
       │              │           │
 ┌─────▼─────┐  ┌─────▼─────┐  ┌──▼────────┐  ┌─────────────┐
-│PostgreSQL │  │   Redis   │  │  Horizon  │  │  MinIO /    │
-│ 15 (local)│  │ (cache+q) │  │ (workers) │  │  S3 (R2)    │
+│PostgreSQL │  │   Redis   │  │  Workers  │  │ Cloudflare  │
+│ 16 + FTS  │  │ (cache+q) │  │ (queue)   │  │     R2      │
 └───────────┘  └───────────┘  └─────┬─────┘  └─────────────┘
                                     │
                 ┌───────────────────┼────────────────────┐
@@ -79,15 +79,14 @@
 ## 3. Stack Tecnológico
 
 ### 3.1 Backend
-- **Laravel 11** — framework principal
-- **PHP 8.3-FPM**
+- **Laravel 12** — framework principal
+- **PHP 8.3** rodando em **FrankenPHP** (Caddy + PHP em um único binário, mode worker)
 - **Laravel Sanctum** — autenticação SPA (cookie HttpOnly) + tokens pessoais
 - **Laravel Socialite** — OAuth Google/LinkedIn/GitHub
 - **Laravel Horizon** — gerenciamento de filas Redis
-- **Laravel Scout + Meilisearch** — busca full-text em vagas (container no mesmo VPS)
-- **Spatie Permissions** — RBAC
-- **Spatie MediaLibrary** — gestão de uploads (PDFs)
-- **spatie/laravel-backup** — backup automatizado para MinIO/S3
+- **Laravel Scout + driver `database`** — busca usa Postgres `ILIKE` (Meilisearch foi removido pra economizar RAM; ver `docs/modulos/jobs.md`)
+- **Spatie MediaLibrary** — gestão de uploads (PDFs/anexos)
+- **spatie/laravel-backup** — backup automatizado para Cloudflare R2
 - **Pest** — framework de testes
 
 ### 3.2 Frontend
@@ -101,23 +100,23 @@
 - **Zod** — validação
 - **jsPDF / pdf-lib** — geração de PDF dos currículos 100% no cliente
 
-### 3.3 Infraestrutura (Hetzner self-hosted)
+### 3.3 Infraestrutura (Hostinger self-hosted)
 
 | Componente | Solução | Observação |
 |---|---|---|
-| Compute | Hetzner Cloud CPX21 (3vCPU / 4GB / €7.59) | Suficiente para MVP (centenas de usuários) |
-| Orquestração | Docker Compose → Docker Swarm quando escalar | Zero complexidade inicial |
-| DB | PostgreSQL 15 em container | Backup diário para MinIO/R2 |
+| Compute | Hostinger VPS (KVM) | Suficiente para MVP (centenas de usuários) |
+| Orquestração | Docker Compose | Zero complexidade inicial |
+| DB | PostgreSQL 16 em container | Backup diário para Cloudflare R2 |
 | Cache/Queue | Redis 7 em container | |
-| Busca | Meilisearch em container | Leve, rápido, tipo-tolerante |
-| Storage objeto | MinIO (container) OU Cloudflare R2 | R2 se quiser zero egress |
-| Reverse proxy | Nginx + Certbot (Let's Encrypt) | TLS auto-renovado |
+| Busca | Postgres full-text (`ILIKE` via Scout `database`) | Sem dependência externa; Meilisearch foi removido |
+| Storage objeto (prod) | **Cloudflare R2** | Currículos e anexos; zero egress |
+| Storage objeto (dev) | MinIO em container | API S3-compatível para parity local |
+| Reverse proxy/TLS | FrankenPHP (Caddy embutido) — TLS automático | |
 | CDN/DNS/WAF | Cloudflare (free) | Protege contra DDoS/bots |
-| E-mail transacional | Resend (3k/mês grátis) | |
-| Monitoring | Sentry (free) + Uptime Kuma (self-hosted) | |
-| Logs | Loki + Grafana (containers) | Opcional; começa com `laravel.log` rotativo |
+| E-mail transacional | Resend (3k/mês grátis) | MailHog em dev (`http://localhost:8025`) |
+| Monitoring | Sentry (free) | Backend + frontend |
 
-**Custo mensal estimado MVP:** ~€8 (VPS) + $0 (Cloudflare/Sentry/Resend free tiers).
+**Custo mensal estimado MVP:** ~$5–8 (VPS) + $0 (Cloudflare R2 sob free tier + Sentry/Resend free tiers).
 
 ---
 
@@ -133,7 +132,7 @@
 - **Builder estruturado:** experiências, formação, skills, idiomas, projetos
 - **Múltiplas versões:** "Backend Sênior", "Fullstack Pleno", etc.
 - **Export PDF no cliente:** templates renderizados em HTML → `html2canvas` + `jsPDF` (ou `pdf-lib` puro)
-- **Upload de PDF externo:** armazenado em MinIO/R2 com URL assinada e criptografia em repouso
+- **Upload de PDF externo:** armazenado em **Cloudflare R2** (em dev: MinIO via mesma API S3) com URL temporária assinada (TTL 5min) e visibilidade `private`
 - **Versionamento:** histórico de alterações para recuperar
 
 ### 4.3 Candidaturas (applications)
@@ -148,11 +147,13 @@ Pipeline de agregação roda via **Laravel Scheduler a cada 6h**:
 
 ```
 ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐
-│  Aggregator  │──►│  Normalizer  │──►│  Deduplicator│──►│ Meilisearch│
-│  (por fonte) │   │ (schema único)│   │ (hash título+│   │ + Postgres │
+│  Aggregator  │──►│  Normalizer  │──►│  Deduplicator│──►│  Postgres  │
+│  (por fonte) │   │(schema único)│   │ (hash título+│   │ (indexado) │
 └──────────────┘   └──────────────┘   │  empresa+loc)│   └────────────┘
                                       └──────────────┘
 ```
+
+> Busca usa Postgres `ILIKE` via Scout `database` driver — Meilisearch foi removido em 2026-04-24 pra economizar RAM no VPS. Detalhes em `docs/modulos/jobs.md`.
 
 #### Fontes (drivers plugáveis)
 
@@ -257,11 +258,11 @@ CREATE UNIQUE INDEX jobs_canonical ON jobs (canonical_hash);
 | XSS | Escape automático Blade/Vue + CSP restritivo |
 | SQLi | Eloquent/Query Builder apenas |
 | Upload | Validação MIME real + tamanho + ClamAV (opcional) |
-| PDFs | URLs assinadas (TTL 5min) + AES em repouso |
+| PDFs | Cloudflare R2 com `visibility=private` e URLs temporárias (TTL 5min) |
 | Logs | Sem PII; formato JSON estruturado |
-| Secrets | `.env` nunca commitado; gerenciado via `docker secrets` ou Vault |
+| Secrets | `.env` nunca commitado |
 | LGPD/GDPR | Consentimento explícito, export/delete de dados, política de retenção |
-| Backup | pg_dump diário criptografado → MinIO/R2; teste de restore mensal |
+| Backup | pg_dump diário → Cloudflare R2; teste de restore mensal |
 
 ---
 
@@ -281,10 +282,10 @@ CREATE UNIQUE INDEX jobs_canonical ON jobs (canonical_hash);
 
 | Estágio | Usuários | Infra |
 |---|---|---|
-| MVP | 0–1k | 1 VPS CPX21 (tudo junto) |
-| Growth | 1k–10k | 1 VPS CPX31 + storage S3 externo + Cloudflare cache agressivo |
-| Scale | 10k–50k | Separar DB em VPS dedicada; workers em VPS separada; Docker Swarm |
-| Enterprise | 50k+ | Migrar para K8s managed (Hetzner K8s ou DO), replicas de DB |
+| MVP | 0–1k | 1 Hostinger VPS (tudo junto: app + Postgres + Redis) |
+| Growth | 1k–10k | Upgrade do plano da Hostinger + Cloudflare cache agressivo (R2 já externo) |
+| Scale | 10k–50k | Separar DB em VPS dedicada; workers em VPS separada |
+| Enterprise | 50k+ | Migrar para K8s managed, replicas de DB |
 
 **Princípios:**
 - API stateless desde o dia 1 (sessions em Redis, arquivos em storage objeto)
@@ -318,7 +319,7 @@ push/PR ──► lint + static + test ──► build Vue ──► build Docke
 
 ```
 open-to-work/
-├── backend/                 # Laravel 11 API
+├── backend/                 # Laravel 12 API
 │   ├── app/
 │   │   ├── Domain/          # DDD-lite por bounded context
 │   │   │   ├── Application/ # candidaturas
@@ -372,7 +373,7 @@ open-to-work/
 - [ ] Matching básico por perfil do usuário
 - [ ] Upload de PDFs + listagem
 - [ ] Dashboard básico de métricas
-- [ ] Deploy Hetzner + CI/CD GitHub Actions
+- [ ] Deploy Hostinger + CI/CD GitHub Actions
 
 ### v1.1 (+2 meses) — builder + mais fontes
 - [ ] Resume builder estruturado + export PDF no cliente
@@ -476,7 +477,7 @@ open-to-work/
 1. Criar estrutura do monorepo com `backend/`, `frontend/`, `infra/`
 2. Scaffolding do Laravel 11 + Sanctum + Socialite
 3. Scaffolding do Vue 3 + Vite + Pinia + vue-i18n
-4. `docker-compose.yml` de dev (app + Postgres + Redis + Meilisearch + MinIO)
+4. `docker-compose.yml` de dev (app + Postgres + Redis + MinIO + MailHog)
 5. Migrations iniciais (users, profiles, jobs, applications)
 6. Primeiro driver de agregação (RemoteOK) como prova de conceito
 7. GitHub Actions: pipeline de CI (lint + test)
