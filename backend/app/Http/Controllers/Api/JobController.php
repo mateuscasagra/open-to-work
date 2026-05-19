@@ -26,7 +26,7 @@ final class JobController extends Controller
 
         if ($search = $request->string('q')->toString()) {
             $ids = Job::search($search)->keys()->all();
-            $needle = '%'.mb_strtolower($search).'%';
+            $needle = '%' . mb_strtolower($search) . '%';
             $query->where(function ($q) use ($ids, $needle) {
                 $q->whereIn('id', $ids !== [] ? $ids : [0])
                     ->orWhereHas('company', fn ($c) => $c->whereRaw('LOWER(name) LIKE ?', [$needle]));
