@@ -699,7 +699,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
-			count: 4
+			count: 5
 			path: tests/Feature/Applications/ChangeStatusTest.php
 
 		-
@@ -1575,7 +1575,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$status on App\\Models\\Application\|null\.$#'
 			identifier: property.nonObject
-			count: 2
+			count: 3
 			path: tests/Unit/Domain/Application/ChangeApplicationStatusActionTest.php
 
 		-
