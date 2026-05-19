@@ -155,6 +155,7 @@ export const JobSchema = z.object({
   title: z.string(),
   description_html: z.string().nullable().optional().default(null),
   location: z.string().nullable(),
+  country_code: z.string().length(2).nullable().optional().default(null),
   modality: z.enum(['remote', 'hybrid', 'onsite']).nullable(),
   seniority: z.enum(['intern', 'junior', 'mid', 'senior', 'staff', 'principal']).nullable(),
   stack: z.array(z.string()),

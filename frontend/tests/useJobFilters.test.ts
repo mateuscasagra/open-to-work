@@ -7,6 +7,7 @@ describe('useJobFilters', () => {
     expect(state.q).toBe('');
     expect(state.modality).toBe('');
     expect(state.seniority).toBe('');
+    expect(state.country).toBe('');
     expect(state.matchOnly).toBe(false);
     expect(queryParams.value).toEqual({});
   });
@@ -16,10 +17,12 @@ describe('useJobFilters', () => {
     state.q = '  Backend  ';
     state.modality = 'remote';
     state.seniority = 'senior';
+    state.country = 'BR';
     expect(queryParams.value).toEqual({
       q: 'Backend',
       modality: 'remote',
       seniority: 'senior',
+      country: 'BR',
     });
   });
 
@@ -28,9 +31,11 @@ describe('useJobFilters', () => {
     state.q = 'x';
     state.modality = 'remote';
     state.seniority = 'senior';
+    state.country = 'DE';
     state.matchOnly = true;
     reset();
     expect(queryParams.value).toEqual({});
+    expect(state.country).toBe('');
     expect(state.matchOnly).toBe(false);
   });
 });

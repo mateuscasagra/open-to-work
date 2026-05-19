@@ -5,6 +5,7 @@ export interface JobFilters {
   q: string;
   modality: Modality | '';
   seniority: Seniority | '';
+  country: string;
   matchOnly: boolean;
 }
 
@@ -13,6 +14,7 @@ function makeDefaults(): JobFilters {
     q: '',
     modality: '',
     seniority: '',
+    country: '',
     matchOnly: false,
   };
 }
@@ -25,6 +27,7 @@ export function useJobFilters() {
     if (state.q.trim() !== '') params.q = state.q.trim();
     if (state.modality !== '') params.modality = state.modality;
     if (state.seniority !== '') params.seniority = state.seniority;
+    if (state.country !== '') params.country = state.country;
     return params;
   });
 
@@ -32,6 +35,7 @@ export function useJobFilters() {
     state.q = '';
     state.modality = '';
     state.seniority = '';
+    state.country = '';
     state.matchOnly = false;
   }
 

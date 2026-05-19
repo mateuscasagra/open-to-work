@@ -83,6 +83,7 @@ final class ArbeitnowDriver implements JobSourceDriver
             postedAt: isset($item['created_at']) ? (new DateTimeImmutable)->setTimestamp((int) $item['created_at']) : null,
             expiresAt: null,
             language: 'en',
+            countryCode: 'DE',
         );
     }
 }

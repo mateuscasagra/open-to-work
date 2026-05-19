@@ -23,6 +23,7 @@ class Job extends Model
         'company_id',
         'description_html',
         'location',
+        'country_code',
         'modality',
         'seniority',
         'stack',

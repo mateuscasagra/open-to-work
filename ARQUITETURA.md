@@ -218,7 +218,7 @@ resume_sections (resume_id, type, order, content_json)
 companies (id, name, domain, logo_url, linkedin_url)
 jobs (
   id, canonical_hash, title, company_id,
-  description_html, location, modality,
+  description_html, location, country_code, modality,
   stack[], seniority, salary_min, salary_max, currency,
   posted_at, expires_at, active
 )

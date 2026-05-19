@@ -6,9 +6,10 @@
 
 | Método | Rota / Comando | Handler |
 |---|---|---|
-| `GET` | `/api/jobs?q=&modality=&seniority=&stack[]=` | `JobController@index` |
+| `GET` | `/api/jobs?q=&modality=&seniority=&country=&stack[]=` | `JobController@index` |
 | `GET` | `/api/jobs/{job}` | `JobController@show` |
 | `GET` | `/api/jobs/matching` | `JobController@matching` |
+| `GET` | `/api/jobs/countries` | `JobController@countries` — lista distinct `country_code` de vagas ativas |
 | CLI | `php artisan jobs:aggregate {source?*}` | `AggregateJobsCommand` |
 | CLI | `php artisan jobs:deactivate-expired` | (scheduler sáb/dom) |
 
@@ -85,7 +86,7 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 **Arquivos:** `frontend/src/modules/jobs/`
 
 - **`useJobFilters`** (`composables/useJobFilters.ts`):
-  - State: `q, modality, seniority, matchOnly` (stack[] e language[] foram removidos junto com os filtros UI deles)
+  - State: `q, modality, seniority, country, matchOnly` (stack[] e language[] foram removidos junto com os filtros UI deles)
   - `queryParams` computed (omite vazios)
   - `reset()`
 - **`useApplyToJob`** (`composables/useApplyToJob.ts`):
@@ -94,7 +95,7 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
   - Payload: `{ jobId, source?, resumeId?, notes?, expectedSalary? }`
 - **`JobsListView`** (`views/JobsListView.vue`):
   - TanStack Query alterna entre `/api/jobs` e `/api/jobs/matching` via toggle "Só compatíveis com meu perfil"
-  - **Filtros**: busca textual, modalidade, senioridade, e o toggle de matching. Filtros antigos (stack tags rápidas, idiomas) foram removidos. Filtros não vêm pré-populados do perfil — o usuário aplica manualmente
+  - **Filtros**: busca textual, modalidade, **país** (dinâmico — `useQuery` em `['jobs', 'countries']` com `staleTime: 5min`; dropdown só aparece se houver pelo menos um país no banco), senioridade, e o toggle de matching. Labels do select de país vêm de `Intl.DisplayNames` (browser-native, localizado pelo `locale` do `useI18n`). Filtros antigos (stack tags rápidas, idiomas) foram removidos. Filtros não vêm pré-populados do perfil — o usuário aplica manualmente
   - **Resume selector** (dropdown) → passa `resume_id` ao `useApplyToJob`. Compartilha a mesma `<section>` do toggle de matching (toggle alinhado à direita via `ml-auto`)
   - Botões por card: **Visualizar** (abre painel lateral) + **Aplicar** (mutation → abre `external_url` em nova aba)
   - Estados otimistas: `applyingJobId`, `appliedJobIds`, `alreadyAppliedJobIds`
@@ -104,8 +105,8 @@ Filtra `score > 0`, ordena por `score DESC, posted_at DESC`.
 
 ## Efeitos colaterais
 
-- Escritas: `jobs` (inclui `contact_email`), `companies`, `job_sources`
-- Migration: `2026_04_21_000200_add_contact_email_to_jobs`
+- Escritas: `jobs` (inclui `contact_email`, `country_code`), `companies`, `job_sources`
+- Migration: `2026_04_21_000200_add_contact_email_to_jobs`, `2026_05_19_000100_add_country_code_to_jobs` (backfill por `job_sources.source`: `github_vagas` → BR, `arbeitnow` → DE; drivers país-específicos setam `JobDTO::countryCode` em novas vagas, drivers remote-worldwide deixam null)
 - Sincronização via Scout `database` driver (escreve direto na tabela, sem queue/serviço externo)
 - HTTP outbound para APIs/RSS dos drivers internacionais e GitHub REST API (api.github.com)
 

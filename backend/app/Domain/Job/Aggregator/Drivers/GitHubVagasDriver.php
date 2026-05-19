@@ -173,6 +173,7 @@ final class GitHubVagasDriver implements JobSourceDriver
             postedAt: $this->parseDate((string) ($item['created_at'] ?? '')),
             expiresAt: null,
             language: 'pt_BR',
+            countryCode: 'BR',
         );
     }
 

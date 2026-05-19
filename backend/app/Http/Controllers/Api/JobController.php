@@ -41,6 +41,10 @@ final class JobController extends Controller
             $query->where('seniority', $seniority);
         }
 
+        if ($country = $request->string('country')->toString()) {
+            $query->where('country_code', $country);
+        }
+
         if ($stack = $request->input('stack')) {
             $stack = is_array($stack) ? $stack : explode(',', (string) $stack);
             foreach ($stack as $tag) {
@@ -67,5 +71,17 @@ final class JobController extends Controller
         abort_unless($user !== null, 401);
 
         return response()->json($query->execute($user, $request->integer('per_page', 20)));
+    }
+
+    public function countries(): JsonResponse
+    {
+        $codes = Job::query()
+            ->where('active', true)
+            ->whereNotNull('country_code')
+            ->distinct()
+            ->orderBy('country_code')
+            ->pluck('country_code');
+
+        return response()->json(['data' => $codes]);
     }
 }

@@ -34,6 +34,7 @@ final class JobDTO extends Data
         public ?DateTimeImmutable $expiresAt,
         public ?string $language = null,
         public ?string $contactEmail = null,
+        public ?string $countryCode = null,
     ) {}
 
     /**

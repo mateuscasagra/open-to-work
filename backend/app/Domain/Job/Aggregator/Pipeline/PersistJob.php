@@ -55,6 +55,7 @@ final class PersistJob
             'company_id' => $company->id,
             'description_html' => $dto->descriptionHtml,
             'location' => $dto->location,
+            'country_code' => $dto->countryCode,
             'modality' => $dto->modality?->value,
             'seniority' => $dto->seniority?->value,
             'stack' => $dto->stack,

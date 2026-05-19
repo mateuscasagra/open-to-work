@@ -2,23 +2,51 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { keepPreviousData, useQuery } from '@tanstack/vue-query';
+import { z } from 'zod';
 import { api } from '@/shared/api/client';
 import { JobsPageSchema, type Job, type JobsPage } from '@/shared/api/schemas';
 import { useJobFilters } from '@/modules/jobs/composables/useJobFilters';
 import { useApplyToJob } from '@/modules/applications/composables/useApplyToJob';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const { state, queryParams, reset } = useJobFilters();
 
 const page = ref(1);
 
 watch(
-  [() => state.q, () => state.modality, () => state.seniority, () => state.matchOnly],
+  [() => state.q, () => state.modality, () => state.seniority, () => state.country, () => state.matchOnly],
   () => {
     page.value = 1;
     selectedJob.value = null;
   },
+);
+
+const CountriesResponse = z.object({ data: z.array(z.string().length(2)) });
+
+const countriesQuery = useQuery({
+  queryKey: ['jobs', 'countries'],
+  queryFn: async () => {
+    const { data } = await api.get('/api/jobs/countries');
+    return CountriesResponse.parse(data).data;
+  },
+  staleTime: 5 * 60 * 1000,
+});
+
+function countryLabel(code: string): string {
+  try {
+    const lang = locale.value.replace('_', '-');
+    const dn = new Intl.DisplayNames([lang], { type: 'region' });
+    return dn.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+const countryOptions = computed(() =>
+  (countriesQuery.data.value ?? [])
+    .map((code) => ({ code, label: countryLabel(code) }))
+    .sort((a, b) => a.label.localeCompare(b.label, locale.value.replace('_', '-'))),
 );
 
 async function fetchJobs(
@@ -206,6 +234,23 @@ function applyLabel(jobId: number): string {
           </select>
 
           <select
+            v-if="countryOptions.length > 0"
+            v-model="state.country"
+            class="input"
+          >
+            <option value="">
+              {{ t('jobs.filters.any_country') }}
+            </option>
+            <option
+              v-for="opt in countryOptions"
+              :key="opt.code"
+              :value="opt.code"
+            >
+              {{ opt.label }}
+            </option>
+          </select>
+
+          <select
             v-model="state.seniority"
             class="input"
           >
@@ -234,7 +279,7 @@ function applyLabel(jobId: number): string {
         </div>
 
         <div
-          v-if="state.q || state.modality || state.seniority"
+          v-if="state.q || state.modality || state.seniority || state.country"
           class="flex justify-end"
         >
           <button

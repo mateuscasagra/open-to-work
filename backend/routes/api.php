@@ -71,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('skills.index');
 
     Route::get('/jobs/matching', [JobController::class, 'matching'])->name('jobs.matching');
+    Route::get('/jobs/countries', [JobController::class, 'countries'])->name('jobs.countries');
     Route::apiResource('jobs', JobController::class)
         ->only(['index', 'show']);
 
