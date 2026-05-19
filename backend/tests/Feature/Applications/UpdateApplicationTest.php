@@ -29,10 +29,10 @@ it('updates notes and expected salary on my application', function (): void {
         ->assertJsonPath('job_url', 'https://empresa.com/vagas/42')
         ->assertJsonPath('manual_title', 'Backend Sênior PHP/Laravel');
 
-    $fresh = $application->fresh();
-    expect($fresh->notes)->toBe('Entrevistador: João. Próxima etapa em 3 dias.');
-    expect($fresh->job_url)->toBe('https://empresa.com/vagas/42');
-    expect($fresh->manual_title)->toBe('Backend Sênior PHP/Laravel');
+    $application->refresh();
+    expect($application->notes)->toBe('Entrevistador: João. Próxima etapa em 3 dias.');
+    expect($application->job_url)->toBe('https://empresa.com/vagas/42');
+    expect($application->manual_title)->toBe('Backend Sênior PHP/Laravel');
 });
 
 it('ignores unauthorized fields', function (): void {

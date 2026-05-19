@@ -57,11 +57,17 @@ class Job extends Model
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return HasMany<JobSource, $this>
+     */
     public function sources(): HasMany
     {
         return $this->hasMany(JobSource::class);
     }
 
+    /**
+     * @return HasMany<Application, $this>
+     */
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class);

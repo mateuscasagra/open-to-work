@@ -771,7 +771,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$notes on App\\Models\\Application\|null\.$#'
 			identifier: property.nonObject
-			count: 2
+			count: 1
 			path: tests/Feature/Applications/UpdateApplicationTest.php
 
 		-

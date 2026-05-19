@@ -29,7 +29,7 @@ it('creates an application and dispatches ApplicationCreated', function (): void
         ->assertJsonPath('job_url', 'https://linkedin.com/jobs/123');
 
     expect(Application::count())->toBe(1);
-    expect(Application::first()->job_url)->toBe('https://linkedin.com/jobs/123');
+    expect(Application::firstOrFail()->job_url)->toBe('https://linkedin.com/jobs/123');
     Event::assertDispatched(ApplicationCreated::class);
 });
 
