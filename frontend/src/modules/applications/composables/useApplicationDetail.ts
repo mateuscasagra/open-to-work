@@ -19,13 +19,14 @@ export function useApplicationDetail(applicationId: Ref<number>) {
   const updateNotes = useMutation<
     Application,
     Error,
-    { notes?: string; expectedSalary?: number; resumeId?: number | null }
+    { notes?: string; expectedSalary?: number; resumeId?: number | null; jobUrl?: string | null }
   >({
-    mutationFn: async ({ notes, expectedSalary, resumeId }) => {
+    mutationFn: async ({ notes, expectedSalary, resumeId, jobUrl }) => {
       const body: Record<string, unknown> = {};
       if (notes !== undefined) body.notes = notes;
       if (expectedSalary !== undefined) body.expected_salary = expectedSalary;
       if (resumeId !== undefined) body.resume_id = resumeId;
+      if (jobUrl !== undefined) body.job_url = jobUrl;
 
       const { data } = await api.put(`/api/applications/${applicationId.value}`, body);
       return ApplicationSchema.parse(data);

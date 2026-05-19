@@ -18,15 +18,18 @@ it('creates an application and dispatches ApplicationCreated', function (): void
     $response = $this->actingAs($user)->postJson('/api/applications', [
         'jobId' => $job->id,
         'source' => 'linkedin',
+        'jobUrl' => 'https://linkedin.com/jobs/123',
         'notes' => 'Match perfeito com minha stack',
         'expectedSalary' => 15000,
     ]);
 
     $response->assertCreated()
         ->assertJsonPath('status', ApplicationStatus::Applied->value)
-        ->assertJsonPath('source', 'linkedin');
+        ->assertJsonPath('source', 'linkedin')
+        ->assertJsonPath('job_url', 'https://linkedin.com/jobs/123');
 
     expect(Application::count())->toBe(1);
+    expect(Application::first()->job_url)->toBe('https://linkedin.com/jobs/123');
     Event::assertDispatched(ApplicationCreated::class);
 });
 

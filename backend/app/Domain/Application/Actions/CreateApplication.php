@@ -35,6 +35,7 @@ final class CreateApplication
             'job_id' => $data->jobId,
             'manual_title' => $data->manualTitle,
             'manual_company' => $data->manualCompany,
+            'job_url' => $data->jobUrl,
             'resume_id' => $data->resumeId,
             'status' => ApplicationStatus::Applied->value,
             'applied_at' => now(),

@@ -131,6 +131,7 @@ const showManualModal = ref(false);
 const manualForm = reactive({
   title: '',
   company: '',
+  jobUrl: '',
   description: '',
   source: '',
   resumeId: null as number | null,
@@ -151,6 +152,7 @@ const manualMutation = useMutation({
     const { data } = await api.post('/api/applications', {
       manualTitle: manualForm.title,
       manualCompany: manualForm.company || null,
+      jobUrl: manualForm.jobUrl || null,
       notes: manualForm.description || null,
       source: manualForm.source || 'manual',
       resumeId: manualForm.resumeId,
@@ -162,6 +164,7 @@ const manualMutation = useMutation({
     showManualModal.value = false;
     manualForm.title = '';
     manualForm.company = '';
+    manualForm.jobUrl = '';
     manualForm.description = '';
     manualForm.source = '';
     manualForm.resumeId = null;
@@ -504,6 +507,16 @@ function canMoveRight(status: string): boolean {
                 v-model="manualForm.company"
                 class="input"
                 :placeholder="t('applications.manual_company')"
+              >
+            </div>
+
+            <div>
+              <label class="label">{{ t('applications.manual_job_url') }}</label>
+              <input
+                v-model="manualForm.jobUrl"
+                type="url"
+                class="input"
+                placeholder="https://..."
               >
             </div>
 

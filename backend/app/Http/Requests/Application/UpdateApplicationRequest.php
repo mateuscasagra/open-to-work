@@ -20,7 +20,8 @@ final class UpdateApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'notes' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'notes' => ['sometimes', 'nullable', 'string', 'max:5000'],
+            'job_url' => ['sometimes', 'nullable', 'string', 'url', 'max:500'],
             'expected_salary' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'resume_id' => [
                 'sometimes',

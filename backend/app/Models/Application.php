@@ -35,6 +35,7 @@ class Application extends Model implements HasMedia
         'job_id',
         'manual_title',
         'manual_company',
+        'job_url',
         'resume_id',
         'status',
         'applied_at',

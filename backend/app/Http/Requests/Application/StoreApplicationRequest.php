@@ -23,13 +23,14 @@ final class StoreApplicationRequest extends FormRequest
             'jobId' => ['nullable', 'integer', 'exists:jobs,id'],
             'manualTitle' => ['required_without:jobId', 'nullable', 'string', 'max:255'],
             'manualCompany' => ['nullable', 'string', 'max:255'],
+            'jobUrl' => ['nullable', 'string', 'url', 'max:500'],
             'resumeId' => [
                 'nullable',
                 'integer',
                 Rule::exists('resumes', 'id')->where('user_id', $this->user()?->id),
             ],
             'source' => ['nullable', 'string', 'max:50'],
-            'notes' => ['nullable', 'string', 'max:2000'],
+            'notes' => ['nullable', 'string', 'max:5000'],
             'expectedSalary' => ['nullable', 'integer', 'min:0'],
             'emailMessageOverride' => ['nullable', 'string', 'max:5000'],
             'emailResumeIdOverride' => [

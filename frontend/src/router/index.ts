@@ -146,4 +146,31 @@ router.beforeEach(async (to) => {
   return true;
 });
 
+// Após um deploy, o navegador pode ter o index.js antigo carregado em memória
+// e tentar importar chunks com hashes que não existem mais no servidor (404).
+// Detectamos esse caso e forçamos um full reload para buscar o index.html novo.
+// Uma flag por destino em sessionStorage evita loops infinitos caso o erro
+// persista após o reload (ex.: bug real no novo build).
+const CHUNK_ERROR_PATTERNS = [
+  'Failed to fetch dynamically imported module',
+  'error loading dynamically imported module',
+  'Importing a module script failed',
+];
+
+router.onError((error, to) => {
+  const message = error instanceof Error ? error.message : String(error);
+  const isChunkError = CHUNK_ERROR_PATTERNS.some((p) => message.includes(p));
+
+  if (!isChunkError) return;
+
+  const reloadKey = `chunk-reload:${to.fullPath}`;
+  if (sessionStorage.getItem(reloadKey)) {
+    console.error('[router] chunk load failed after reload:', error);
+    return;
+  }
+
+  sessionStorage.setItem(reloadKey, '1');
+  window.location.assign(to.fullPath);
+});
+
 export default router;

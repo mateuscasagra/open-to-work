@@ -12,6 +12,7 @@ final class ApplicationData extends Data
         public ?int $jobId = null,
         public ?string $manualTitle = null,
         public ?string $manualCompany = null,
+        public ?string $jobUrl = null,
         public ?int $resumeId = null,
         public ?string $source = null,
         public ?string $notes = null,

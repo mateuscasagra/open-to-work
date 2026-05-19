@@ -11,19 +11,24 @@ it('updates notes and expected salary on my application', function (): void {
         'user_id' => $user->id,
         'notes' => null,
         'expected_salary' => null,
+        'job_url' => null,
     ]);
 
     $response = $this->actingAs($user)
         ->putJson("/api/applications/{$application->id}", [
             'notes' => 'Entrevistador: João. Próxima etapa em 3 dias.',
             'expected_salary' => 14000,
+            'job_url' => 'https://empresa.com/vagas/42',
         ]);
 
     $response->assertOk()
         ->assertJsonPath('notes', 'Entrevistador: João. Próxima etapa em 3 dias.')
-        ->assertJsonPath('expected_salary', 14000);
+        ->assertJsonPath('expected_salary', 14000)
+        ->assertJsonPath('job_url', 'https://empresa.com/vagas/42');
 
-    expect($application->fresh()->notes)->toBe('Entrevistador: João. Próxima etapa em 3 dias.');
+    $fresh = $application->fresh();
+    expect($fresh->notes)->toBe('Entrevistador: João. Próxima etapa em 3 dias.');
+    expect($fresh->job_url)->toBe('https://empresa.com/vagas/42');
 });
 
 it('ignores unauthorized fields', function (): void {

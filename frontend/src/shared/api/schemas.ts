@@ -317,6 +317,7 @@ export const ApplicationSchema = z.object({
   source: z.string().nullable(),
   manual_title: z.string().nullable().optional(),
   manual_company: z.string().nullable().optional(),
+  job_url: z.string().nullable().optional(),
   resume_id: z.number().nullable().optional(),
   resume: ResumeSchema.nullable().optional(),
   job: JobSchema.nullable().optional(),

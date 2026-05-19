@@ -63,6 +63,7 @@ function formatBytes(bytes: number): string {
 }
 
 const notesInput = ref('');
+const jobUrlInput = ref('');
 const expectedSalaryInput = ref<number | null>(null);
 const resumeIdInput = ref<number | null>(null);
 const saveMessage = ref<string | null>(null);
@@ -99,6 +100,7 @@ watch(
   (app) => {
     if (app) {
       notesInput.value = app.notes ?? '';
+      jobUrlInput.value = app.job_url ?? '';
       expectedSalaryInput.value = app.expected_salary;
       resumeIdInput.value = app.resume_id ?? null;
     }
@@ -146,6 +148,7 @@ async function onSave(): Promise<void> {
   try {
     await updateNotes.mutateAsync({
       notes: notesInput.value,
+      jobUrl: jobUrlInput.value.trim() || null,
       expectedSalary: expectedSalaryInput.value ?? undefined,
       resumeId: resumeIdInput.value,
     });
@@ -346,16 +349,49 @@ function goBack(): void {
         </div>
       </section>
 
-      <!-- Notes, salary & resume -->
+      <!-- Job description, link, salary & resume -->
       <section class="card border-l-4 border-brand-500 p-5">
         <h2 class="mb-3 font-semibold text-ink-900">
-          {{ t('applications.notes') }}
+          {{ t('applications.job_description') }}
         </h2>
+
+        <label class="label">{{ t('applications.job_url') }}</label>
+        <div class="mt-1.5 flex items-center gap-2">
+          <input
+            v-model="jobUrlInput"
+            type="url"
+            class="input flex-1"
+            placeholder="https://..."
+          >
+          <a
+            v-if="jobUrlInput.trim()"
+            :href="jobUrlInput.trim()"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-ink-200 text-ink-500 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
+            :title="t('applications.job_url_open')"
+          >
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+          </a>
+        </div>
+
         <textarea
           v-model="notesInput"
           rows="5"
-          class="input"
-          :placeholder="t('applications.notes_placeholder')"
+          class="input mt-4"
+          :placeholder="t('applications.job_description_placeholder')"
         />
 
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
