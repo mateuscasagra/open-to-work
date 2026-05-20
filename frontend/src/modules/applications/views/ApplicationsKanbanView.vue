@@ -60,7 +60,7 @@ const totalCount = computed(() => applications.value?.length ?? 0);
 // Quota mensal — vem do envelope do /api/me, sincronizado pelo auth store.
 const subscription = useSubscription();
 const quotaUsed = computed(() => subscription.value?.quota.used ?? 0);
-const quotaLimit = computed(() => subscription.value?.quota.limit);     // null = ilimitado (Pro)
+const quotaLimit = computed<number | null>(() => subscription.value?.quota.limit ?? null);     // null = ilimitado (Pro) ou subscription ainda não carregada
 const isPro = computed(() => quotaLimit.value === null);
 const quotaPercent = computed(() => {
   const limit = quotaLimit.value;

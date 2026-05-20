@@ -7,18 +7,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $user_id
- * @property string $plan                  'free' | 'pro'
- * @property string $status                'active' | 'canceled' | 'past_due'
+ * @property string $plan 'free' | 'pro'
+ * @property string $status 'active' | 'canceled' | 'past_due'
  * @property ?string $asaas_customer_id
  * @property ?string $asaas_subscription_id
- * @property ?\Illuminate\Support\Carbon $current_period_start
- * @property ?\Illuminate\Support\Carbon $current_period_end
- * @property ?\Illuminate\Support\Carbon $canceled_at
- * @property ?\Illuminate\Support\Carbon $last_payment_at
+ * @property ?Carbon $current_period_start
+ * @property ?Carbon $current_period_end
+ * @property ?Carbon $canceled_at
+ * @property ?Carbon $last_payment_at
  * @property ?string $last_payment_id
  */
 class Subscription extends Model

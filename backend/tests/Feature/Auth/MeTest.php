@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Plan;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 it('returns the authenticated user with subscription envelope', function (): void {
     $user = User::factory()->create(['name' => 'Diego']);
@@ -34,8 +36,8 @@ it('reflects pro_price_cents from plans table (not env)', function (): void {
     // Query builder bypassa eventos Eloquent → cache não é invalidado pelo hook,
     // por isso fazemos forget manual (em prod o admin esperaria 60s ou rodaria
     // `php artisan cache:forget plans.pro.price_cents`).
-    \App\Models\Plan::where('slug', 'pro')->update(['price_cents' => 4990]);
-    \Illuminate\Support\Facades\Cache::forget('plans.pro.price_cents');
+    Plan::where('slug', 'pro')->update(['price_cents' => 4990]);
+    Cache::forget('plans.pro.price_cents');
 
     $this->actingAs($user)
         ->getJson('/api/me')

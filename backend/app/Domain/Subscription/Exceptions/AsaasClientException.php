@@ -11,6 +11,4 @@ use RuntimeException;
  * (timeout, 5xx, payload inesperado). Captura erros de infra separados
  * de regras de negócio (AlreadySubscribed/NotSubscribed/QuotaExceeded).
  */
-final class AsaasClientException extends RuntimeException
-{
-}
+final class AsaasClientException extends RuntimeException {}

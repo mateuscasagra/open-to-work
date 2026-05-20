@@ -55,7 +55,7 @@ it('accepts masked CPF and normalizes to digits only', function (): void {
     $this->mock(AsaasGateway::class, function (MockInterface $m): void {
         $m->shouldReceive('createCustomer')
             ->once()
-            ->with(\Mockery::any(), \Mockery::any(), VALID_CPF)
+            ->with(Mockery::any(), Mockery::any(), VALID_CPF)
             ->andReturn('cus_x');
         $m->shouldReceive('createSubscription')
             ->andReturn(['id' => 'sub_x', 'next_due_date' => '2026-05-21', 'first_payment_id' => 'pay_x']);
@@ -104,7 +104,7 @@ it('reuses asaas_customer_id and updates CPF if changed on re-subscription', fun
             ->with('cus_existing', VALID_CPF);
         $m->shouldReceive('createSubscription')
             ->once()
-            ->with('cus_existing', \Mockery::any(), \Mockery::any())
+            ->with('cus_existing', Mockery::any(), Mockery::any())
             ->andReturn(['id' => 'sub_new', 'next_due_date' => '2026-05-21', 'first_payment_id' => 'pay_x']);
         $m->shouldReceive('getPaymentPixQrCode')
             ->andReturn(['encoded_image' => 'a', 'payload' => 'b', 'expiration_date' => null]);

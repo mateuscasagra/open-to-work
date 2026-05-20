@@ -123,13 +123,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Webhook Asaas — público (sem auth). Limita por IP pra evitar replay flood.
-        RateLimiter::for('asaas-webhook', static fn (Request $request): Limit
-            => Limit::perMinute(120)->by('ip:' . $request->ip()));
+        RateLimiter::for('asaas-webhook', static fn (Request $request): Limit => Limit::perMinute(120)->by('ip:' . $request->ip()));
 
         // Suporte público (formulário "Preciso de ajuda"). 5/hora por IP — gera
         // e-mail, então spam aqui custa caro. UX: usuário legítimo dificilmente
         // bate isso.
-        RateLimiter::for('support', static fn (Request $request): Limit
-            => Limit::perHour(5)->by('ip:' . $request->ip()));
+        RateLimiter::for('support', static fn (Request $request): Limit => Limit::perHour(5)->by('ip:' . $request->ip()));
     }
 }

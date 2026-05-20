@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * @property int $id
- * @property string $slug         'free' | 'pro'
+ * @property string $slug 'free' | 'pro'
  * @property string $name
- * @property int $price_cents     BRL em centavos
+ * @property int $price_cents BRL em centavos
  * @property bool $active
  */
 class Plan extends Model

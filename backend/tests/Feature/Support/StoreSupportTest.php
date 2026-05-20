@@ -39,8 +39,7 @@ it('uses anonymous_name fallback when name is missing', function (): void {
         'description' => 'Seria legal ter modo escuro.',
     ])->assertOk();
 
-    Mail::assertSent(SupportRequestMail::class, fn (SupportRequestMail $mail): bool
-        => $mail->senderName === __('support.anonymous_name'));
+    Mail::assertSent(SupportRequestMail::class, fn (SupportRequestMail $mail): bool => $mail->senderName === __('support.anonymous_name'));
 });
 
 it('rejects missing email with 422', function (): void {
