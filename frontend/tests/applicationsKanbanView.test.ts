@@ -22,6 +22,7 @@ async function mountView() {
     routes: [
       { path: '/applications', name: 'applications', component: ApplicationsKanbanView },
       { path: '/applications/:id', name: 'application-detail', component: { template: '<div/>' } },
+      { path: '/plan', name: 'plan', component: { template: '<div/>' } },
     ],
   });
   const i18n = createI18n({ legacy: false, locale: 'pt_BR', messages: { pt_BR: {} } });

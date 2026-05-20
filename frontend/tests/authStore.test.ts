@@ -11,6 +11,20 @@ vi.mock('@/shared/api/client', () => ({
   ensureCsrf: vi.fn().mockResolvedValue(undefined),
 }));
 
+const freeSubscription = {
+  plan: 'free' as const,
+  status: 'active' as const,
+  current_period_end: null,
+  canceled_at: null,
+  pro_price_cents: 2500,
+  quota: {
+    used: 0,
+    limit: 15,
+    reset_at: '2026-06-01T00:00:00Z',
+    plan: 'free' as const,
+  },
+};
+
 describe('authStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -21,7 +35,10 @@ describe('authStore', () => {
   it('fetchMe sets user on success', async () => {
     vi.mocked(api.get)
       .mockResolvedValueOnce({
-        data: { user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' } },
+        data: {
+          user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' },
+          subscription: freeSubscription,
+        },
       })
       .mockResolvedValueOnce({
         data: { country_code: 'BR', state_name: 'SP', city: 'São Paulo' },
@@ -49,7 +66,10 @@ describe('authStore', () => {
   it('fetchMe leaves locationComplete=false when profile lacks city', async () => {
     vi.mocked(api.get)
       .mockResolvedValueOnce({
-        data: { user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' } },
+        data: {
+          user: { id: 1, name: 'Diego', email: 'd@e.com', locale: 'pt_BR' },
+          subscription: freeSubscription,
+        },
       })
       .mockResolvedValueOnce({
         data: { country_code: 'BR', state_name: 'SP', city: null },
@@ -63,7 +83,10 @@ describe('authStore', () => {
 
   it('login stores the authenticated user and refreshes location status', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: { user: { id: 2, name: 'Ana', email: 'a@e.com', locale: 'en' } },
+      data: {
+        user: { id: 2, name: 'Ana', email: 'a@e.com', locale: 'en' },
+        subscription: freeSubscription,
+      },
     });
     vi.mocked(api.get).mockResolvedValueOnce({
       data: { country_code: 'US', state_name: 'CA', city: 'San Francisco' },
@@ -155,7 +178,10 @@ describe('authStore', () => {
 
   it('verifyEmail sets the user and clears the pending email', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: { user: { id: 7, name: 'Verified', email: 'v@e.com', locale: 'pt_BR' } },
+      data: {
+        user: { id: 7, name: 'Verified', email: 'v@e.com', locale: 'pt_BR' },
+        subscription: freeSubscription,
+      },
     });
     vi.mocked(api.get).mockResolvedValueOnce({
       data: { country_code: null, state_name: null, city: null },
@@ -187,7 +213,10 @@ describe('authStore', () => {
 
   it('login clears any pending verification email', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: { user: { id: 3, name: 'OK', email: 'ok@e.com', locale: 'pt_BR' } },
+      data: {
+        user: { id: 3, name: 'OK', email: 'ok@e.com', locale: 'pt_BR' },
+        subscription: freeSubscription,
+      },
     });
     vi.mocked(api.get).mockResolvedValueOnce({
       data: { country_code: 'BR', state_name: 'SP', city: 'Campinas' },
@@ -213,7 +242,10 @@ describe('authStore', () => {
 
   it('resetPassword POSTs payload and sets the user from response', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: { user: { id: 9, name: 'Reset', email: 'r@e.com', locale: 'pt_BR' } },
+      data: {
+        user: { id: 9, name: 'Reset', email: 'r@e.com', locale: 'pt_BR' },
+        subscription: freeSubscription,
+      },
     });
     vi.mocked(api.get).mockResolvedValueOnce({
       data: { country_code: 'BR', state_name: 'SP', city: 'São Paulo' },

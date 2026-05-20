@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\SubscriptionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $status 'active' | 'canceled' | 'past_due'
  * @property ?string $asaas_customer_id
  * @property ?string $asaas_subscription_id
+ * @property ?string $cpf
  * @property ?Carbon $current_period_start
  * @property ?Carbon $current_period_end
  * @property ?Carbon $canceled_at
@@ -24,6 +26,7 @@ use Illuminate\Support\Carbon;
  */
 class Subscription extends Model
 {
+    /** @use HasFactory<SubscriptionFactory> */
     use HasFactory;
 
     /** @var list<string> */

@@ -83,6 +83,9 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class);
     }
 
+    /**
+     * @return HasOne<Subscription, $this>
+     */
     public function subscription(): HasOne
     {
         return $this->hasOne(Subscription::class);

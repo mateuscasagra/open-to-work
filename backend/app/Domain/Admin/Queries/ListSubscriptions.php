@@ -23,6 +23,7 @@ final class ListSubscriptions
 
     /**
      * @param  'active'|'canceled'|'all'  $status
+     * @return LengthAwarePaginator<int, \stdClass>
      */
     public function execute(string $status = 'all', int $perPage = self::DEFAULT_PER_PAGE): LengthAwarePaginator
     {
