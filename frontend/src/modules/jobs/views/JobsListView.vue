@@ -6,8 +6,9 @@ import { z } from 'zod';
 import { api } from '@/shared/api/client';
 import { JobsPageSchema, type Job, type JobsPage } from '@/shared/api/schemas';
 import { useJobFilters } from '@/modules/jobs/composables/useJobFilters';
-import { useApplyToJob } from '@/modules/applications/composables/useApplyToJob';
+import { useApplyToJob, type ApplyError } from '@/modules/applications/composables/useApplyToJob';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
+import UpgradeModal from '@/modules/subscription/components/UpgradeModal.vue';
 
 const { t, locale } = useI18n();
 const { state, queryParams, reset } = useJobFilters();
@@ -108,6 +109,9 @@ const applyingJobId = ref<number | null>(null);
 const appliedJobIds = ref<Set<number>>(new Set());
 const alreadyAppliedJobIds = ref<Set<number>>(new Set());
 
+// Modal de upgrade (aparece quando user free atinge limite mensal).
+const quotaModal = ref<{ limit: number; resetAt: string } | null>(null);
+
 const resumes = useResumes();
 const selectedResumeId = ref<number | null>(null);
 
@@ -124,10 +128,12 @@ async function onApply(job: Job): Promise<void> {
     appliedJobIds.value.add(job.id);
     if (externalUrl) window.open(externalUrl, '_blank', 'noopener,noreferrer');
   } catch (e) {
-    const err = e as { kind: string };
+    const err = e as ApplyError;
     if (err.kind === 'duplicate') {
       alreadyAppliedJobIds.value.add(job.id);
       if (externalUrl) window.open(externalUrl, '_blank', 'noopener,noreferrer');
+    } else if (err.kind === 'quota_exceeded') {
+      quotaModal.value = { limit: err.limit, resetAt: err.resetAt };
     }
   } finally {
     applyingJobId.value = null;
@@ -625,5 +631,12 @@ function applyLabel(jobId: number): string {
         </div>
       </aside>
     </div>
+
+    <UpgradeModal
+      v-if="quotaModal"
+      :limit="quotaModal.limit"
+      :reset-at="quotaModal.resetAt"
+      @close="quotaModal = null"
+    />
   </div>
 </template>

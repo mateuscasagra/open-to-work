@@ -16,6 +16,8 @@ Cada módulo tem seu próprio arquivo em `docs/modulos/`. Quando for caçar um b
 | **Account (LGPD)** | [`modulos/account.md`](./modulos/account.md) | Export de dados, delete de conta |
 | **Location** | [`modulos/location.md`](./modulos/location.md) | Lookup CEP/ZIP (ViaCEP, zippopotam), lista de países suportados |
 | **Suggestions** | [`modulos/suggestions.md`](./modulos/suggestions.md) | Sugestões da comunidade, votação up/down, quota semanal (5/7d), ranking top-3 com coroa/troféu |
+| **Subscription** | [`modulos/subscription.md`](./modulos/subscription.md) | Plano Pro via Asaas PIX, quota free 15 candidaturas/mês, webhook + downgrade automático, tabela `plans` configurável |
+| **Support** | [`modulos/support.md`](./modulos/support.md) | Formulário público "Preciso de ajuda" no rodapé da landing, envia e-mail pra SUPPORT_EMAIL |
 | **Cross-cutting** | [`modulos/cross-cutting.md`](./modulos/cross-cutting.md) | Rate limiters, Sentry, scheduler, CSRF, middleware |
 | **Frontend compartilhado** | [`modulos/shared-frontend.md`](./modulos/shared-frontend.md) | Axios client, Zod schemas, layout, router, i18n, landing |
 
@@ -67,6 +69,18 @@ Use isto pra decidir qual arquivo abrir antes de mergulhar no código.
 | Coroa/troféu não aparece para o top-3 de sugestões | `suggestions.md` — `rank` é calculado **globalmente** no controller via query separada `topIds()`; verificar se `score` do registro está na top-3 da tabela inteira |
 | Voto não persiste após reload | `suggestions.md` — verificar `my_vote` no payload do `index` (subquery `addSelect`) e schema Zod aceitando 1/-1/null; pode ser cookie de sessão expirado |
 | Score da sugestão não bate com upvotes_count - downvotes_count | `suggestions.md` (Pontos de atenção — usar `COUNT(*)` + `update()` em `CastVote`, NUNCA `loadCount` que não marca dirty) |
+| **402 Payment Required** ao criar candidatura ("Limite mensal de 15...") | `subscription.md` (Quota enforcement) — usuário free passou de 15 no mês. Body tem `kind: 'quota_exceeded'` + `used/limit/reset_at`. Pro = `limit: null` |
+| Usuário pagou PIX mas continua como Free | `subscription.md` (Webhook flow) — checar `webhook_logs` (event_id, processed_at, error). Asaas tem retry 13x/24h; idempotência protege. Se webhook NUNCA chegou: tunnel/ngrok caiu? Header `asaas-access-token` bate com env var? |
+| Pro deveria ter virado Free após `current_period_end` mas continua Pro | `subscription.md` — scheduler `subscriptions:downgrade-expired` rodou? Conferir `php artisan schedule:list`. Fallback manual: `php artisan subscriptions:downgrade-expired` |
+| `/api/me` retornando shape antigo (sem `subscription`) | `auth.md` + `subscription.md` — backend mudou pra envelope `{user, subscription}`. Frontend parseia via `parseEnvelope()`. Se quebrou: subscription da migration backfilled? `SELECT count(*) FROM subscriptions` vs `count(*) FROM users` |
+| Webhook Asaas retornando 401 | `subscription.md` — header `asaas-access-token` precisa bater **exatamente** com `config('services.asaas.webhook_token')`. `hash_equals` é timing-safe |
+| Modal de PIX abre mas fica em "Aguardando" pra sempre | `subscription.md` — `PixCheckoutModal` faz polling a cada 5s via `auth.fetchMe()`. Se backend não reativa: webhook não chegou. Se trava em loading: `pix_qr_code_base64` veio vazio do Asaas |
+| `AsaasClientException` / 502 ao assinar | `subscription.md` — Asaas indisponível, timeout (15s) ou retornou payload inesperado. Conferir `Http::fake` em testes pra cenário; em prod, checar Sentry |
+| Asaas retorna "CPF/CNPJ do cliente é obrigatório" | `subscription.md` (CPF obrigatório) — frontend abre `CpfPromptModal` antes do checkout; backend `StoreSubscriptionRequest::normalizedCpf()` valida e normaliza |
+| Preço do Pro mostrado errado no frontend | `subscription.md` (Tabela `plans`) — frontend lê do `auth.subscription.pro_price_cents`; valor vem de `Plan::priceCentsBySlug('pro')`. Trocar valor com `UPDATE plans SET price_cents=...` + cache (60s TTL) ou `cache:forget plans.pro.price_cents` |
+| `__PHP_Incomplete_Class` em `Plan::*` | `subscription.md` — esse foi o motivo de cachear **só o int** em vez do model. Se voltar a aparecer, conferir cache driver + `php artisan cache:clear` |
+| Formulário "Preciso de ajuda" não envia e-mail | `support.md` — checar `SUPPORT_EMAIL` env, conferir log em `support.mail_failed`, MailHog em dev (`http://localhost:8025`), Resend domain verificado em prod |
+| Admin "Assinaturas ativas" = 0 mas tem subs no DB | `admin.md` — critério é `asaas_subscription_id IS NOT NULL` (não `plan='pro'`). Se a sub não tem Asaas ID, não entra na contagem. Confirmar com `SELECT plan, status, asaas_subscription_id FROM subscriptions` |
 
 ## Convenção dos arquivos
 

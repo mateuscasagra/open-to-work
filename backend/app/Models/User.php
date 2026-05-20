@@ -60,9 +60,32 @@ class User extends Authenticatable
         return (bool) $this->is_admin;
     }
 
+    /**
+     * Garante uma subscription 'free' / 'active' pra todo user recém-criado.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (self $user): void {
+            $user->subscription()->firstOrCreate(
+                ['user_id' => $user->id],
+                ['plan' => 'free', 'status' => 'active'],
+            );
+        });
+    }
+
+    public function isPro(): bool
+    {
+        return $this->subscription?->isPro() ?? false;
+    }
+
     public function profile(): HasOne
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class);
     }
 
     public function resumes(): HasMany

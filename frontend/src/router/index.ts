@@ -45,6 +45,12 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   {
+    path: '/support',
+    name: 'support',
+    component: () => import('@/modules/support/views/SupportView.vue'),
+    meta: { public: true },
+  },
+  {
     path: '/app',
     component: () => import('@/shared/layouts/AppLayout.vue'),
     children: [
@@ -92,6 +98,11 @@ const routes: RouteRecordRaw[] = [
         path: 'profile',
         name: 'profile',
         component: () => import('@/modules/profile/views/ProfileView.vue'),
+      },
+      {
+        path: 'plan',
+        name: 'plan',
+        component: () => import('@/modules/subscription/views/PlanView.vue'),
       },
       {
         path: 'suggestions',

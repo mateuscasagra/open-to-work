@@ -3,10 +3,42 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAdminMetrics } from '../composables/useAdminMetrics';
 import { useAdminErrorLogs } from '../composables/useAdminErrorLogs';
+import { useAdminSubscriptions, type SubscriptionStatusFilter } from '../composables/useAdminSubscriptions';
+import { formatBrl } from '@/shared/format/currency';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const { data, isLoading, error } = useAdminMetrics();
 const { data: errorsData } = useAdminErrorLogs();
+
+// Lista de assinaturas com filtro + paginação.
+const subFilter = ref<SubscriptionStatusFilter>('all');
+const subPage = ref(1);
+const { data: subsData, isFetching: subsFetching } = useAdminSubscriptions(subFilter, subPage);
+
+function setSubFilter(f: SubscriptionStatusFilter): void {
+  subFilter.value = f;
+  subPage.value = 1;
+}
+
+function fmtSubDate(iso: string | null): string {
+  if (!iso) return '—';
+  try {
+    const lang = locale.value.replace('_', '-');
+    return new Intl.DateTimeFormat(lang, { day: '2-digit', month: '2-digit', year: 'numeric' })
+      .format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
+function statusClass(status: string): string {
+  switch (status) {
+    case 'active': return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
+    case 'canceled': return 'bg-ink-100 text-ink-700 ring-ink-200';
+    case 'past_due': return 'bg-amber-50 text-amber-800 ring-amber-200';
+    default: return 'bg-ink-50 text-ink-700 ring-ink-200';
+  }
+}
 
 const userInitial = (name: string): string => (name?.[0] ?? '?').toUpperCase();
 
@@ -223,6 +255,253 @@ function countryFlag(code: string): string {
           </p>
         </div>
       </div>
+
+      <!-- KPIs de assinaturas (Pro) -->
+      <div
+        class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3"
+        data-testid="admin-subscription-kpis"
+      >
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-ink-500">
+              {{ t('admin.kpi.subs_active') }}
+            </p>
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-100">
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-ink-900">
+            {{ data.subscriptions.active }}
+          </p>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-ink-500">
+              {{ t('admin.kpi.subs_canceled') }}
+            </p>
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200">
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-ink-900">
+            {{ data.subscriptions.canceled }}
+          </p>
+          <p class="mt-1 text-[10px] text-ink-500">
+            {{ t('admin.kpi.subs_canceled_hint') }}
+          </p>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-ink-500">
+              {{ t('admin.kpi.cancellation_rate') }}
+            </p>
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600 ring-1 ring-inset ring-amber-100">
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-ink-900">
+            {{ data.subscriptions.cancellation_rate.toFixed(1) }}%
+          </p>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-ink-500">
+              {{ t('admin.kpi.revenue_total') }}
+            </p>
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-100">
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-ink-900">
+            {{ formatBrl(data.subscriptions.total_revenue_cents) }}
+          </p>
+          <p class="mt-1 text-[10px] text-ink-500">
+            {{ t('admin.kpi.revenue_mrr_hint', { mrr: formatBrl(data.subscriptions.mrr_cents) }) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Lista de assinaturas -->
+      <section
+        class="card p-5 lg:p-4"
+        data-testid="admin-subscriptions"
+      >
+        <header class="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500">
+              {{ t('admin.subs.title') }}
+            </h2>
+            <p class="text-xs text-ink-400">
+              {{ t('admin.subs.subtitle') }}
+            </p>
+          </div>
+          <div class="inline-flex rounded-lg border border-ink-200 bg-white p-0.5">
+            <button
+              v-for="f in (['all', 'active', 'canceled'] as const)"
+              :key="f"
+              type="button"
+              class="rounded-md px-3 py-1 text-xs font-medium transition"
+              :class="subFilter === f
+                ? 'bg-brand-50 text-brand-700'
+                : 'text-ink-600 hover:text-ink-900'"
+              @click="setSubFilter(f)"
+            >
+              {{ t(`admin.subs.filter.${f}`) }}
+            </button>
+          </div>
+        </header>
+
+        <div
+          v-if="subsFetching && !subsData"
+          class="py-8 text-center text-sm text-ink-500"
+        >
+          {{ t('jobs.loading') }}
+        </div>
+
+        <div
+          v-else-if="subsData && subsData.data.length === 0"
+          class="py-8 text-center text-sm text-ink-500"
+        >
+          {{ t('admin.subs.empty') }}
+        </div>
+
+        <div
+          v-else-if="subsData"
+          class="overflow-x-auto"
+        >
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-ink-100 text-xs uppercase tracking-wider text-ink-500">
+                <th class="py-2 pr-3 font-medium">
+                  {{ t('admin.subs.col.user') }}
+                </th>
+                <th class="py-2 pr-3 font-medium">
+                  {{ t('admin.subs.col.status') }}
+                </th>
+                <th class="py-2 pr-3 font-medium">
+                  {{ t('admin.subs.col.period_end') }}
+                </th>
+                <th class="py-2 pr-3 font-medium">
+                  {{ t('admin.subs.col.last_payment') }}
+                </th>
+                <th class="py-2 pr-3 font-medium">
+                  {{ t('admin.subs.col.canceled_at') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ink-100">
+              <tr
+                v-for="sub in subsData.data"
+                :key="sub.id"
+                class="text-ink-800"
+              >
+                <td class="py-2 pr-3">
+                  <p class="font-medium text-ink-900">
+                    {{ sub.name }}
+                  </p>
+                  <p class="text-xs text-ink-500">
+                    {{ sub.email }}
+                  </p>
+                </td>
+                <td class="py-2 pr-3">
+                  <span
+                    class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset"
+                    :class="statusClass(sub.status)"
+                  >
+                    {{ t(`subscription.status.${sub.status}`) }}
+                  </span>
+                </td>
+                <td class="py-2 pr-3 text-xs text-ink-600">
+                  {{ fmtSubDate(sub.current_period_end) }}
+                </td>
+                <td class="py-2 pr-3 text-xs text-ink-600">
+                  {{ fmtSubDate(sub.last_payment_at) }}
+                </td>
+                <td class="py-2 pr-3 text-xs text-ink-600">
+                  {{ fmtSubDate(sub.canceled_at) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginação minimalista -->
+        <div
+          v-if="subsData && subsData.last_page > 1"
+          class="mt-3 flex items-center justify-between text-xs text-ink-600"
+        >
+          <p>{{ t('admin.subs.page_of', { current: subsData.current_page, total: subsData.last_page }) }}</p>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="rounded-md border border-ink-200 px-3 py-1 transition disabled:opacity-40 hover:border-brand-400 hover:text-brand-700"
+              :disabled="subsData.current_page <= 1"
+              @click="subPage = Math.max(1, subPage - 1)"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              class="rounded-md border border-ink-200 px-3 py-1 transition disabled:opacity-40 hover:border-brand-400 hover:text-brand-700"
+              :disabled="subsData.current_page >= subsData.last_page"
+              @click="subPage = Math.min(subsData.last_page, subPage + 1)"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      </section>
 
       <!-- Top applicants ranking -->
       <section

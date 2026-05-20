@@ -12,6 +12,9 @@ import {
   type ColumnConfig,
 } from '@/modules/applications/composables/useKanbanConfig';
 import { useResumes } from '@/modules/resumes/composables/useResumes';
+import { useSubscription } from '@/modules/subscription/composables/useSubscription';
+import UpgradeModal from '@/modules/subscription/components/UpgradeModal.vue';
+import { AxiosError } from 'axios';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -53,6 +56,23 @@ function onMqlChange(e: MediaQueryListEvent): void {
 const dragEnabled = computed(() => isDesktop.value && !viewArchived.value);
 
 const totalCount = computed(() => applications.value?.length ?? 0);
+
+// Quota mensal — vem do envelope do /api/me, sincronizado pelo auth store.
+const subscription = useSubscription();
+const quotaUsed = computed(() => subscription.value?.quota.used ?? 0);
+const quotaLimit = computed(() => subscription.value?.quota.limit);     // null = ilimitado (Pro)
+const isPro = computed(() => quotaLimit.value === null);
+const quotaPercent = computed(() => {
+  const limit = quotaLimit.value;
+  if (limit === null || limit === 0) return 0;
+  return Math.min(100, Math.round((quotaUsed.value / limit) * 100));
+});
+const quotaChipClass = computed(() => {
+  if (isPro.value) return 'border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100';
+  if (quotaPercent.value >= 100) return 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100';
+  if (quotaPercent.value >= 80) return 'border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100';
+  return 'border-ink-200 bg-ink-50 text-ink-700 hover:bg-ink-100';
+});
 
 const grouped = computed<Record<string, Application[]>>(() => {
   const acc: Record<string, Application[]> = {};
@@ -171,9 +191,32 @@ const manualMutation = useMutation({
     manualError.value = '';
   },
   onError: (error: unknown) => {
+    // Limite mensal atingido (402): fecha modal manual e abre upgrade modal,
+    // mesma UX do botão "Aplicar" em JobsListView.
+    if (error instanceof AxiosError && error.response?.status === 402) {
+      const d = error.response.data ?? {};
+      showManualModal.value = false;
+      quotaModal.value = {
+        limit: Number(d.limit ?? 15),
+        resetAt: String(d.reset_at ?? ''),
+      };
+      return;
+    }
     manualError.value = extractApiErrorMessage(error, t('applications.manual_error'));
   },
 });
+
+// Compartilhado entre o catch do manual mutation e o banner clicável no header.
+const quotaModal = ref<{ limit: number; resetAt: string } | null>(null);
+
+// Banner persistente no topo do kanban quando o user free atingiu o limite.
+// Não mostra em modo arquivada (não cria nada lá) nem pra Pro.
+const showQuotaBanner = computed(
+  () => !isPro.value
+    && quotaLimit.value !== null
+    && quotaUsed.value >= quotaLimit.value
+    && !viewArchived.value,
+);
 
 function submitManual(): void {
   manualError.value = '';
@@ -279,13 +322,51 @@ function canMoveRight(status: string): boolean {
   <div class="lg:flex lg:h-[calc(100vh-7rem)] lg:flex-col lg:overflow-hidden">
     <!-- Header -->
     <header class="mb-4 flex flex-wrap items-center justify-between gap-3 lg:mb-3">
-      <div>
+      <div class="min-w-0">
         <h1 class="text-2xl font-bold tracking-tight text-ink-900 lg:text-xl">
           {{ t('nav.applications') }}
         </h1>
-        <p class="mt-0.5 text-xs text-ink-500">
-          {{ totalCount }} {{ totalCount === 1 ? 'candidatura' : 'candidaturas' }}
-        </p>
+        <div class="mt-1 flex flex-wrap items-center gap-2">
+          <p class="text-xs text-ink-500">
+            {{ totalCount }} {{ totalCount === 1 ? t('applications.kanban_count_singular') : t('applications.kanban_count_plural') }}
+          </p>
+          <RouterLink
+            :to="{ name: 'plan' }"
+            class="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold transition"
+            :class="quotaChipClass"
+            :title="t('applications.quota_chip_tooltip')"
+          >
+            <svg
+              v-if="isPro"
+              class="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+              />
+            </svg>
+            <span v-if="isPro">{{ t('applications.quota_chip_pro') }}</span>
+            <span v-else>{{ quotaUsed }}/{{ quotaLimit }} {{ t('applications.quota_chip_this_month') }}</span>
+            <svg
+              class="h-3 w-3 opacity-70"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </RouterLink>
+        </div>
       </div>
       <div class="flex items-center gap-2">
         <button
@@ -344,6 +425,40 @@ function canMoveRight(status: string): boolean {
         </button>
       </div>
     </header>
+
+    <div
+      v-if="showQuotaBanner"
+      class="mb-3 flex flex-col items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 sm:flex-row sm:items-center"
+      role="alert"
+    >
+      <svg
+        class="h-5 w-5 shrink-0 text-red-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+        />
+      </svg>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-red-900">
+          {{ t('applications.quota_banner_title', { limit: quotaLimit }) }}
+        </p>
+        <p class="mt-0.5 text-xs text-red-700">
+          {{ t('applications.quota_banner_body') }}
+        </p>
+      </div>
+      <RouterLink
+        :to="{ name: 'plan' }"
+        class="btn-primary !px-3 !py-1.5 text-sm shrink-0"
+      >
+        {{ t('applications.quota_banner_cta') }}
+      </RouterLink>
+    </div>
 
     <p
       v-if="errorMessage"
@@ -834,5 +949,12 @@ function canMoveRight(status: string): boolean {
         </div>
       </div>
     </Teleport>
+
+    <UpgradeModal
+      v-if="quotaModal"
+      :limit="quotaModal.limit"
+      :reset-at="quotaModal.resetAt"
+      @close="quotaModal = null"
+    />
   </div>
 </template>

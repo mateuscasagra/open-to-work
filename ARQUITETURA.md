@@ -234,11 +234,24 @@ application_events (application_id, event_type, payload_json, occurred_at)
 
 metrics_daily (user_id, date, applications_count, responses_count, ...)  -- materialized
 
+plans (
+  id, slug UNIQUE ('free'|'pro'), name, price_cents, active
+)  -- preço editável em runtime; cache 60s no model (só int, não Eloquent)
+subscriptions (
+  id, user_id UNIQUE, plan ('free'|'pro'), status ('active'|'canceled'|'past_due'),
+  asaas_customer_id, asaas_subscription_id UNIQUE, cpf,
+  current_period_start, current_period_end,
+  canceled_at, last_payment_at, last_payment_id
+)
+webhook_logs (event_id PK, source, event_type, payload_json, processed_at, error, created_at)
+
 -- Índices críticos
 CREATE INDEX jobs_stack_gin ON jobs USING GIN (stack);
 CREATE INDEX applications_user_status ON applications (user_id, status);
+CREATE INDEX applications_user_applied ON applications (user_id, applied_at);  -- quota check
 CREATE INDEX jobs_posted_at ON jobs (posted_at DESC) WHERE active = true;
 CREATE UNIQUE INDEX jobs_canonical ON jobs (canonical_hash);
+CREATE INDEX subscriptions_period_end ON subscriptions (current_period_end);   -- downgrade scheduler
 ```
 
 ---

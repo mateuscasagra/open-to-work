@@ -81,4 +81,33 @@ describe('useApplyToJob', () => {
       kind: 'validation',
     });
   });
+
+  it('throws quota_exceeded error on 402 with full payload', async () => {
+    const err = new AxiosError('Quota');
+    err.response = {
+      status: 402,
+      data: {
+        message: 'Limite mensal atingido.',
+        kind: 'quota_exceeded',
+        used: 15,
+        limit: 15,
+        plan: 'free',
+        reset_at: '2026-06-01T03:00:00+00:00',
+      },
+      statusText: '',
+      headers: {},
+      config: { headers: new AxiosHeaders() },
+    };
+    vi.mocked(api.post).mockRejectedValueOnce(err);
+
+    const mutation = mount(() => useApplyToJob());
+
+    await expect(mutation.mutateAsync({ jobId: 1 })).rejects.toMatchObject({
+      kind: 'quota_exceeded',
+      used: 15,
+      limit: 15,
+      plan: 'free',
+      resetAt: '2026-06-01T03:00:00+00:00',
+    });
+  });
 });

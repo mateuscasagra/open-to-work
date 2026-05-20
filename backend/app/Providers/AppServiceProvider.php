@@ -8,6 +8,8 @@ use App\Domain\Job\Aggregator\Contracts\JobSourceDriver;
 use App\Domain\Location\Actions\LookupPostalCode;
 use App\Domain\Location\Clients\ViaCepClient;
 use App\Domain\Location\Clients\ZippopotamClient;
+use App\Domain\Subscription\Clients\AsaasHttpClient;
+use App\Domain\Subscription\Contracts\AsaasGateway;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
@@ -36,6 +38,8 @@ class AppServiceProvider extends ServiceProvider
                 cache: $app->make('cache.store'),
             ),
         );
+
+        $this->app->bind(AsaasGateway::class, AsaasHttpClient::class);
     }
 
     public function boot(): void
@@ -108,5 +112,24 @@ class AppServiceProvider extends ServiceProvider
                 ? Limit::perMinute(60)->by('user:' . $user->getAuthIdentifier())
                 : Limit::perMinute(10)->by('ip:' . $request->ip());
         });
+
+        // Subscribe/cancel: burst protection. Quota real fica nas Actions.
+        RateLimiter::for('subscribe-write', static function (Request $request): Limit {
+            $user = $request->user();
+
+            return $user !== null
+                ? Limit::perMinute(10)->by('user:' . $user->getAuthIdentifier())
+                : Limit::perMinute(3)->by('ip:' . $request->ip());
+        });
+
+        // Webhook Asaas — público (sem auth). Limita por IP pra evitar replay flood.
+        RateLimiter::for('asaas-webhook', static fn (Request $request): Limit
+            => Limit::perMinute(120)->by('ip:' . $request->ip()));
+
+        // Suporte público (formulário "Preciso de ajuda"). 5/hora por IP — gera
+        // e-mail, então spam aqui custa caro. UX: usuário legítimo dificilmente
+        // bate isso.
+        RateLimiter::for('support', static fn (Request $request): Limit
+            => Limit::perHour(5)->by('ip:' . $request->ip()));
     }
 }

@@ -16,6 +16,13 @@ export const AdminMetricsSchema = z.object({
     resumes: z.number().int(),
     active_users: z.number().int(),
   }),
+  subscriptions: z.object({
+    active: z.number().int(),
+    canceled: z.number().int(),
+    cancellation_rate: z.number(),       // %
+    mrr_cents: z.number().int(),
+    total_revenue_cents: z.number().int(),
+  }).default({ active: 0, canceled: 0, cancellation_rate: 0, mrr_cents: 0, total_revenue_cents: 0 }),
   top_applicants: z.array(z.object({
     user_id: z.number().int(),
     name: z.string(),
@@ -43,6 +50,30 @@ export const AdminMetricsSchema = z.object({
   generated_at: z.string(),
 });
 export type AdminMetrics = z.infer<typeof AdminMetricsSchema>;
+
+export const AdminSubscriptionRowSchema = z.object({
+  id: z.number().int(),
+  user_id: z.number().int(),
+  name: z.string(),
+  email: z.string(),
+  plan: z.enum(['free', 'pro']),
+  status: z.enum(['active', 'canceled', 'past_due']),
+  asaas_subscription_id: z.string().nullable(),
+  current_period_start: z.string().nullable(),
+  current_period_end: z.string().nullable(),
+  canceled_at: z.string().nullable(),
+  last_payment_at: z.string().nullable(),
+  created_at: z.string().nullable(),
+});
+export type AdminSubscriptionRow = z.infer<typeof AdminSubscriptionRowSchema>;
+
+export const AdminSubscriptionsPageSchema = z.object({
+  data: z.array(AdminSubscriptionRowSchema),
+  current_page: z.number().int(),
+  last_page: z.number().int(),
+  total: z.number().int(),
+});
+export type AdminSubscriptionsPage = z.infer<typeof AdminSubscriptionsPageSchema>;
 
 export const SupportedCountrySchema = z.object({
   code: z.string().length(2),
@@ -366,3 +397,54 @@ export const SuggestionQuotaSchema = z.object({
   next_slot_at: z.string().nullable(),
 });
 export type SuggestionQuota = z.infer<typeof SuggestionQuotaSchema>;
+
+// -----------------------------------------------------------------------------
+// Subscription / Plano Pro
+// -----------------------------------------------------------------------------
+
+export const PlanSchema = z.enum(['free', 'pro']);
+export type Plan = z.infer<typeof PlanSchema>;
+
+export const SubscriptionStatusSchema = z.enum(['active', 'canceled', 'past_due']);
+export type SubscriptionStatus = z.infer<typeof SubscriptionStatusSchema>;
+
+export const QuotaSchema = z.object({
+  used: z.number().int(),
+  limit: z.number().int().nullable(), // null = ilimitado (Pro)
+  reset_at: z.string(),
+  plan: PlanSchema,
+});
+export type Quota = z.infer<typeof QuotaSchema>;
+
+export const SubscriptionSchema = z.object({
+  plan: PlanSchema,
+  status: SubscriptionStatusSchema,
+  current_period_end: z.string().nullable(),
+  canceled_at: z.string().nullable(),
+  pro_price_cents: z.number().int().default(2500),
+  quota: QuotaSchema,
+});
+export type Subscription = z.infer<typeof SubscriptionSchema>;
+
+export const PricingSchema = z.object({
+  free: z.object({ price_cents: z.number().int() }),
+  pro: z.object({ price_cents: z.number().int() }),
+});
+export type Pricing = z.infer<typeof PricingSchema>;
+
+export const PixCheckoutSchema = z.object({
+  pix_qr_code_base64: z.string(),
+  pix_copy_paste: z.string(),
+  due_date: z.string(),
+  payment_id: z.string(),
+  asaas_subscription_id: z.string(),
+});
+export type PixCheckout = z.infer<typeof PixCheckoutSchema>;
+
+// Envelope retornado por /api/me, login, register (auto-login), verify-email,
+// reset-password. Centraliza shape pra auth store carregar tudo de uma vez.
+export const AuthEnvelopeSchema = z.object({
+  user: UserSchema,
+  subscription: SubscriptionSchema,
+});
+export type AuthEnvelope = z.infer<typeof AuthEnvelopeSchema>;

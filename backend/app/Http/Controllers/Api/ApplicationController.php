@@ -8,6 +8,7 @@ use App\Domain\Application\Actions\ChangeApplicationStatus;
 use App\Domain\Application\Actions\CreateApplication;
 use App\Domain\Application\DTOs\ApplicationData;
 use App\Domain\Application\Exceptions\DuplicateApplicationException;
+use App\Domain\Subscription\Exceptions\QuotaExceededException;
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Application\ChangeStatusRequest;
@@ -54,6 +55,15 @@ final class ApplicationController extends Controller
             );
         } catch (DuplicateApplicationException $e) {
             return response()->json(['message' => $e->getMessage()], 409);
+        } catch (QuotaExceededException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'kind' => 'quota_exceeded',
+                'used' => $e->used,
+                'limit' => $e->limit,
+                'plan' => $e->plan,
+                'reset_at' => $e->resetAt,
+            ], 402);
         }
 
         return response()->json($application->load(['job.company']), 201);

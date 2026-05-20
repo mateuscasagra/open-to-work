@@ -11,3 +11,4 @@ Cada ADR é imutável — mudanças viram uma nova ADR que supersede a anterior.
 - [0003 — Agregação de vagas via drivers plugáveis](./0003-agregacao-vagas.md)
 - [0004 — Geração de PDF no cliente](./0004-pdf-no-cliente.md)
 - [0005 — Design patterns: Actions + DTOs + Pipeline](./0005-design-patterns.md)
+- [0006 — Pagamento via Asaas PIX (plano Pro)](./0006-pagamento-asaas-pix.md)

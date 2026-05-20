@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Domain\Subscription\DTOs\SubscriptionData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
@@ -48,7 +49,7 @@ final class AuthController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
-            return response()->json(['user' => $user->refresh()], 201);
+            return response()->json($this->userEnvelope($user->refresh()), 201);
         }
 
         $existing = User::query()
@@ -144,7 +145,7 @@ final class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return response()->json(['user' => $user->refresh()]);
+        return response()->json($this->userEnvelope($user->refresh()));
     }
 
     public function resendVerificationCode(ResendVerificationCodeRequest $request): JsonResponse
@@ -195,7 +196,10 @@ final class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return response()->json(['user' => Auth::user()]);
+        /** @var User $loggedUser */
+        $loggedUser = Auth::user();
+
+        return response()->json($this->userEnvelope($loggedUser));
     }
 
     public function logout(Request $request): JsonResponse
@@ -210,7 +214,10 @@ final class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json(['user' => $request->user()]);
+        /** @var User $user */
+        $user = $request->user();
+
+        return response()->json($this->userEnvelope($user));
     }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
@@ -270,7 +277,22 @@ final class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return response()->json(['user' => $user->refresh()]);
+        return response()->json($this->userEnvelope($user->refresh()));
+    }
+
+    /**
+     * Envelope padrão de resposta autenticada: user + subscription/quota.
+     * Centraliza pra todos os endpoints (register/verify/login/me/resetPassword)
+     * retornarem o mesmo shape, mantendo o auth store frontend sincronizado.
+     *
+     * @return array<string, mixed>
+     */
+    private function userEnvelope(User $user): array
+    {
+        return [
+            'user' => $user,
+            'subscription' => SubscriptionData::fromUser($user)->toArray(),
+        ];
     }
 
     private function issueVerificationCode(User $user): void

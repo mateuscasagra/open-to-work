@@ -9,6 +9,7 @@
     "applications": "Candidaturas",
     "resumes": "Currículos",
     "profile": "Perfil",
+    "plan": "Plano",
     "suggestions": "Sugestões",
     "admin": "Admin",
     "account": "Conta & privacidade",
@@ -30,7 +31,31 @@
       "applications": "Total de candidaturas",
       "resumes": "Currículos criados",
       "active_users": "Usuários ativos",
-      "active_users_hint": "≥ 3 candidaturas nos últimos 7 dias"
+      "active_users_hint": "≥ 3 candidaturas nos últimos 7 dias",
+      "subs_active": "Assinaturas ativas",
+      "subs_canceled": "Canceladas",
+      "subs_canceled_hint": "Inclui pagamento atrasado",
+      "cancellation_rate": "Taxa de cancelamento",
+      "revenue_total": "Faturamento total",
+      "revenue_mrr_hint": "MRR estimado: {mrr}"
+    },
+    "subs": {
+      "title": "Assinaturas",
+      "subtitle": "Todos os usuários que assinaram Pro",
+      "empty": "Nenhuma assinatura encontrada.",
+      "page_of": "Página {current} de {total}",
+      "filter": {
+        "all": "Todas",
+        "active": "Ativas",
+        "canceled": "Canceladas"
+      },
+      "col": {
+        "user": "Usuário",
+        "status": "Status",
+        "period_end": "Fim do período",
+        "last_payment": "Último pagamento",
+        "canceled_at": "Cancelada em"
+      }
     },
     "ranking": {
       "title": "Top candidatos",
@@ -79,14 +104,14 @@
   },
   "landing": {
     "nav_pricing": "Preço",
-    "eyebrow": "100% gratuito para todos os candidatos",
+    "eyebrow": "Comece grátis. Cresça quando quiser.",
     "title_1": "Sua busca por emprego,",
     "title_2": "finalmente organizada.",
     "subtitle": "Reunimos vagas do mundo todo, organizam suas candidaturas em kanban por etapa e mostram métricas que revelam onde você é forte e onde precisa melhorar.",
     "cta_primary": "Começar grátis",
     "cta_secondary": "Já tenho conta",
     "trust": {
-      "no_card": "Sem cartão de crédito",
+      "no_card": "Cadastro sem cartão",
       "no_ads": "Sem anúncios",
       "global": "Vagas no mundo todo"
     },
@@ -97,7 +122,7 @@
     "stats": {
       "coverage": "Países com vagas",
       "coverage_value": "Mundo",
-      "price": "Custo p/ candidato",
+      "price": "A partir de",
       "price_value": "R$ 0",
       "stages": "Etapas configuráveis",
       "stages_value": "9+",
@@ -143,16 +168,26 @@
       "resumes_pdf_badge": "Exportar PDF"
     },
     "pricing": {
-      "eyebrow": "Sem pegadinhas",
-      "title_1": "100% gratuito,",
-      "title_2": "para todos os candidatos.",
-      "subtitle": "Acreditamos que a busca por emprego já é difícil o suficiente. Por isso, nada do que você precisa para conseguir sua próxima vaga é pago.",
-      "price": "R$ 0",
-      "forever": "para sempre",
-      "b1": "Vagas ilimitadas",
-      "b2": "Kanban com etapas customizáveis",
-      "b3": "Currículos e exportação em PDF",
-      "b4": "Métricas e dashboards completos"
+      "eyebrow": "Planos simples",
+      "title_1": "Comece grátis,",
+      "title_2": "evolua quando precisar.",
+      "subtitle": "Use o Free pra organizar suas primeiras candidaturas. Quando precisar de mais volume, o Pro libera ilimitado por {price}/mês — cancele quando quiser.",
+      "free_label": "Free",
+      "free_period": "/sempre",
+      "free_subtitle": "Pra começar",
+      "free_b1": "15 candidaturas por mês",
+      "free_b2": "Kanban com etapas customizáveis",
+      "free_b3": "Currículos e exportação em PDF",
+      "free_b4": "Métricas e dashboards completos",
+      "free_cta": "Começar grátis",
+      "pro_label": "Pro",
+      "pro_period": "/mês",
+      "pro_subtitle": "Pra quem busca ativo",
+      "pro_badge": "Mais popular",
+      "pro_b1": "Candidaturas ilimitadas todo mês",
+      "pro_b2": "Acesso antecipado a novos recursos",
+      "pro_b3": "Acesso a recursos exclusivos (em breve)",
+      "pro_cta": "Assinar Pro"
     },
     "cta_final_title": "Sua próxima vaga começa aqui.",
     "cta_final_subtitle": "Crie sua conta em menos de um minuto e comece a organizar a sua busca por emprego como nunca antes.",
@@ -169,6 +204,7 @@
     "footer": {
       "tagline": "Organize sua busca por emprego.",
       "rights": "Todos os direitos reservados.",
+      "help": "Preciso de ajuda",
       "product": "Produto",
       "resources": "Recursos",
       "terms": "Termos",
@@ -375,6 +411,14 @@
       "withdrawn": "Desistência"
     },
     "add_manual": "Nova candidatura",
+    "kanban_count_singular": "candidatura",
+    "kanban_count_plural": "candidaturas",
+    "quota_chip_this_month": "este mês",
+    "quota_chip_pro": "Ilimitado",
+    "quota_chip_tooltip": "Ver detalhes do plano",
+    "quota_banner_title": "Você atingiu o limite de {limit} candidaturas este mês",
+    "quota_banner_body": "Faça upgrade pro Pro pra candidatar-se sem limites e desbloquear novos recursos.",
+    "quota_banner_cta": "Ver planos",
     "manual_title": "Título da vaga",
     "manual_company": "Empresa",
     "manual_job_url": "Link da vaga",
@@ -535,6 +579,98 @@
       "cannot_vote_own": "Você não pode votar na sua própria sugestão.",
       "validation": "Verifique os campos preenchidos.",
       "unknown": "Algo deu errado. Tente de novo em instantes."
+    }
+  },
+  "subscription": {
+    "title": "Meu plano",
+    "subtitle": "Gerencie sua assinatura e veja seu uso do mês",
+    "current_plan": "Plano atual",
+    "plan": {
+      "free": "Free",
+      "pro": "Pro"
+    },
+    "status": {
+      "active": "Ativo",
+      "canceled": "Cancelado",
+      "past_due": "Pagamento atrasado"
+    },
+    "canceled_notice": "Sua assinatura termina em {date}. Depois disso você volta pro plano Free.",
+    "past_due_notice": "Não confirmamos seu último pagamento. Gere um novo PIX no app do banco usando o mesmo código copia-e-cola.",
+    "cancel": "Cancelar assinatura",
+    "cancel_confirm": "Tem certeza? Você mantém o Pro até {date}.",
+    "cancel_failed": "Não conseguimos cancelar agora. Tente novamente.",
+    "renews_on": "Próxima cobrança em {date}",
+    "usage": {
+      "title": "Uso este mês",
+      "used_of_limit": "{used} de {limit} candidaturas",
+      "unlimited": "Candidaturas ilimitadas",
+      "resets_on": "Reseta em {date}",
+      "near_limit": "Você está perto do limite. Que tal Pro pra continuar sem travar?"
+    },
+    "upgrade": {
+      "card_title": "Open to Work Pro",
+      "card_subtitle": "Candidaturas ilimitadas pra quem busca ativo",
+      "period": "/mês",
+      "benefit_unlimited": "Candidaturas ilimitadas todo mês",
+      "benefit_beta": "Acesso antecipado a novos recursos",
+      "benefit_exclusive": "Acesso a recursos exclusivos (em breve)",
+      "cta": "Assinar agora",
+      "subscribing": "Gerando PIX…",
+      "errors": {
+        "already": "Você já tem uma assinatura Pro ativa.",
+        "gateway": "Não conseguimos falar com o provedor de pagamento. Tente em alguns segundos.",
+        "unknown": "Não foi possível iniciar a assinatura. Tente de novo."
+      }
+    },
+    "checkout": {
+      "title": "Pagamento via PIX",
+      "subtitle": "Pague no app do seu banco. Sua assinatura ativa em poucos segundos.",
+      "copy_code": "Copiar código PIX",
+      "copied": "Copiado!",
+      "due_date": "Vencimento: {date}",
+      "waiting": "Aguardando confirmação do pagamento…",
+      "confirmed": "Pagamento confirmado! Bem-vindo ao Pro.",
+      "timeout": "Pode levar alguns minutos. Recarregue a página depois de pagar se a confirmação não aparecer.",
+      "close": "Fechar"
+    },
+    "cpf_prompt": {
+      "title": "Quase lá — só precisamos do seu CPF",
+      "subtitle": "Exigência do provedor de pagamento para emitir cobrança PIX. Não compartilhamos com terceiros.",
+      "label": "CPF ou CNPJ",
+      "placeholder": "000.000.000-00",
+      "hint": "Digite apenas os dígitos. Aceitamos CPF (11) ou CNPJ (14).",
+      "continue": "Continuar",
+      "cancel": "Cancelar"
+    },
+    "upgrade_modal": {
+      "title": "Limite mensal atingido",
+      "body": "Você usou todas as suas {limit} candidaturas deste mês. Faça upgrade pro Pro pra candidatar-se ilimitadamente.",
+      "cta_upgrade": "Assinar Pro — {price}/mês",
+      "cta_wait": "Aguardar virada do mês"
+    }
+  },
+  "support": {
+    "title": "Precisa de ajuda?",
+    "subtitle": "Conta o que aconteceu e a gente responde por e-mail o quanto antes.",
+    "form": {
+      "name": "Seu nome",
+      "name_placeholder": "Como podemos te chamar?",
+      "email": "Seu e-mail",
+      "title_field": "Assunto",
+      "title_placeholder": "Resumo curto do problema ou dúvida",
+      "description": "Descrição",
+      "description_placeholder": "Conte com detalhe — passos pra reproduzir, o que esperava, mensagens de erro, etc."
+    },
+    "submit": "Enviar mensagem",
+    "sending": "Enviando…",
+    "cancel": "Voltar à página inicial",
+    "sent_title": "Mensagem enviada!",
+    "sent_subtitle": "Recebemos sua solicitação e vamos responder pro e-mail informado em breve.",
+    "back_to_landing": "Voltar à página inicial",
+    "errors": {
+      "validation": "Verifique os campos preenchidos.",
+      "rate_limited": "Muitas mensagens em pouco tempo. Tente de novo em alguns minutos.",
+      "unknown": "Não conseguimos enviar agora. Tente novamente em instantes."
     }
   }
 }

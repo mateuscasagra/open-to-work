@@ -7,14 +7,20 @@
 | Método | Rota | Handler | Auth |
 |---|---|---|---|
 | `GET` | `/api/admin/metrics` | `Api\Admin\AdminMetricsController` (invokable) | `auth:sanctum` + `admin` |
+| `GET` | `/api/admin/error-logs?limit=&level=` | `Api\Admin\AdminErrorLogsController` | `auth:sanctum` + `admin` |
+| `GET` | `/api/admin/subscriptions?status=all\|active\|canceled&page=N` | `Api\Admin\AdminSubscriptionsController` — lista paginada | `auth:sanctum` + `admin` |
 
 ## Backend
 
-**Controller:** `app/Http/Controllers/Api/Admin/AdminMetricsController.php`
+**Controller:** `app/Http/Controllers/Api/Admin/AdminMetricsController.php`, `AdminErrorLogsController.php`, `AdminSubscriptionsController.php`.
 
 **Domínio:** `app/Domain/Admin/`
-- **Queries:** `GetAdminMetrics` (orquestra), `GetUserLocationDistribution` (agregado geográfico)
-- **DTO:** `AdminMetricsData` (com campo `byLocation`)
+- **Queries:**
+  - `GetAdminMetrics` — orquestra
+  - `GetUserLocationDistribution` — agregado geográfico
+  - `GetSubscriptionStats` — KPIs de assinaturas (active/canceled/cancellation_rate/mrr_cents/total_revenue_cents)
+  - `ListSubscriptions` — paginação + filtro `active|canceled|all`
+- **DTO:** `AdminMetricsData` (campos `byLocation` + novo `subscriptions`)
 
 **Middleware:** `app/Http/Middleware/EnsureAdmin.php` (alias `admin`)
 - Lança `AccessDeniedHttpException` (403) se o usuário autenticado não for admin
@@ -108,28 +114,46 @@ docker exec -it otw-backend php artisan tinker
 
 **Módulo:** `frontend/src/modules/admin/`
 - **View:** `views/AdminView.vue`
-- **Composable:** `composables/useAdminMetrics.ts` (TanStack Query, key `['admin', 'metrics']`)
+- **Composables:**
+  - `useAdminMetrics.ts` (TanStack Query, key `['admin', 'metrics']`)
+  - `useAdminErrorLogs.ts` (logs de prod)
+  - `useAdminSubscriptions.ts` — paginação + filtro reativo (`status`, `page`); key `['admin', 'subscriptions', status, page]`; `keepPreviousData` pra evitar blink na troca de filtro/página
 
 **Schemas:** `frontend/src/shared/api/schemas.ts`
 - `UserSchema.is_admin: boolean` (default `false`)
-- `AdminMetricsSchema` (inclui bloco `by_location`)
+- `AdminMetricsSchema` — inclui bloco `by_location` + novo `subscriptions: { active, canceled, cancellation_rate, mrr_cents, total_revenue_cents }`
+- `AdminSubscriptionRowSchema` + `AdminSubscriptionsPageSchema`
 
 **Componentes da AdminView:**
-1. KPIs (4 cards: users, applications, resumes, active_users)
-2. Top applicants (ranking com avatar + barra de progresso)
-3. **Distribuição geográfica** — 3 colunas (`countries`, `states`, `cities`) com emoji de bandeira via codepoint regional indicator. Helper `countryFlag(code)` no `AdminView.vue`.
-4. Production errors (live, polling em `useAdminErrorLogs`)
+1. KPIs gerais (4 cards: users, applications, resumes, active_users)
+2. **KPIs de assinatura** (4 cards novos): Assinaturas ativas, Canceladas, Taxa de cancelamento, Faturamento total (com MRR no hint)
+3. **Tabela de assinaturas** com filtro de 3 botões (Todas/Ativas/Canceladas) + paginação. Colunas: usuário (name+email), status badge, fim do período, último pagamento, cancelada em
+4. Top applicants (ranking com avatar + barra de progresso)
+5. **Distribuição geográfica** — 3 colunas (`countries`, `states`, `cities`) com emoji de bandeira. Helper `countryFlag(code)` no `AdminView.vue`.
+6. Production errors (live, polling em `useAdminErrorLogs`)
 
 **Navegação:** o item "Admin" só aparece em `AppLayout.vue` quando `auth.user?.is_admin === true`.
 
+## Estatísticas de assinatura — como são calculadas
+
+**`GetSubscriptionStats::execute()`** usa o critério `asaas_subscription_id IS NOT NULL` (engajou com pagamento em algum momento) — **não** `plan='pro'`. Isso inclui quem cancelou antes do primeiro pagamento confirmar (caso comum: gerou PIX mas não pagou → cancelou → ainda assim conta como "canceled" no admin).
+
+- **`active`**: `asaas_subscription_id IS NOT NULL AND status='active'`
+- **`canceled`**: `asaas_subscription_id IS NOT NULL AND status IN ('canceled', 'past_due')`
+- **`cancellation_rate`**: `canceled / (active + canceled) × 100`, 2 casas decimais
+- **`mrr_cents`**: usa critério mais estrito `plan='pro' AND status='active'` × preço atual do Pro (lido de `Plan::priceCentsBySlug`). Só conta quem **realmente está pagando**, não quem só engajou.
+- **`total_revenue_cents`**: SUM `(payload->'payment'->>'value')::numeric` em `webhook_logs` WHERE `event_type IN ('PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED')` AND `processed_at IS NOT NULL`. Valor BRL decimal × 100.
+
+**Quando uma sub é "esquecida" da contagem:** depois do `subscriptions:downgrade-expired` rodar e zerar `asaas_subscription_id`, a sub sai dos KPIs e da listagem. Histórico de churn de longo prazo precisaria de tabela `subscription_events` (não previsto pra v1).
+
 ## Testes
 
-Arquivo: `tests/Feature/Admin/AdminMetricsTest.php` (Pest)
+Arquivo: `tests/Feature/Admin/AdminMetricsTest.php` (Pest) + `AdminSubscriptionsTest.php`
 
 Cobertura:
 - 401 sem autenticação
 - 403 para usuário comum
-- estrutura JSON completa (inclui `by_location`)
+- estrutura JSON completa (inclui `by_location` + `subscriptions`)
 - contagem de usuários, candidaturas, currículos
 - janela de "última semana" inclusiva (≤ 7 dias) e exclusiva (> 7 dias)
 - ranking ordenado desc + limite de 5
@@ -138,9 +162,13 @@ Cobertura:
 - `without_location` conta users sem profile OU com profile.country_code null
 - limites de top estados (10) e cidades (15)
 - `/api/me` expõe `is_admin` (true/false)
+- KPIs de subs com cenários mistos (active confirmado vs sem pgto, canceled, past_due)
+- Listagem com filtros all/active/canceled + paginação
+- Total revenue calculado a partir de payloads em webhook_logs
 
 ```bash
-docker exec otw-backend php artisan test --filter=AdminMetricsTest
+docker exec otw-backend php artisan test --filter=AdminMetrics
+docker exec otw-backend php artisan test --filter=AdminSubscriptions
 ```
 
 ## Decisões de design

@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\Admin\AdminErrorLogsController;
 use App\Http\Controllers\Api\Admin\AdminMetricsController;
+use App\Http\Controllers\Api\Admin\AdminSubscriptionsController;
 use App\Http\Controllers\Api\ApplicationAttachmentController;
 use App\Http\Controllers\Api\ApplicationController;
+use App\Http\Controllers\Api\AsaasWebhookController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\JobController;
@@ -14,14 +16,31 @@ use App\Http\Controllers\Api\Location\LookupPostalCodeController;
 use App\Http\Controllers\Api\Location\SupportedCountriesController;
 use App\Http\Controllers\Api\MetricsController;
 use App\Http\Controllers\Api\OauthController;
+use App\Http\Controllers\Api\PricingController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ResumeController;
 use App\Http\Controllers\Api\ResumePdfController;
 use App\Http\Controllers\Api\SkillController;
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SuggestionController;
+use App\Http\Controllers\Api\SupportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('health');
+
+// Público — landing page lê preços daqui sem precisar de auth.
+Route::get('/pricing', PricingController::class)->name('pricing');
+
+// Público — formulário "Preciso de ajuda" da landing. Rate-limit por IP
+// pra anti-spam (5/hora).
+Route::post('/support', [SupportController::class, 'store'])
+    ->middleware('throttle:support')
+    ->name('support.store');
+
+// Webhooks externos (sem auth, throttle por IP) ------------------------------
+Route::post('/webhooks/asaas', AsaasWebhookController::class)
+    ->middleware('throttle:asaas-webhook')
+    ->name('webhooks.asaas');
 
 // Auth ------------------------------------------------------------------
 Route::prefix('auth')->group(function (): void {
@@ -115,6 +134,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::middleware('admin')->prefix('admin')->group(function (): void {
         Route::get('/metrics', AdminMetricsController::class)->name('admin.metrics.show');
         Route::get('/error-logs', AdminErrorLogsController::class)->name('admin.error-logs.index');
+        Route::get('/subscriptions', AdminSubscriptionsController::class)->name('admin.subscriptions.index');
     });
 
     // Attachments (spatie/medialibrary)
@@ -131,4 +151,13 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/account/export', [AccountController::class, 'export'])->name('account.export');
         Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
     });
+
+    // Subscription (plano Pro via Asaas) --------------------------------------
+    Route::get('/me/quota', [SubscriptionController::class, 'quota'])->name('me.quota');
+    Route::post('/subscriptions', [SubscriptionController::class, 'store'])
+        ->middleware('throttle:subscribe-write')
+        ->name('subscriptions.store');
+    Route::delete('/subscriptions', [SubscriptionController::class, 'destroy'])
+        ->middleware('throttle:subscribe-write')
+        ->name('subscriptions.destroy');
 });

@@ -9,6 +9,7 @@
     "applications": "Applications",
     "resumes": "Resumes",
     "profile": "Profile",
+    "plan": "Plan",
     "suggestions": "Suggestions",
     "admin": "Admin",
     "account": "Account & privacy",
@@ -30,7 +31,31 @@
       "applications": "Total applications",
       "resumes": "Resumes created",
       "active_users": "Active users",
-      "active_users_hint": "≥ 3 applications in the last 7 days"
+      "active_users_hint": "≥ 3 applications in the last 7 days",
+      "subs_active": "Active subscriptions",
+      "subs_canceled": "Canceled",
+      "subs_canceled_hint": "Includes past due",
+      "cancellation_rate": "Cancellation rate",
+      "revenue_total": "Total revenue",
+      "revenue_mrr_hint": "Estimated MRR: {mrr}"
+    },
+    "subs": {
+      "title": "Subscriptions",
+      "subtitle": "All users who subscribed to Pro",
+      "empty": "No subscriptions found.",
+      "page_of": "Page {current} of {total}",
+      "filter": {
+        "all": "All",
+        "active": "Active",
+        "canceled": "Canceled"
+      },
+      "col": {
+        "user": "User",
+        "status": "Status",
+        "period_end": "Period end",
+        "last_payment": "Last payment",
+        "canceled_at": "Canceled at"
+      }
     },
     "ranking": {
       "title": "Top applicants",
@@ -79,14 +104,14 @@
   },
   "landing": {
     "nav_pricing": "Pricing",
-    "eyebrow": "100% free for every candidate",
+    "eyebrow": "Start free. Upgrade when you need to.",
     "title_1": "Your job search,",
     "title_2": "finally organized.",
     "subtitle": "We bring together jobs from around the world, organize your applications in a kanban by stage and surface metrics that show where you're strong and where to improve.",
     "cta_primary": "Get started free",
     "cta_secondary": "I have an account",
     "trust": {
-      "no_card": "No credit card",
+      "no_card": "No credit card to sign up",
       "no_ads": "No ads",
       "global": "Jobs worldwide"
     },
@@ -97,7 +122,7 @@
     "stats": {
       "coverage": "Job coverage",
       "coverage_value": "Worldwide",
-      "price": "Cost per candidate",
+      "price": "Starting at",
       "price_value": "$0",
       "stages": "Configurable stages",
       "stages_value": "9+",
@@ -143,16 +168,26 @@
       "resumes_pdf_badge": "Export PDF"
     },
     "pricing": {
-      "eyebrow": "No catch",
-      "title_1": "100% free,",
-      "title_2": "for every candidate.",
-      "subtitle": "We believe job hunting is hard enough already. That's why everything you need to land your next role is free.",
-      "price": "$0",
-      "forever": "forever",
-      "b1": "Unlimited jobs",
-      "b2": "Kanban with custom stages",
-      "b3": "Resumes and PDF export",
-      "b4": "Full metrics and dashboards"
+      "eyebrow": "Simple plans",
+      "title_1": "Start free,",
+      "title_2": "scale when you need.",
+      "subtitle": "Use Free to organize your first applications. When you need more volume, Pro unlocks unlimited for {price}/month — cancel anytime.",
+      "free_label": "Free",
+      "free_period": "/forever",
+      "free_subtitle": "To get started",
+      "free_b1": "15 applications per month",
+      "free_b2": "Kanban with custom stages",
+      "free_b3": "Resumes and PDF export",
+      "free_b4": "Full metrics and dashboards",
+      "free_cta": "Get started free",
+      "pro_label": "Pro",
+      "pro_period": "/month",
+      "pro_subtitle": "For active seekers",
+      "pro_badge": "Most popular",
+      "pro_b1": "Unlimited applications every month",
+      "pro_b2": "Early access to new features",
+      "pro_b3": "Access to exclusive features (soon)",
+      "pro_cta": "Subscribe to Pro"
     },
     "cta_final_title": "Your next role starts here.",
     "cta_final_subtitle": "Create your account in under a minute and start organizing your job search like never before.",
@@ -169,6 +204,7 @@
     "footer": {
       "tagline": "Organize your job search.",
       "rights": "All rights reserved.",
+      "help": "Need help",
       "product": "Product",
       "resources": "Resources",
       "terms": "Terms",
@@ -375,6 +411,14 @@
       "withdrawn": "Withdrawn"
     },
     "add_manual": "New application",
+    "kanban_count_singular": "application",
+    "kanban_count_plural": "applications",
+    "quota_chip_this_month": "this month",
+    "quota_chip_pro": "Unlimited",
+    "quota_chip_tooltip": "View plan details",
+    "quota_banner_title": "You've reached the limit of {limit} applications this month",
+    "quota_banner_body": "Upgrade to Pro to apply without limits and unlock new features.",
+    "quota_banner_cta": "View plans",
     "manual_title": "Job title",
     "manual_company": "Company",
     "manual_job_url": "Job link",
@@ -535,6 +579,98 @@
       "cannot_vote_own": "You cannot vote on your own suggestion.",
       "validation": "Please review the form fields.",
       "unknown": "Something went wrong. Please try again in a moment."
+    }
+  },
+  "subscription": {
+    "title": "My plan",
+    "subtitle": "Manage your subscription and see this month's usage",
+    "current_plan": "Current plan",
+    "plan": {
+      "free": "Free",
+      "pro": "Pro"
+    },
+    "status": {
+      "active": "Active",
+      "canceled": "Canceled",
+      "past_due": "Payment overdue"
+    },
+    "canceled_notice": "Your subscription ends on {date}. After that you'll go back to the Free plan.",
+    "past_due_notice": "We couldn't confirm your last payment. Generate a new PIX in your banking app using the same copy-and-paste code.",
+    "cancel": "Cancel subscription",
+    "cancel_confirm": "Are you sure? You'll keep Pro until {date}.",
+    "cancel_failed": "Could not cancel right now. Please try again.",
+    "renews_on": "Next charge on {date}",
+    "usage": {
+      "title": "Usage this month",
+      "used_of_limit": "{used} of {limit} applications",
+      "unlimited": "Unlimited applications",
+      "resets_on": "Resets on {date}",
+      "near_limit": "You're close to the limit. How about Pro to keep going without hitting a wall?"
+    },
+    "upgrade": {
+      "card_title": "Open to Work Pro",
+      "card_subtitle": "Unlimited applications for active seekers",
+      "period": "/month",
+      "benefit_unlimited": "Unlimited applications every month",
+      "benefit_beta": "Early access to new features",
+      "benefit_exclusive": "Access to exclusive features (soon)",
+      "cta": "Subscribe now",
+      "subscribing": "Generating PIX…",
+      "errors": {
+        "already": "You already have an active Pro subscription.",
+        "gateway": "Could not reach the payment provider. Please try in a few seconds.",
+        "unknown": "Could not start the subscription. Please try again."
+      }
+    },
+    "checkout": {
+      "title": "PIX payment",
+      "subtitle": "Pay in your banking app. Your subscription activates in seconds.",
+      "copy_code": "Copy PIX code",
+      "copied": "Copied!",
+      "due_date": "Due date: {date}",
+      "waiting": "Waiting for payment confirmation…",
+      "confirmed": "Payment confirmed! Welcome to Pro.",
+      "timeout": "It may take a few minutes. Refresh the page after paying if confirmation doesn't show up.",
+      "close": "Close"
+    },
+    "cpf_prompt": {
+      "title": "Almost there — we need your CPF",
+      "subtitle": "Required by the payment provider to issue a PIX charge. We do not share it with third parties.",
+      "label": "CPF or CNPJ",
+      "placeholder": "000.000.000-00",
+      "hint": "Digits only. We accept CPF (11) or CNPJ (14).",
+      "continue": "Continue",
+      "cancel": "Cancel"
+    },
+    "upgrade_modal": {
+      "title": "Monthly limit reached",
+      "body": "You used all of your {limit} applications this month. Upgrade to Pro for unlimited applications.",
+      "cta_upgrade": "Subscribe to Pro — {price}/month",
+      "cta_wait": "Wait for month rollover"
+    }
+  },
+  "support": {
+    "title": "Need help?",
+    "subtitle": "Tell us what happened and we'll reply by email as soon as possible.",
+    "form": {
+      "name": "Your name",
+      "name_placeholder": "How can we call you?",
+      "email": "Your email",
+      "title_field": "Subject",
+      "title_placeholder": "Short summary of the problem or question",
+      "description": "Description",
+      "description_placeholder": "Tell us with detail — steps to reproduce, what you expected, error messages, etc."
+    },
+    "submit": "Send message",
+    "sending": "Sending…",
+    "cancel": "Back to home",
+    "sent_title": "Message sent!",
+    "sent_subtitle": "We received your request and will reply to the provided email shortly.",
+    "back_to_landing": "Back to home",
+    "errors": {
+      "validation": "Please review the form fields.",
+      "rate_limited": "Too many messages in a short time. Try again in a few minutes.",
+      "unknown": "Could not send right now. Please try again in a moment."
     }
   }
 }

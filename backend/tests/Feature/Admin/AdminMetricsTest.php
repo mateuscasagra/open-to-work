@@ -41,6 +41,13 @@ it('admin recebe estrutura completa', function (): void {
                 'resumes',
                 'active_users',
             ],
+            'subscriptions' => [
+                'active',
+                'canceled',
+                'cancellation_rate',
+                'mrr_cents',
+                'total_revenue_cents',
+            ],
             'top_applicants' => [
                 '*' => ['user_id', 'name', 'email', 'applications_count'],
             ],

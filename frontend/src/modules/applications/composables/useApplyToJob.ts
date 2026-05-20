@@ -11,7 +11,9 @@ export interface ApplyPayload {
   source?: string;
 }
 
-export type ApplyError = { kind: 'duplicate' | 'validation' | 'unknown'; message: string };
+export type ApplyError =
+  | { kind: 'duplicate' | 'validation' | 'unknown'; message: string }
+  | { kind: 'quota_exceeded'; message: string; used: number; limit: number; resetAt: string; plan: string };
 
 export function useApplyToJob() {
   const qc = useQueryClient();
@@ -23,6 +25,17 @@ export function useApplyToJob() {
         return ApplicationSchema.parse(data);
       } catch (e) {
         if (e instanceof AxiosError) {
+          if (e.response?.status === 402) {
+            const d = e.response.data ?? {};
+            throw {
+              kind: 'quota_exceeded',
+              message: d.message ?? '',
+              used: Number(d.used ?? 0),
+              limit: Number(d.limit ?? 15),
+              resetAt: String(d.reset_at ?? ''),
+              plan: String(d.plan ?? 'free'),
+            } as ApplyError;
+          }
           if (e.response?.status === 409) {
             throw { kind: 'duplicate', message: e.response.data?.message ?? 'Já aplicada' } as ApplyError;
           }

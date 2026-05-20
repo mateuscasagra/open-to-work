@@ -6,6 +6,8 @@ namespace App\Domain\Application\Actions;
 
 use App\Domain\Application\DTOs\ApplicationData;
 use App\Domain\Application\Exceptions\DuplicateApplicationException;
+use App\Domain\Subscription\DTOs\QuotaData;
+use App\Domain\Subscription\Exceptions\QuotaExceededException;
 use App\Enums\ApplicationStatus;
 use App\Events\ApplicationCreated;
 use App\Models\Application;
@@ -22,6 +24,8 @@ final class CreateApplication
 
     public function execute(User $user, ApplicationData $data): Application
     {
+        $this->enforceQuota($user);
+
         $job = null;
 
         if ($data->jobId !== null) {
@@ -58,6 +62,36 @@ final class CreateApplication
         }
 
         return $application;
+    }
+
+    /**
+     * Bloqueia criação se user free passou de QuotaData::FREE_MONTHLY_LIMIT no
+     * mês calendário (America/Sao_Paulo). Pro = sem limite.
+     *
+     * Decisão: regra de negócio fica na Action (não em Middleware/Policy) pelo
+     * mesmo motivo de `CreateSuggestion` + `WeeklyQuotaExceededException`:
+     * domínio + atomicidade lado-a-lado com o INSERT.
+     */
+    private function enforceQuota(User $user): void
+    {
+        $user->loadMissing('subscription');
+
+        if ($user->isPro()) {
+            return;
+        }
+
+        $used = $user->applications()
+            ->where('applied_at', '>=', QuotaData::monthStart())
+            ->count();
+
+        if ($used >= QuotaData::FREE_MONTHLY_LIMIT) {
+            throw new QuotaExceededException(
+                used: $used,
+                limit: QuotaData::FREE_MONTHLY_LIMIT,
+                resetAt: QuotaData::nextMonthStart()->toIso8601String(),
+                plan: 'free',
+            );
+        }
     }
 
     private function extractTextFromHtml(?string $html): ?string

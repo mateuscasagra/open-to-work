@@ -33,6 +33,7 @@ final class GetAdminMetrics
 
     public function __construct(
         private readonly GetUserLocationDistribution $locationDistribution,
+        private readonly GetSubscriptionStats $subscriptionStats,
     ) {}
 
     public function execute(?CarbonImmutable $now = null): AdminMetricsData
@@ -46,6 +47,7 @@ final class GetAdminMetrics
         $activeUsers = $this->countActiveUsers($weekAgo, $now);
         $topApplicants = $this->topApplicants();
         $byLocation = $this->locationDistribution->execute();
+        $subscriptions = $this->subscriptionStats->execute();
 
         return new AdminMetricsData(
             totals: [
@@ -54,6 +56,7 @@ final class GetAdminMetrics
                 'resumes' => $totalResumes,
                 'active_users' => $activeUsers,
             ],
+            subscriptions: $subscriptions,
             topApplicants: $topApplicants,
             byLocation: $byLocation,
             generatedAt: $now->toIso8601String(),

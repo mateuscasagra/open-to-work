@@ -1,9 +1,15 @@
 import { defineStore } from 'pinia';
 import { api } from '@/shared/api/client';
-import { UserSchema, type User } from '@/shared/api/schemas';
+import {
+  SubscriptionSchema,
+  UserSchema,
+  type Subscription,
+  type User,
+} from '@/shared/api/schemas';
 
 interface AuthState {
   user: User | null;
+  subscription: Subscription | null;
   initialized: boolean;
   pendingVerificationEmail: string | null;
   locationComplete: boolean;
@@ -31,9 +37,21 @@ function savePendingEmail(email: string | null): void {
   }
 }
 
+// Parse user + subscription do envelope retornado por todos os endpoints
+// autenticados. Backend sempre devolve `subscription` junto, então centralizamos
+// o parsing aqui pra manter store sincronizado.
+function parseEnvelope(data: unknown): { user: User; subscription: Subscription } {
+  const obj = data as { user: unknown; subscription: unknown };
+  return {
+    user: UserSchema.parse(obj.user),
+    subscription: SubscriptionSchema.parse(obj.subscription),
+  };
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
+    subscription: null,
     initialized: false,
     pendingVerificationEmail: loadPendingEmail(),
     locationComplete: false,
@@ -43,10 +61,13 @@ export const useAuthStore = defineStore('auth', {
     async fetchMe() {
       try {
         const { data } = await api.get('/api/me');
-        this.user = UserSchema.parse(data.user);
+        const env = parseEnvelope(data);
+        this.user = env.user;
+        this.subscription = env.subscription;
         await this.refreshLocationStatus();
       } catch {
         this.user = null;
+        this.subscription = null;
         this.locationComplete = false;
       } finally {
         this.initialized = true;
@@ -70,7 +91,9 @@ export const useAuthStore = defineStore('auth', {
 
     async login(email: string, password: string, remember = false) {
       const { data } = await api.post('/api/auth/login', { email, password, remember });
-      this.user = UserSchema.parse(data.user);
+      const env = parseEnvelope(data);
+      this.user = env.user;
+      this.subscription = env.subscription;
       this.setPendingVerificationEmail(null);
       await this.refreshLocationStatus();
     },
@@ -81,7 +104,9 @@ export const useAuthStore = defineStore('auth', {
       // Backend toggles verification via auth.email_verification_enabled.
       // When disabled, register returns the authenticated user directly.
       if (data?.user) {
-        this.user = UserSchema.parse(data.user);
+        const env = parseEnvelope(data);
+        this.user = env.user;
+        this.subscription = env.subscription;
         this.setPendingVerificationEmail(null);
         await this.refreshLocationStatus();
         return null;
@@ -94,7 +119,9 @@ export const useAuthStore = defineStore('auth', {
 
     async verifyEmail(email: string, code: string) {
       const { data } = await api.post('/api/auth/verify-email', { email, code });
-      this.user = UserSchema.parse(data.user);
+      const env = parseEnvelope(data);
+      this.user = env.user;
+      this.subscription = env.subscription;
       this.setPendingVerificationEmail(null);
       await this.refreshLocationStatus();
     },
@@ -109,7 +136,9 @@ export const useAuthStore = defineStore('auth', {
 
     async resetPassword(payload: { email: string; token: string; password: string; password_confirmation: string }) {
       const { data } = await api.post('/api/auth/reset-password', payload);
-      this.user = UserSchema.parse(data.user);
+      const env = parseEnvelope(data);
+      this.user = env.user;
+      this.subscription = env.subscription;
       this.setPendingVerificationEmail(null);
       await this.refreshLocationStatus();
     },
@@ -122,6 +151,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       await api.post('/api/auth/logout');
       this.user = null;
+      this.subscription = null;
       this.locationComplete = false;
       this.setPendingVerificationEmail(null);
     },

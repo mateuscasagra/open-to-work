@@ -32,3 +32,8 @@ Schedule::command('applications:send-followups')
 Schedule::command('errors:prune --days=30')
     ->dailyAt('04:00')
     ->onOneServer();
+
+// Downgrade de assinaturas Pro vencidas — diário às 01:00 UTC
+Schedule::command('subscriptions:downgrade-expired')
+    ->dailyAt('01:00')
+    ->onOneServer();

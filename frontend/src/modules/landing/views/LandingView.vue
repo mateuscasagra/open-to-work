@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/modules/auth/stores/auth';
+import { usePricing } from '@/modules/subscription/composables/usePricing';
+import { formatBrl } from '@/shared/format/currency';
 import logoSrc from '@/assets/logo4branca.png';
 import logoFooter from '@/assets/logo4.png';
 
@@ -10,6 +12,12 @@ const { t } = useI18n();
 const auth = useAuthStore();
 
 const isAuthed = computed(() => !!auth.user);
+
+// Preços lidos da tabela `plans` do backend. Fallback: 0 e 25 caso a query
+// ainda não tenha resolvido (landing renderiza sem flash de loading).
+const pricing = usePricing();
+const freePrice = computed(() => formatBrl(pricing.data.value?.free.price_cents ?? 0, true));
+const proPrice = computed(() => formatBrl(pricing.data.value?.pro.price_cents ?? 2500, true));
 
 const features = [
   {
@@ -987,88 +995,101 @@ const metricsBars = [
           </span>
         </h2>
         <p class="mx-auto mt-6 max-w-2xl text-lg text-white/70">
-          {{ t('landing.pricing.subtitle') }}
+          {{ t('landing.pricing.subtitle', { price: proPrice }) }}
         </p>
 
-        <div class="mt-10 inline-flex items-baseline gap-2 rounded-2xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur">
-          <span class="text-6xl font-bold text-white md:text-7xl">{{ t('landing.pricing.price') }}</span>
-          <span class="text-base text-white/60">/{{ t('landing.pricing.forever') }}</span>
-        </div>
+        <div class="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
+          <!-- Free plan -->
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-8 text-left backdrop-blur">
+            <p class="text-xs font-semibold uppercase tracking-wider text-white/60">
+              {{ t('landing.pricing.free_label') }}
+            </p>
+            <p class="mt-1 text-sm text-white/60">
+              {{ t('landing.pricing.free_subtitle') }}
+            </p>
+            <div class="mt-4 flex items-baseline gap-1">
+              <span class="text-5xl font-bold text-white">{{ freePrice }}</span>
+              <span class="text-sm text-white/60">{{ t('landing.pricing.free_period') }}</span>
+            </div>
+            <ul class="mt-6 space-y-3">
+              <li
+                v-for="key in ['free_b1', 'free_b2', 'free_b3', 'free_b4']"
+                :key="key"
+                class="flex items-start gap-2"
+              >
+                <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-white/10 text-white/70">
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
+                  </svg>
+                </span>
+                <span class="text-sm text-white/80">{{ t(`landing.pricing.${key}`) }}</span>
+              </li>
+            </ul>
+            <RouterLink
+              :to="{ name: 'register' }"
+              class="mt-8 inline-flex w-full items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/15"
+            >
+              {{ t('landing.pricing.free_cta') }}
+            </RouterLink>
+          </div>
 
-        <ul class="mx-auto mt-10 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
-          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-            <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg
-                class="h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="3"
-                  d="M4.5 12.75l6 6 9-13.5"
-                />
-              </svg>
+          <!-- Pro plan -->
+          <div class="relative rounded-2xl border-2 border-brand-400 bg-gradient-to-br from-brand-500/20 via-emerald-500/10 to-teal-500/10 p-8 text-left shadow-glow backdrop-blur">
+            <span class="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center rounded-full bg-brand-500 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-card">
+              {{ t('landing.pricing.pro_badge') }}
             </span>
-            <span class="text-sm text-white/80">{{ t('landing.pricing.b1') }}</span>
-          </li>
-          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-            <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg
-                class="h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-300">
+              {{ t('landing.pricing.pro_label') }}
+            </p>
+            <p class="mt-1 text-sm text-white/70">
+              {{ t('landing.pricing.pro_subtitle') }}
+            </p>
+            <div class="mt-4 flex items-baseline gap-1">
+              <span class="text-5xl font-bold text-white">{{ proPrice }}</span>
+              <span class="text-sm text-white/70">{{ t('landing.pricing.pro_period') }}</span>
+            </div>
+            <ul class="mt-6 space-y-3">
+              <li
+                v-for="key in ['pro_b1', 'pro_b2', 'pro_b3']"
+                :key="key"
+                class="flex items-start gap-2"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="3"
-                  d="M4.5 12.75l6 6 9-13.5"
-                />
-              </svg>
-            </span>
-            <span class="text-sm text-white/80">{{ t('landing.pricing.b2') }}</span>
-          </li>
-          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-            <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg
-                class="h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="3"
-                  d="M4.5 12.75l6 6 9-13.5"
-                />
-              </svg>
-            </span>
-            <span class="text-sm text-white/80">{{ t('landing.pricing.b3') }}</span>
-          </li>
-          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-            <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/20 text-brand-300">
-              <svg
-                class="h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="3"
-                  d="M4.5 12.75l6 6 9-13.5"
-                />
-              </svg>
-            </span>
-            <span class="text-sm text-white/80">{{ t('landing.pricing.b4') }}</span>
-          </li>
-        </ul>
+                <span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-500/30 text-brand-200">
+                  <svg
+                    class="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
+                  </svg>
+                </span>
+                <span class="text-sm text-white/90">{{ t(`landing.pricing.${key}`) }}</span>
+              </li>
+            </ul>
+            <RouterLink
+              :to="{ name: 'register' }"
+              class="mt-8 inline-flex w-full items-center justify-center rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-400"
+            >
+              {{ t('landing.pricing.pro_cta') }}
+            </RouterLink>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1170,7 +1191,28 @@ const metricsBars = [
           >
           <span class="hidden md:inline">— {{ t('landing.footer.tagline') }}</span>
         </div>
-        <div>© 2026 · {{ t('landing.footer.rights') }}</div>
+        <div class="flex flex-col items-center gap-2 sm:flex-row sm:gap-6">
+          <RouterLink
+            :to="{ name: 'support' }"
+            class="inline-flex items-center gap-1.5 font-medium text-ink-600 transition hover:text-brand-700"
+          >
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+              />
+            </svg>
+            {{ t('landing.footer.help') }}
+          </RouterLink>
+          <span>© 2026 · {{ t('landing.footer.rights') }}</span>
+        </div>
       </div>
     </footer>
   </div>

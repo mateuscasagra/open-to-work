@@ -55,6 +55,22 @@ Qualquer status pode ir pra qualquer status — incluindo pular fases ou voltar 
 
 `CreateApplication` checa `unique(user_id, job_id)`. Se existir, lança `DuplicateApplicationException` → controller responde `409`.
 
+### Quota mensal (free vs Pro)
+
+`CreateApplication::enforceQuota()` roda **antes** da criação. Free → conta apps com `applied_at >= QuotaData::monthStart()` (timezone `America/Sao_Paulo`, hardcoded). Se `count >= 15` lança `QuotaExceededException` → controller responde **402** com `{kind: 'quota_exceeded', used, limit, plan, reset_at}`. Pro pula a checagem. Detalhes em [`subscription.md`](./subscription.md).
+
+### UX de quota (banner + chip + modal)
+
+Quatro pontos de comunicação no frontend, todos lendo `auth.subscription.quota` reativamente:
+
+1. **Chip clicável no header** (`ApplicationsKanbanView`): mostra `8/15 este mês →` (ou "Ilimitado →" se Pro). Cor neutra padrão, **amber** se ≥80%, **vermelho** se 100%, **brand verde** pra Pro. Clique leva pra `/app/plan`.
+
+2. **Banner persistente** acima do kanban: aparece quando free atingiu 15/15 (`!isPro && used >= limit && !viewArchived`). Texto "Você atingiu o limite de X candidaturas este mês" + CTA "Ver planos" → `/app/plan`. Não polui modo arquivada.
+
+3. **`UpgradeModal` no `JobsListView`**: clique em "Aplicar" com quota cheia → `useApplyToJob` mapeia 402 → `kind: 'quota_exceeded'` → JobsListView abre `UpgradeModal` carregando `limit` e `resetAt`.
+
+4. **`UpgradeModal` no modal "Nova candidatura"**: mesmo padrão — `manualMutation.onError` detecta `AxiosError.response?.status === 402`, fecha o modal manual e abre `UpgradeModal`.
+
 ### Auto-fill ao aplicar via feed
 
 Quando `jobId` é passado e `notes`/`jobUrl` vêm `null` no DTO (cenário típico de "Aplicar" na lista de vagas), o `CreateApplication` carrega o Job (com `sources`) e preenche:
