@@ -61,7 +61,7 @@ final class AsaasHttpClient implements AsaasGateway
             $response = $this->request()->post('/subscriptions', [
                 'customer' => $customerId,
                 'billingType' => 'PIX',
-                'value' => $valueCents / 100,
+                'value' => $valueCents / 100.0,
                 'cycle' => 'MONTHLY',
                 'nextDueDate' => $nextDueDate,
                 'description' => 'Open to Work Pro',
