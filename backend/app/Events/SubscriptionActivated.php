@@ -11,14 +11,7 @@ final class SubscriptionActivated
 {
     use Dispatchable;
 
-    /**
-     * @param  bool  $firstActivation  true só na 1ª vez que vira Pro (free→pro).
-     *                                  Renovações mensais (PAYMENT_RECEIVED com plan
-     *                                  já 'pro') vêm como false — evita reenviar o
-     *                                  e-mail de boas-vindas todo mês.
-     */
-    public function __construct(
-        public readonly Subscription $subscription,
-        public readonly bool $firstActivation = false,
-    ) {}
+    // $firstActivation é true só na 1ª ativação (free→pro). Renovação mensal
+    // (PAYMENT_RECEIVED já 'pro') vem false — não reenvia o e-mail de boas-vindas.
+    public function __construct(public readonly Subscription $subscription, public readonly bool $firstActivation = false) {}
 }
