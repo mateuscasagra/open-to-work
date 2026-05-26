@@ -30,7 +30,7 @@ final class SendSubscriptionConfirmation
         // Falha de e-mail não pode derrubar o webhook (Asaas re-tentaria à toa).
         try {
             Mail::to($user->email)
-                ->locale($user->locale?->value ?? (string) config('app.locale'))
+                ->locale($user->locale->value)
                 ->queue(new SubscriptionConfirmedMail(
                     name: $user->name,
                     renewsAt: $sub->current_period_end?->format('d/m/Y') ?? '',

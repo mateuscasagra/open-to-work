@@ -30,7 +30,7 @@ final class SendSubscriptionCancellation
         // Falha de e-mail não pode derrubar o webhook nem o request de cancelamento.
         try {
             Mail::to($user->email)
-                ->locale($user->locale?->value ?? (string) config('app.locale'))
+                ->locale($user->locale->value)
                 ->queue(new SubscriptionCanceledMail(
                     name: $user->name,
                     accessUntil: $accessUntil,
