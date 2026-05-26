@@ -33,6 +33,8 @@
       "active_users": "Active users",
       "active_users_hint": "≥ 3 applications in the last 7 days",
       "subs_active": "Active subscriptions",
+      "subs_pending": "Charges generated",
+      "subs_pending_hint": "Awaiting first payment",
       "subs_canceled": "Canceled",
       "subs_canceled_hint": "Includes past due",
       "cancellation_rate": "Cancellation rate",

@@ -18,20 +18,23 @@ it('returns zeros when there are no subscriptions with asaas id', function (): v
     $stats = (new GetSubscriptionStats)->execute();
 
     expect($stats['active'])->toBe(0)
+        ->and($stats['pending'])->toBe(0)
         ->and($stats['canceled'])->toBe(0)
         ->and($stats['cancellation_rate'])->toBe(0.0)
         ->and($stats['mrr_cents'])->toBe(0)
         ->and($stats['total_revenue_cents'])->toBe(0);
 });
 
-it('counts active subscriptions by asaas_subscription_id (not plan)', function (): void {
+it('counts only paid Pro as active and unpaid charges as pending', function (): void {
     makeSub(['asaas_subscription_id' => 'sub_a', 'plan' => 'pro', 'status' => 'active']);
-    // Sub criada mas webhook ainda não confirmou — plan=free mas Asaas existe.
+    // Cobrança criada mas webhook ainda não confirmou — plan=free. Era o bug:
+    // antes isso contava como ativa.
     makeSub(['asaas_subscription_id' => 'sub_b', 'plan' => 'free', 'status' => 'active']);
 
     $stats = (new GetSubscriptionStats)->execute();
 
-    expect($stats['active'])->toBe(2);
+    expect($stats['active'])->toBe(1)
+        ->and($stats['pending'])->toBe(1);
 });
 
 it('includes past_due in canceled count', function (): void {
@@ -55,15 +58,15 @@ it('calculates cancellation_rate correctly', function (): void {
     expect($stats['cancellation_rate'])->toBe(25.0);
 });
 
-it('mrr_cents counts only paying active (plan=pro AND status=active)', function (): void {
-    // 2 ativos: 1 confirmou pagamento (plan=pro), 1 ainda não (plan=free)
+it('active e mrr contam só Pro pago; cobrança não paga vira pending', function (): void {
     makeSub(['asaas_subscription_id' => 'sub_paid', 'plan' => 'pro', 'status' => 'active']);
     makeSub(['asaas_subscription_id' => 'sub_pending', 'plan' => 'free', 'status' => 'active']);
 
     $stats = (new GetSubscriptionStats)->execute();
 
-    // MRR só conta o pagante. Preço seedado: 2500.
-    expect($stats['active'])->toBe(2);
+    // Preço seedado: 2500.
+    expect($stats['active'])->toBe(1);
+    expect($stats['pending'])->toBe(1);
     expect($stats['mrr_cents'])->toBe(2500);  // 1 × 2500
 });
 

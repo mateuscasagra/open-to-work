@@ -6,6 +6,7 @@ namespace App\Domain\Subscription\Actions;
 
 use App\Domain\Subscription\Contracts\AsaasGateway;
 use App\Domain\Subscription\Exceptions\NotSubscribedException;
+use App\Events\SubscriptionCanceled;
 use App\Models\User;
 
 /**
@@ -35,5 +36,9 @@ final class CancelSubscription
             'status' => 'canceled',
             'canceled_at' => now(),
         ]);
+
+        // O webhook SUBSCRIPTION_DELETED chega depois, mas handleSubscriptionDeleted
+        // é idempotente (status já 'canceled' → não redispara). E-mail sai uma vez só.
+        event(new SubscriptionCanceled($sub));
     }
 }

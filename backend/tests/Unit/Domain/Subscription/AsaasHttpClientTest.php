@@ -25,7 +25,8 @@ it('creates a customer with cpfCnpj and returns the id', function (): void {
             && $request->header('access_token')[0] === 'test-key'
             && $request['name'] === 'Diego'
             && $request['email'] === 'diego@example.com'
-            && $request['cpfCnpj'] === '24971563792';
+            && $request['cpfCnpj'] === '24971563792'
+            && $request['notificationDisabled'] === true;
     });
 });
 

@@ -18,11 +18,12 @@ export const AdminMetricsSchema = z.object({
   }),
   subscriptions: z.object({
     active: z.number().int(),
+    pending: z.number().int(),
     canceled: z.number().int(),
     cancellation_rate: z.number(),       // %
     mrr_cents: z.number().int(),
     total_revenue_cents: z.number().int(),
-  }).default({ active: 0, canceled: 0, cancellation_rate: 0, mrr_cents: 0, total_revenue_cents: 0 }),
+  }).default({ active: 0, pending: 0, canceled: 0, cancellation_rate: 0, mrr_cents: 0, total_revenue_cents: 0 }),
   top_applicants: z.array(z.object({
     user_id: z.number().int(),
     name: z.string(),

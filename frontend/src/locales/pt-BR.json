@@ -33,6 +33,8 @@
       "active_users": "Usuários ativos",
       "active_users_hint": "≥ 3 candidaturas nos últimos 7 dias",
       "subs_active": "Assinaturas ativas",
+      "subs_pending": "Cobranças geradas",
+      "subs_pending_hint": "Aguardando 1º pagamento",
       "subs_canceled": "Canceladas",
       "subs_canceled_hint": "Inclui pagamento atrasado",
       "cancellation_rate": "Taxa de cancelamento",

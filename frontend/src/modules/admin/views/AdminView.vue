@@ -258,7 +258,7 @@ function countryFlag(code: string): string {
 
       <!-- KPIs de assinaturas (Pro) -->
       <div
-        class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3"
+        class="grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-3"
         data-testid="admin-subscription-kpis"
       >
         <div class="card p-4">
@@ -284,6 +284,35 @@ function countryFlag(code: string): string {
           </div>
           <p class="mt-2 text-3xl font-bold tracking-tight text-ink-900">
             {{ data.subscriptions.active }}
+          </p>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-ink-500">
+              {{ t('admin.kpi.subs_pending') }}
+            </p>
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600 ring-1 ring-inset ring-amber-100">
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+            </span>
+          </div>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-ink-900">
+            {{ data.subscriptions.pending }}
+          </p>
+          <p class="mt-1 text-[10px] text-ink-500">
+            {{ t('admin.kpi.subs_pending_hint') }}
           </p>
         </div>
 

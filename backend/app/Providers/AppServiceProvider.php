@@ -10,9 +10,14 @@ use App\Domain\Location\Clients\ViaCepClient;
 use App\Domain\Location\Clients\ZippopotamClient;
 use App\Domain\Subscription\Clients\AsaasHttpClient;
 use App\Domain\Subscription\Contracts\AsaasGateway;
+use App\Events\SubscriptionActivated;
+use App\Events\SubscriptionCanceled;
+use App\Listeners\SendSubscriptionCancellation;
+use App\Listeners\SendSubscriptionConfirmation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,6 +50,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiters();
+        $this->registerSubscriptionMailListeners();
+    }
+
+    /**
+     * Liga os e-mails de assinatura (via Resend) aos eventos de domínio.
+     * Registro explícito pra não depender de auto-discovery de listeners.
+     */
+    private function registerSubscriptionMailListeners(): void
+    {
+        Event::listen(SubscriptionActivated::class, SendSubscriptionConfirmation::class);
+        Event::listen(SubscriptionCanceled::class, SendSubscriptionCancellation::class);
     }
 
     private function configureRateLimiters(): void

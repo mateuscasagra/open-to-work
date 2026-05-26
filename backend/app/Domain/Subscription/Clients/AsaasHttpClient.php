@@ -21,6 +21,10 @@ final class AsaasHttpClient implements AsaasGateway
                 'name' => $name,
                 'email' => $email,
                 'cpfCnpj' => $cpfCnpj,
+                // Desliga e-mail/SMS de cobrança do próprio Asaas. Esses avisos
+                // (confirmação, vencimento, cancelamento) são responsabilidade
+                // da nossa integração com Resend, não do gateway.
+                'notificationDisabled' => true,
             ]);
             $response->throw();
         } catch (ConnectionException|RequestException $e) {

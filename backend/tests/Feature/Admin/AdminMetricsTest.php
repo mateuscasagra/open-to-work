@@ -43,6 +43,7 @@ it('admin recebe estrutura completa', function (): void {
             ],
             'subscriptions' => [
                 'active',
+                'pending',
                 'canceled',
                 'cancellation_rate',
                 'mrr_cents',

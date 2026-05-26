@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Subscription\Actions;
 
 use App\Events\SubscriptionActivated;
+use App\Events\SubscriptionCanceled;
 use App\Events\SubscriptionPastDue;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Log;
@@ -58,6 +59,10 @@ final class ProcessAsaasWebhook
             return;
         }
 
+        // 1ª ativação = ainda não era Pro. Renovação mensal (PAYMENT_RECEIVED já
+        // como 'pro') não dispara o e-mail de boas-vindas. Calcula antes do update.
+        $firstActivation = $sub->plan !== 'pro';
+
         $sub->update([
             'plan' => 'pro',
             'status' => 'active',
@@ -67,7 +72,7 @@ final class ProcessAsaasWebhook
             'last_payment_id' => $paymentId,
         ]);
 
-        event(new SubscriptionActivated($sub));
+        event(new SubscriptionActivated($sub, firstActivation: $firstActivation));
     }
 
     /**
@@ -105,6 +110,8 @@ final class ProcessAsaasWebhook
             'status' => 'canceled',
             'canceled_at' => now(),
         ]);
+
+        event(new SubscriptionCanceled($sub));
     }
 
     /**

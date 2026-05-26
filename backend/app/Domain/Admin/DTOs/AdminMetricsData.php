@@ -15,6 +15,7 @@ final class AdminMetricsData implements JsonSerializable
      * @param  array{users: int, applications: int, resumes: int, active_users: int}  $totals
      * @param  array{
      *     active: int,
+     *     pending: int,
      *     canceled: int,
      *     cancellation_rate: float,
      *     mrr_cents: int,
